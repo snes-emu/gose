@@ -1,7 +1,7 @@
 package cpu
 
 type CPU struct {
-	AB     uint16 // Accumulator register
+	C      uint16 // Accumulator register
 	DBR    uint8  // Data bank register
 	D      uint16 // The direct register
 	K      uint8  // The program bank register
