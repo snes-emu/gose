@@ -1,5 +1,7 @@
 package cpu
 
+import "github.com/snes-emu/gose/memory"
+
 type CPU struct {
 	C      uint16 // Accumulator register
 	DBR    uint8  // Data bank register
@@ -11,6 +13,7 @@ type CPU struct {
 	X      uint16 // The X index register
 	Y      uint16 // The Y index register
 	cycles int    // Number of cycles
+	memory memory.Memory
 }
 
 type cpuOperation func()
