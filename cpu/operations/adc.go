@@ -1,5 +1,5 @@
 package cpu
 
-opcodes[61] = (cpu *CPU) func() {
+opcodes[0x61] = (cpu *CPU) func() {
 	
 }
