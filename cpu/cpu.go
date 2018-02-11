@@ -19,6 +19,7 @@ type CPU struct {
 	iFlag   bool   // The interrupt disable flag
 	zFlag   bool   // The zero flag
 	cFlag   bool   // The carry flag
+	pFlag   bool   // page boundary crossed virtual flag
 	S       uint16 // The stack pointer register
 	X       uint16 // The X index register
 	Y       uint16 // The Y index register
