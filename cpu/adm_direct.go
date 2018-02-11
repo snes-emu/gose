@@ -62,14 +62,48 @@ func (cpu CPU) admBDirect(LL uint8) (uint8, uint8) {
 }
 
 func (cpu CPU) admPDirectX8(LL uint8) (uint8, uint8) {
-	address := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
-	ll := cpu.memory.GetByte(address)
-	hh := cpu.memory.GetByte(address + 1)
+	laddress := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
+	haddress := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister()+1)
+	ll := cpu.memory.GetByte(laddress)
+	hh := cpu.memory.GetByte(haddress)
 	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
 func (cpu CPU) admPDirectX(LL uint8) (uint8, uint8) {
-	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getXRegister())
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	l := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + l + cpu.getXRegister())
+	hadress := uint32(cpu.getDRegister() + l + cpu.getXRegister() + 1)
+	hh := cpu.memory.GetByte(hadress)
+	ll := cpu.memory.GetByte(laddress)
+	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
+	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+}
+
+func (cpu CPU) admPDirectY8(LL uint8) (uint8, uint8) {
+	laddress := readUint32(0x00, cpu.getDHRegister(), LL)
+	haddress := readUint32(0x00, cpu.getDHRegister(), LL+1)
+	ll := cpu.memory.GetByte(laddress)
+	hh := cpu.memory.GetByte(haddress)
+	pointer := readUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+}
+
+func (cpu CPU) admPDirectY(LL uint8) (uint8, uint8) {
+	l := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + l)
+	hadress := uint32(cpu.getDRegister() + l + 1)
+	hh := cpu.memory.GetByte(hadress)
+	ll := cpu.memory.GetByte(laddress)
+	pointer := readUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+}
+
+func (cpu CPU) admBDirectY(LL uint8) (uint8, uint8) {
+	address := cpu.getDRegister() + uint16(LL)
+	ll := cpu.memory.GetByte(uint32(address))
+	mm := cpu.memory.GetByte(uint32(address + 1))
+	hh := cpu.memory.GetByte(uint32(address + 2))
+	pointer := readUint32(hh, mm, ll) + uint32(cpu.getYRegister())
+	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
