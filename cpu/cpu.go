@@ -12,7 +12,7 @@ type CPU struct {
 	S      uint16 // The stack pointer register
 	X      uint16 // The X index register
 	Y      uint16 // The Y index register
-	cycles int    // Number of cycles
+	cycles uint   // Number of cycles
 	memory memory.Memory
 }
 
