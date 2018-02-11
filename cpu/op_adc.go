@@ -8,6 +8,7 @@ func (cpu *CPU) adc16(data uint16) {
 	var result uint16
 	if cpu.dFlag {
 		// Decimal mode on -> BCD arithmetic used
+		panic("TODO, d flag in adc needs to be implemented")
 		result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + utils.BoolToUint16[cpu.cFlag] + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
 	} else {
 		// Decimal mode off -> binary arithmetic used
