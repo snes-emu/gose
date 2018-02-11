@@ -73,3 +73,16 @@ func (cpu *CPU) op65() {
 
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
+
+func (cpu *CPU) op69() {
+	var dataHi, dataLo uint8
+
+	dataHi, dataLo = cpu.admImmediate()
+	if cpu.mFlag {
+		cpu.setARegister(cpu.adc8(dataLo))
+	} else {
+		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
+	}
+
+	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
+}
