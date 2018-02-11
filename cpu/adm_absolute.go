@@ -12,7 +12,7 @@ func readUint32(HH uint8, MM uint8, LL uint8) uint32 {
 	return ret
 }
 
-func (cpu cpu.CPU) admAbsoluteJ(HH uint8, LL uint8) uint32 {
+func (cpu CPU) admAbsoluteJ(HH uint8, LL uint8) uint32 {
 	return readUint32(cpu.getKRegister(), HH, LL)
 }
 
