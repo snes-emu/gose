@@ -48,14 +48,19 @@ func (cpu *CPU) sbc8(data uint8) uint8 {
 	return result
 }
 
-func (cpu *CPU) opEF() {
-	dataHi, dataLo := cpu.admLong()
-
+// sbc performs a substract with carry operation handling the 8/16 bit cases
+func (cpu *CPU) sbc(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.sbc8(dataLo))
 	} else {
 		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
 	}
+}
+
+func (cpu *CPU) opEF() {
+	dataHi, dataLo := cpu.admLong()
+
+	cpu.sbc(dataHi, dataLo)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 }
@@ -63,11 +68,7 @@ func (cpu *CPU) opEF() {
 func (cpu *CPU) opF2() {
 	dataHi, dataLo := cpu.admPDirect()
 
-	if cpu.mFlag {
-		cpu.setARegister(cpu.sbc8(dataLo))
-	} else {
-		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
-	}
+	cpu.sbc(dataHi, dataLo)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
@@ -75,11 +76,7 @@ func (cpu *CPU) opF2() {
 func (cpu *CPU) opF5() {
 	dataHi, dataLo := cpu.admDirectX()
 
-	if cpu.mFlag {
-		cpu.setARegister(cpu.sbc8(dataLo))
-	} else {
-		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
-	}
+	cpu.sbc(dataHi, dataLo)
 
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
@@ -87,11 +84,7 @@ func (cpu *CPU) opF5() {
 func (cpu *CPU) opF9() {
 	dataHi, dataLo := cpu.admAbsoluteX()
 
-	if cpu.mFlag {
-		cpu.setARegister(cpu.sbc8(dataLo))
-	} else {
-		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
-	}
+	cpu.sbc(dataHi, dataLo)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.mFlag]*utils.BoolToUint16[cpu.pFlag]
 }
@@ -99,11 +92,7 @@ func (cpu *CPU) opF9() {
 func (cpu *CPU) opFF() {
 	dataHi, dataLo := cpu.admLongX()
 
-	if cpu.mFlag {
-		cpu.setARegister(cpu.sbc8(dataLo))
-	} else {
-		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
-	}
+	cpu.sbc(dataHi, dataLo)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 }
