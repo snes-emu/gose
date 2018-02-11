@@ -1,18 +1,12 @@
 package cpu
 
-import (
-	"unsafe"
-)
-
 func (cpu CPU) admDirect8(LL uint8) uint8 {
 	address := readUint32(0x00, cpu.getDHRegister(), LL)
 	return cpu.memory.GetByte(address)
 }
 
 func (cpu CPU) admDirect(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL)
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
+	address := uint32(cpu.getDRegister() + uint16(LL))
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
 
@@ -22,9 +16,7 @@ func (cpu CPU) admDirectX8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admDirectX(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL) + cpu.getXRegister()
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
+	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getXRegister())
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
 
@@ -49,21 +41,15 @@ func (cpu CPU) admPDirect8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admPDirect(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL)
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
+	address := uint32(cpu.getDRegister() + uint16(LL))
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
 
 func (cpu CPU) admBDirect(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL)
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
-	ll := cpu.memory.GetByte(address)
-	*(*uint16)(unsafe.Pointer(&address)) = laddress + 1
-	mm := cpu.memory.GetByte(address)
-	*(*uint16)(unsafe.Pointer(&address)) = laddress + 2
-	hh := cpu.memory.GetByte(address)
+	address := cpu.getDRegister() + uint16(LL)
+	ll := cpu.memory.GetByte(uint32(address))
+	mm := cpu.memory.GetByte(uint32(address + 1))
+	hh := cpu.memory.GetByte(uint32(address + 2))
 	pointer := readUint32(hh, mm, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
@@ -77,8 +63,6 @@ func (cpu CPU) admPDirectX8(LL uint8) (uint8, uint8) {
 }
 
 func (cpu CPU) admPDirectX(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL) + cpu.getXRegister()
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
+	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getXRegister())
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
