@@ -95,7 +95,7 @@ func (cpu CPU) admPDirectX8() (uint8, uint8) {
 // (DIRECT,X) addressing mode otherwise
 func (cpu CPU) admPDirectX() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-	l := uint16()
+	l := uint16(LL)
 	laddress := uint32(cpu.getDRegister() + l + cpu.getXRegister())
 	hadress := uint32(cpu.getDRegister() + l + cpu.getXRegister() + 1)
 	hh := cpu.memory.GetByte(hadress)
