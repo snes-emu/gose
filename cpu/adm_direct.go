@@ -1,8 +1,10 @@
 package cpu
 
+import "github.com/snes-emu/gose/utils"
+
 // DIRECT addressing mode only when old instruction, e is 1 and DL is $00
 func (cpu CPU) admDirect8(LL uint8) uint8 {
-	address := readUint32(0x00, cpu.getDHRegister(), LL)
+	address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
 	return cpu.memory.GetByte(address)
 }
 
@@ -16,7 +18,7 @@ func (cpu CPU) admDirect(LL uint8) (uint8, uint8) {
 
 // DIRECT,X addressing mode when e is 1 and DL is $00
 func (cpu CPU) admDirectX8(LL uint8) uint8 {
-	address := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
+	address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
 	return cpu.memory.GetByte(address)
 }
 
@@ -30,7 +32,7 @@ func (cpu CPU) admDirectX(LL uint8) (uint8, uint8) {
 
 // DIRECT,Y addressing mode when e is 1 and DL is $00
 func (cpu CPU) admDirectY8(LL uint8) uint8 {
-	address := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getYLRegister())
+	address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getYLRegister())
 	return cpu.memory.GetByte(address)
 }
 
@@ -44,11 +46,11 @@ func (cpu CPU) admDirectY(LL uint8) (uint8, uint8) {
 
 // (DIRECT) addressing mode when e is 1 and DL is $00
 func (cpu CPU) admPDirect8(LL uint8) (uint8, uint8) {
-	laddress := readUint32(0x00, cpu.getDHRegister(), LL)
-	haddress := readUint32(0x00, cpu.getDHRegister(), LL+1)
+	laddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
+	haddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+1)
 	ll := cpu.memory.GetByte(laddress)
 	hh := cpu.memory.GetByte(haddress)
-	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
+	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
@@ -66,38 +68,38 @@ func (cpu CPU) admBDirect(LL uint8) (uint8, uint8) {
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
-	pointer := readUint32(hh, mm, ll)
+	pointer := utils.ReadUint32(hh, mm, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
 // (DIRECT,X) addressing mode when e is 1 and DL is $00
 func (cpu CPU) admPDirectX8(LL uint8) (uint8, uint8) {
-	laddress := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
-	haddress := readUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister()+1)
+	laddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
+	haddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister()+1)
 	ll := cpu.memory.GetByte(laddress)
 	hh := cpu.memory.GetByte(haddress)
-	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
+	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
 // (DIRECT,X) addressing mode otherwise
-func (cpu CPU) admPDirectX(LL uint8) (uint8, uint8) {
-	l := uint16(LL)
+func (cpu CPU) admPDirectX() (uint8, uint8) {
+	l := uint16(cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1))
 	laddress := uint32(cpu.getDRegister() + l + cpu.getXRegister())
 	hadress := uint32(cpu.getDRegister() + l + cpu.getXRegister() + 1)
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
-	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
+	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
 // (DIRECT),Y addressing mode when e is 1 and DL is $00
 func (cpu CPU) admPDirectY8(LL uint8) (uint8, uint8) {
-	laddress := readUint32(0x00, cpu.getDHRegister(), LL)
-	haddress := readUint32(0x00, cpu.getDHRegister(), LL+1)
+	laddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
+	haddress := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+1)
 	ll := cpu.memory.GetByte(laddress)
 	hh := cpu.memory.GetByte(haddress)
-	pointer := readUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
@@ -108,7 +110,7 @@ func (cpu CPU) admPDirectY(LL uint8) (uint8, uint8) {
 	hadress := uint32(cpu.getDRegister() + l + 1)
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
-	pointer := readUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
@@ -118,6 +120,6 @@ func (cpu CPU) admBDirectY(LL uint8) (uint8, uint8) {
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
-	pointer := readUint32(hh, mm, ll) + uint32(cpu.getYRegister())
+	pointer := utils.ReadUint32(hh, mm, ll) + uint32(cpu.getYRegister())
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
