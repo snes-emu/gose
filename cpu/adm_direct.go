@@ -26,13 +26,11 @@ func (cpu CPU) admDirectY8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admDirectY(LL uint8) (uint8, uint8) {
-	laddress := cpu.getDRegister() + uint16(LL) + cpu.getYRegister()
-	var uint32 address
-	*(*uint16)(unsafe.Pointer(&address)) = laddress
+	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getYRegister())
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
 
-func (cpu CPU) admPDirect8(LL uint8) uint8 {
+func (cpu CPU) admPDirect8(LL uint8) (uint8, uint8) {
 	address := readUint32(0x00, cpu.getDHRegister(), LL)
 	ll := cpu.memory.GetByte(address)
 	hh := cpu.memory.GetByte(address + 1)
