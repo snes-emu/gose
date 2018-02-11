@@ -61,16 +61,25 @@ func (cpu *CPU) op61() {
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
+<<<<<<< HEAD
 func (cpu *CPU) op65() {
 	var dataHi, dataLo uint8
 
 	dataHi, dataLo = cpu.admDirect()
+=======
+func (cpu *CPU) op63() {
+	// TODO
+	var dataHi, dataLo uint8
+
+	dataHi, dataLo = cpu.admStackS()
+>>>>>>> cpu: adc: add opcodes
 	if cpu.mFlag {
 		cpu.setARegister(cpu.adc8(dataLo))
 	} else {
 		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
 	}
 
+<<<<<<< HEAD
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
@@ -78,11 +87,53 @@ func (cpu *CPU) op69() {
 	var dataHi, dataLo uint8
 
 	dataHi, dataLo = cpu.admImmediate()
+=======
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
+}
+
+func (cpu *CPU) op67() {
+	// TODO
+	var dataHi, dataLo uint8
+
+	dataHi, dataLo = cpu.admBDirect()
+>>>>>>> cpu: adc: add opcodes
 	if cpu.mFlag {
 		cpu.setARegister(cpu.adc8(dataLo))
 	} else {
 		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
 	}
 
+<<<<<<< HEAD
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
+=======
+	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+}
+
+func (cpu *CPU) op6D() {
+	// TODO
+	var dataHi, dataLo uint8
+
+	dataHi, dataLo = cpu.admAbsolute()
+	if cpu.mFlag {
+		cpu.setARegister(cpu.adc8(dataLo))
+	} else {
+		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
+	}
+
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
+}
+
+func (cpu *CPU) op71() {
+	// TODO
+	var dataHi, dataLo uint8
+
+	dataHi, dataLo = cpu.admPDirectY()
+	if cpu.mFlag {
+		cpu.setARegister(cpu.adc8(dataLo))
+	} else {
+		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
+	}
+
+	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0] - utils.BoolToUint16[cpu.xFlag]
+>>>>>>> cpu: adc: add opcodes
 }
