@@ -6,8 +6,10 @@ func (cpu CPU) admDirect8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admDirect(LL uint8) (uint8, uint8) {
-	address := uint32(cpu.getDRegister() + uint16(LL))
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll)
+	haddress := uint32(cpu.getDRegister() + ll + 1)
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 func (cpu CPU) admDirectX8(LL uint8) uint8 {
@@ -16,8 +18,10 @@ func (cpu CPU) admDirectX8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admDirectX(LL uint8) (uint8, uint8) {
-	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getXRegister())
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll + cpu.getXRegister())
+	haddress := uint32(cpu.getDRegister() + ll + cpu.getXRegister() + 1)
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 func (cpu CPU) admDirectY8(LL uint8) uint8 {
@@ -26,21 +30,26 @@ func (cpu CPU) admDirectY8(LL uint8) uint8 {
 }
 
 func (cpu CPU) admDirectY(LL uint8) (uint8, uint8) {
-	address := uint32(cpu.getDRegister() + uint16(LL) + cpu.getYRegister())
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll + cpu.getYRegister())
+	haddress := uint32(cpu.getDRegister() + ll + cpu.getYRegister() + 1)
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 func (cpu CPU) admPDirect8(LL uint8) (uint8, uint8) {
-	address := readUint32(0x00, cpu.getDHRegister(), LL)
-	ll := cpu.memory.GetByte(address)
-	hh := cpu.memory.GetByte(address + 1)
+	laddress := readUint32(0x00, cpu.getDHRegister(), LL)
+	haddress := readUint32(0x00, cpu.getDHRegister(), LL+1)
+	ll := cpu.memory.GetByte(laddress)
+	hh := cpu.memory.GetByte(haddress)
 	pointer := readUint32(cpu.getDBRRegister(), hh, ll)
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
 func (cpu CPU) admPDirect(LL uint8) (uint8, uint8) {
-	address := uint32(cpu.getDRegister() + uint16(LL))
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll)
+	haddress := uint32(cpu.getDRegister() + ll + 1)
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 func (cpu CPU) admBDirect(LL uint8) (uint8, uint8) {
