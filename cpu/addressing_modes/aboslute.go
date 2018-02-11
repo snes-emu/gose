@@ -11,6 +11,7 @@ func readUint32(HH uint8, MM uint8, LL uint8) uint32 {
 	binary.Read(buf, binary.LittleEndian, &ret)
 	return ret
 }
+
 func (cpu CPU) admAbsoluteJ(HH uint8, LL uint8) uint32 {
 	return readUint32(cpu.getKRegister(), HH, LL)
 }
