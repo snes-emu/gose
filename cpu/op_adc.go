@@ -4,26 +4,22 @@ import "github.com/snes-emu/gose/utils"
 
 // adc performs an add with carry operation the formula is: accumulator = accumulator + data + carry
 
-func (cpu *CPU) adc16(data, carry uint16) {
+func (cpu *CPU) adc16(data uint16) {
 	var result uint16
 	if cpu.dFlag {
 		// Decimal mode on -> BCD arithmetic used
-		result = (cpu.C & 0x000f) + (data & 0x000f) + carry + (cpu.C & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.C & 0xf000) + (data & 0xf000)
+		result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + utils.BoolToUint16[cpu.cFlag] + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
 	} else {
-		// Decial mode off -> binary arithmetic used
-		result = cpu.C + data + carry
-	}
-	if data > 65535-cpu.C {
-		cpu.vFlag = true
-		cpu.cFlag = true
-	} else {
-		cpu.vFlag = false
-		cpu.cFlag = false
-	}
-	if result == 0 {
-		cpu.zFlag = true
-	} else {
-		cpu.zFlag = false
+		// Decimal mode off -> binary arithmetic used
+		result = cpu.getCRegister() + data + utils.BoolToUint16[cpu.cFlag]
+		// Last bit value
+		cpu.nFlag = utils.GetBit16(result, 15) != 0
+		// Signed artihmetic overflow
+		cpu.vFlag = (data^result)&^(data^cpu.getCRegister())&0x8000 != 0
+		cpu.zFlag = result == 0
+		// Unsigned carry
+		cpu.cFlag = (result < cpu.getCRegister()) || (result == cpu.getCRegister() && cpu.cFlag)
+
 	}
 }
 
