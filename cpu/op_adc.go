@@ -8,7 +8,8 @@ func (cpu *CPU) adc16(data uint16) uint16 {
 	if cpu.dFlag {
 		// Decimal mode on -> BCD arithmetic used
 		panic("TODO, d flag in adc needs to be implemented")
-		result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + utils.BoolToUint16[cpu.cFlag] + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
+		//result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + utils.BoolToUint16[cpu.cFlag] + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
+
 	} else {
 		// Decimal mode off -> binary arithmetic used
 		result = cpu.getCRegister() + data + utils.BoolToUint16[cpu.cFlag]
@@ -49,6 +50,7 @@ func (cpu *CPU) adc8(data uint8) uint8 {
 
 func (cpu *CPU) op61() {
 	// TODO
-
+	if 
+	cpu.C = cpu.adc16(utils.ReadUint16(cpu.admPDirectX()))
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
