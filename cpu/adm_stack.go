@@ -3,14 +3,16 @@ package cpu
 import "github.com/snes-emu/gose/utils"
 
 // STACK,S addressing mode
-func (cpu CPU) admStackS(LL uint8) (uint8, uint8) {
+func (cpu CPU) admStackS() (uint8, uint8) {
+	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	laddress := uint32(cpu.getSRegister() + uint16(LL))
 	haddress := uint32(cpu.getSRegister() + uint16(LL) + 1)
 	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 // (STACK,S),Y addressing mode
-func (cpu CPU) admStackSY(LL uint8) (uint8, uint8) {
+func (cpu CPU) admStackSY() (uint8, uint8) {
+	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	laddress := uint32(cpu.getSRegister() + uint16(LL))
 	haddress := uint32(cpu.getSRegister() + uint16(LL) + 1)
 	ll := cpu.memory.GetByte(laddress)
