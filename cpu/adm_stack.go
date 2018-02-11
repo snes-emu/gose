@@ -11,7 +11,7 @@ func (cpu CPU) admStackS() (uint8, uint8) {
 }
 
 // (STACK,S),Y addressing mode
-func (cpu CPU) admStackSY() (uint8, uint8) {
+func (cpu CPU) admPStackSY() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	laddress := uint32(cpu.getSRegister() + uint16(LL))
 	haddress := uint32(cpu.getSRegister() + uint16(LL) + 1)
