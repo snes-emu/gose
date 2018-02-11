@@ -51,21 +51,13 @@ func (cpu *CPU) adc8(data uint8) uint8 {
 func (cpu *CPU) op61() {
 	// TODO
 	var dataHi, dataLo uint8
-	if cpu.eFlag {
-		if cpu.getDHRegister() == 0x00 {
-			dataHi, dataLo = cpu.admPDirectX8()
-			cpu.setARegister(cpu.adc8(dataLo))
-		} else {
-			dataHi, dataLo = cpu.admPDirectX()
-			cpu.setARegister(cpu.adc8(dataLo))
-		}
+
+	dataHi, dataLo = cpu.admPDirectX()
+	if cpu.mFlag {
+		cpu.setARegister(cpu.adc8(dataLo))
 	} else {
-		dataHi, dataLo = cpu.admPDirectX()
-		if cpu.mFlag {
-			cpu.setARegister(cpu.adc8(dataLo))
-		} else {
-			cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
-		}
+		cpu.setCRegister(cpu.adc16(utils.ReadUint16(dataHi, dataLo)))
 	}
-	//cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+
+	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
