@@ -65,11 +65,6 @@ func (cpu CPU) getPCHRegister() uint8 {
 	return upperBits(cpu.PC)
 }
 
-// getPRegister returns the processor status register
-func (cpu CPU) getPRegister() uint8 {
-	return lowerBits(cpu.P)
-}
-
 // getSRegister returns the stack pointer
 func (cpu CPU) getSRegister() uint16 {
 	return cpu.S
