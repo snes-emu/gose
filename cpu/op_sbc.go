@@ -11,7 +11,7 @@ func (cpu *CPU) sbc16(data uint16) uint16 {
 
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getCRegister() + data + utils.BoolToUint16[cpu.cFlag]
+		result = cpu.getCRegister() - data - 1 + utils.BoolToUint16[cpu.cFlag]
 		// Last bit value
 		cpu.nFlag = result&0x8000 != 0
 		// Signed artihmetic overflow
@@ -34,7 +34,7 @@ func (cpu *CPU) sbc8(data uint8) uint8 {
 
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getARegister() + data + utils.BoolToUint8[cpu.cFlag]
+		result = cpu.getARegister() - data - 1 + utils.BoolToUint8[cpu.cFlag]
 		// Last bit value
 		cpu.nFlag = result&0x80 != 0
 		// Signed artihmetic overflow
