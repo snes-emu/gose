@@ -15,14 +15,29 @@ func (cpu CPU) getARegister() uint8 {
 	return lowerBits(cpu.C)
 }
 
+// setARegister sets the lower 8 bits of the accumulator
+func (cpu *CPU) setARegister(a uint8) {
+	cpu.C = (cpu.C & 0xff00) | uint16(a)
+}
+
 // getBRegister returns the upper 8 bits of the accumulator
 func (cpu CPU) getBRegister() uint8 {
 	return upperBits(cpu.C)
 }
 
+// setBRegister sets the upper 8 bits of the accumulator
+func (cpu *CPU) setBRegister(b uint8) {
+	cpu.C = (cpu.C & 0x00ff) | uint16(b)<<8
+}
+
 // getCRegister returns the 16 bits accumulator
 func (cpu CPU) getCRegister() uint16 {
 	return cpu.C
+}
+
+// setCRegister sets the accumulator
+func (cpu *CPU) setCRegister(c uint16) {
+	cpu.C = c
 }
 
 // getDBRRegister returns the data bank register
