@@ -32,3 +32,21 @@ func (cpu *CPU) cpx(dataHi, dataLo uint8) {
 		cpu.cpx16(utils.ReadUint16(dataHi, dataLo))
 	}
 }
+
+func (cpu *CPU) opE0() {
+	dataHi, dataLo := cpu.admImmediate()
+	cpu.cpx(dataHi, dataLo)
+	cpu.cycles += 3 - utils.BoolToUint16[cpu.xFlag]
+}
+
+func (cpu *CPU) opE4() {
+	dataHi, dataLo := cpu.admDirect()
+	cpu.cpx(dataHi, dataLo)
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+}
+
+func (cpu *CPU) opEC() {
+	dataHi, dataLo := cpu.admAbsolute()
+	cpu.cpx(dataHi, dataLo)
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+}
