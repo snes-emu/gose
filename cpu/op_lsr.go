@@ -94,7 +94,7 @@ func (cpu *CPU) op46() {
 func (cpu *CPU) op4A() {
 	cpu.lsr(0, 0, true)
 	cpu.cycles += 2
-	cpu.PC += 1
+	cpu.PC++
 }
 
 func (cpu *CPU) op4E() {
