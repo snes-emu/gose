@@ -38,3 +38,33 @@ func (cpu *CPU) asl(dataHi, dataLo uint8) {
 		cpu.asl16(utils.ReadUint16(dataHi, dataLo))
 	}
 }
+
+func (cpu *CPU) op06() {
+	dataHi, dataLo := cpu.admDirect()
+	cpu.asl(dataHi, dataLo)
+	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+}
+
+func (cpu *CPU) op0A() {
+	dataHi, dataLo := cpu.admAccumulator()
+	cpu.asl(dataHi, dataLo)
+	cpu.cycles += 2
+}
+
+func (cpu *CPU) op0E() {
+	dataHi, dataLo := cpu.admAbsolute()
+	cpu.asl(dataHi, dataLo)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+}
+
+func (cpu *CPU) op16() {
+	dataHi, dataLo := cpu.admDirectX()
+	cpu.asl(dataHi, dataLo)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+}
+
+func (cpu *CPU) op1E() {
+	dataHi, dataLo := cpu.admAbsoluteX()
+	cpu.asl(dataHi, dataLo)
+	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+}
