@@ -83,3 +83,37 @@ func (cpu *CPU) lsr(haddress, laddress uint32, isAcc bool) {
 		}
 	}
 }
+
+func (cpu *CPU) op46() {
+	addrHi, addrLo := cpu.admDirectP()
+	cpu.lsr(addrHi, addrLo, false)
+	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) op4A() {
+	cpu.lsr(0, 0, true)
+	cpu.cycles += 2
+	cpu.PC += 1
+}
+
+func (cpu *CPU) op4E() {
+	addrHi, addrLo := cpu.admAbsoluteP()
+	cpu.lsr(addrHi, addrLo, false)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
+}
+
+func (cpu *CPU) op56() {
+	addrHi, addrLo := cpu.admDirectXP()
+	cpu.lsr(addrHi, addrLo, false)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) op5E() {
+	addrHi, addrLo := cpu.admAbsoluteXP()
+	cpu.lsr(addrHi, addrLo, false)
+	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
+}
