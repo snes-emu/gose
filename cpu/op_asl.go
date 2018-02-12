@@ -2,8 +2,8 @@ package cpu
 
 import "github.com/snes-emu/gose/utils"
 
-// asl16 performs a left shift on the 16 bit accumulator
-func (cpu *CPU) asl16(data uint16) uint16 {
+// asl16acc performs a left shift on the 16 bit accumulator
+func (cpu *CPU) asl16acc() {
 	result := cpu.getCRegister() << 1
 
 	// Get the highbit before shifting
@@ -13,11 +13,11 @@ func (cpu *CPU) asl16(data uint16) uint16 {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	return result
+	cpu.setCRegister(result)
 }
 
 // asl8 performs a left shift on the lower 8 bit accumulator
-func (cpu *CPU) asl8(data uint8) uint8 {
+func (cpu *CPU) asl8acc() {
 	result := cpu.getARegister() << 1
 
 	// Get the highbit before shifting
@@ -27,44 +27,93 @@ func (cpu *CPU) asl8(data uint8) uint8 {
 	cpu.nFlag = result&0x80 != 0
 	cpu.zFlag = result == 0
 
-	return result
+	cpu.setARegister(result)
+}
+
+// asl16data performs a left shift on the 16 bit data
+func (cpu *CPU) asl16data(haddress, laddress uint32) {
+	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+
+	data := utils.ReadUint16(dataHi, dataLo)
+
+	result := data << 1
+
+	// Get the highbit before shifting
+	cpu.cFlag = data&0x8000 != 0
+
+	// Last bit value
+	cpu.nFlag = result&0x8000 != 0
+	cpu.zFlag = result == 0
+
+	resultHi, resultLo := utils.WriteUint16(data)
+
+	cpu.memory.SetByte(resultHi, haddress)
+	cpu.memory.SetByte(resultLo, laddress)
+}
+
+// asl8data performs a left shift on the 8 bit data
+func (cpu *CPU) asl8data(addr uint32) {
+	data := cpu.memory.GetByte(addr)
+
+	result := data << 1
+
+	// Get the highbit before shifting
+	cpu.cFlag = data&0x80 != 0
+
+	// Last bit value
+	cpu.nFlag = result&0x80 != 0
+	cpu.zFlag = result == 0
+
+	cpu.memory.SetByte(result, addr)
 }
 
 // asl performs a left shift taking care of 16/8bits cases
-func (cpu *CPU) asl(dataHi, dataLo uint8) {
+func (cpu *CPU) asl(haddress, laddress uint32, isAcc bool) {
 	if cpu.mFlag {
-		cpu.asl8(dataLo)
+		if isAcc {
+			cpu.asl8acc()
+		} else {
+			cpu.asl8data(laddress)
+		}
 	} else {
-		cpu.asl16(utils.ReadUint16(dataHi, dataLo))
+		if isAcc {
+			cpu.asl16acc()
+		} else {
+			cpu.asl16data(haddress, laddress)
+		}
 	}
 }
 
 func (cpu *CPU) op06() {
-	dataHi, dataLo := cpu.admDirect()
-	cpu.asl(dataHi, dataLo)
+	addrHi, addrLo := cpu.admDirectP()
+	cpu.asl(addrHi, addrLo, false)
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 func (cpu *CPU) op0A() {
-	dataHi, dataLo := cpu.admAccumulator()
-	cpu.asl(dataHi, dataLo)
+	cpu.asl(0, 0, true)
 	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) op0E() {
-	dataHi, dataLo := cpu.admAbsolute()
-	cpu.asl(dataHi, dataLo)
+	addrHi, addrLo := cpu.admAbsoluteP()
+	cpu.asl(addrHi, addrLo, false)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 func (cpu *CPU) op16() {
-	dataHi, dataLo := cpu.admDirectX()
-	cpu.asl(dataHi, dataLo)
+	addrHi, addrLo := cpu.admDirectXP()
+	cpu.asl(addrHi, addrLo, false)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 func (cpu *CPU) op1E() {
-	dataHi, dataLo := cpu.admAbsoluteX()
-	cpu.asl(dataHi, dataLo)
+	addrHi, addrLo := cpu.admAbsoluteXP()
+	cpu.asl(addrHi, addrLo, false)
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
