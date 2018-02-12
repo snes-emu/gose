@@ -6,6 +6,7 @@ template = '''func (cpu *CPU) op{}(){{
     cpu.{}(dataHi, dataLo)
     cpu.cycles += {}
 }}
+
 '''
 
 # Cycles variable correspondance
@@ -34,6 +35,7 @@ adm_modes = {
     'abs,Y': 'AbsoluteY',
     'abs,X': 'AbsoluteX',
     'long,X': 'LongX',
+    'acc': 'Accumulator'
 }
 
 
