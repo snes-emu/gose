@@ -4,16 +4,8 @@ import "github.com/snes-emu/gose/utils"
 
 // DIRECT addressing mode otherwise
 func (cpu CPU) admDirect() (uint8, uint8) {
-	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+	haddress, laddress := cpu.admDirectP()
 
-	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
-		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
-		return cpu.memory.GetByte(address), 0x00
-	}
-
-	ll := uint16(LL)
-	laddress := uint32(cpu.getDRegister() + ll)
-	haddress := uint32(cpu.getDRegister() + ll + 1)
 	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 

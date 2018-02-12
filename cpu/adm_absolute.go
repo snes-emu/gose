@@ -11,10 +11,8 @@ func (cpu CPU) admAbsoluteJ() uint32 {
 
 //ABSOLUTE addressing mode
 func (cpu CPU) admAbsolute() (uint8, uint8) {
-	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	address := utils.ReadUint32(cpu.getKRegister(), HH, LL)
-	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
+	haddress, laddress := cpu.admAbsoluteP()
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
 //ABSOLUTE addressing mode pointer
