@@ -28,3 +28,14 @@ func (cpu *CPU) trb(addressHi, addressLo uint32) {
 		cpu.memory.SetByte(resultHi, addressHi)
 	}
 }
+
+func (cpu *CPU) op14() {
+	addressHi, addressLo := cpu.admDirectP()
+	cpu.trb(addressHi, addressLo)
+	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+}
+func (cpu *CPU) op1C() {
+	addressHi, addressLo := cpu.admAbsoluteP()
+	cpu.trb(addressHi, addressLo)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+}
