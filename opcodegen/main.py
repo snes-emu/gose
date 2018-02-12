@@ -17,6 +17,7 @@ cycles_corres = {
     "m": "utils.BoolToUint16[cpu.mFlag]",
     "x": "utils.BoolToUint16[cpu.xFlag]",
     "e": "utils.BoolToUint16[cpu.eFlag]",
+    "t": "t"
 }
 
 # Possible addressing modes
@@ -36,7 +37,9 @@ adm_modes = {
     'abs,Y': 'AbsoluteY',
     'abs,X': 'AbsoluteX',
     'long,X': 'LongX',
-    'acc': 'Accumulator'
+    'acc': 'Accumulator',
+    'rel8': 'Relative8',
+    'rel16': 'Relative16'
 }
 
 
@@ -59,9 +62,6 @@ def generate_code(rows):
 
         if not(adm_modes.get(adm_mode, False)):
             raise ValueError("Adm mode not implemented :" + adm_mode)
-
-        if 't' in cycles:
-            raise ValueError("t flag found in cycles expression and not implemented :" + cycles)
 
         cycles = ''.join(cycles_corres[char] if char in cycles_corres.keys() else char for char in cycles)
         length= ''.join(cycles_corres[char] if char in cycles_corres.keys() else char for char in length)
