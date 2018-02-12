@@ -17,7 +17,7 @@ cycles_corres = {
     "m": "utils.BoolToUint16[cpu.mFlag]",
     "x": "utils.BoolToUint16[cpu.xFlag]",
     "e": "utils.BoolToUint16[cpu.eFlag]",
-    "t": "t"
+    "t": "utils.BoolToUint16[t]"
 }
 
 # Possible addressing modes
