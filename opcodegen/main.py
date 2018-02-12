@@ -5,6 +5,7 @@ template = '''func (cpu *CPU) op{}(){{
     dataHi, dataLo := cpu.adm{}()
     cpu.{}(dataHi, dataLo)
     cpu.cycles += {}
+    cpu.PC += {}
 }}
 
 '''
@@ -54,7 +55,7 @@ def generate_code(rows):
     code = ""
 
     for data in datas:
-        opcode, cycles, adm_mode, operation = data[0], data[2], data[3], data[6]
+        opcode, length, cycles, adm_mode, operation = data[0], data[1], data[2], data[3], data[6]
 
         if not(adm_modes.get(adm_mode, False)):
             raise ValueError("Adm mode not implemented :" + adm_mode)
@@ -63,8 +64,9 @@ def generate_code(rows):
             raise ValueError("t flag found in cycles expression and not implemented :" + cycles)
 
         cycles = ''.join(cycles_corres[char] if char in cycles_corres.keys() else char for char in cycles)
+        length= ''.join(cycles_corres[char] if char in cycles_corres.keys() else char for char in length)
 
-        code += template.format(opcode, adm_modes[adm_mode], operation.lower(), cycles)
+        code += template.format(opcode, adm_modes[adm_mode], operation.lower(), cycles, length)
 
     return code
 
