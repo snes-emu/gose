@@ -99,3 +99,37 @@ func (cpu *CPU) rol(haddress, laddress uint32, isAcc bool) {
 		}
 	}
 }
+
+func (cpu *CPU) op26() {
+	addrHi, addrLo := cpu.admDirectP()
+	cpu.rol(addrHi, addrLo, false)
+	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) op2A() {
+	cpu.rol(0, 0, true)
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) op2E() {
+	addrHi, addrLo := cpu.admAbsoluteP()
+	cpu.rol(addrHi, addrLo, false)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
+}
+
+func (cpu *CPU) op36() {
+	addrHi, addrLo := cpu.admDirectXP()
+	cpu.rol(addrHi, addrLo, false)
+	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) op3E() {
+	addrHi, addrLo := cpu.admAbsoluteXP()
+	cpu.rol(addrHi, addrLo, false)
+	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
+}
