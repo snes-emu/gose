@@ -4,14 +4,24 @@ import "github.com/snes-emu/gose/utils"
 
 // ora16 performs a bitwise or for 16bits variables
 func (cpu *CPU) ora16(data uint16) uint16 {
+	result := cpu.getCRegister() | data
 
-	return cpu.getCRegister() | data
+	// Last bit value
+	cpu.nFlag = result&0x8000 != 0
+	cpu.zFlag = result == 0
+
+	return result
 }
 
 // ora8 performs a bitwise or for 8bits variables
 func (cpu *CPU) ora8(data uint8) uint8 {
+	result := cpu.getARegister() | data
 
-	return cpu.getARegister() | data
+	// Last bit value
+	cpu.nFlag = result&0x80 != 0
+	cpu.zFlag = result == 0
+
+	return result
 }
 
 // ora performs a bitwise or taking care of 16/8bits cases

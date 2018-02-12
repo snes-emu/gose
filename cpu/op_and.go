@@ -4,14 +4,24 @@ import "github.com/snes-emu/gose/utils"
 
 // and16 performs a bitwise and for 16bits variables
 func (cpu *CPU) and16(data uint16) uint16 {
+	result := cpu.getCRegister() & data
 
-	return cpu.getCRegister() & data
+	// Last bit value
+	cpu.nFlag = result&0x8000 != 0
+	cpu.zFlag = result == 0
+
+	return result
 }
 
 // and8 performs a bitwise and for 8bits variables
 func (cpu *CPU) and8(data uint8) uint8 {
+	result := cpu.getARegister() & data
 
-	return cpu.getARegister() & data
+	// Last bit value
+	cpu.nFlag = result&0x80 != 0
+	cpu.zFlag = result == 0
+
+	return result
 }
 
 // and performs a bitwise and taking care of 16/8bits cases
