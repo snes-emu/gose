@@ -17,6 +17,21 @@ func (cpu CPU) admDirect() (uint8, uint8) {
 	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 }
 
+// DIRECT addressing mode pointer
+func (cpu CPU) admDirectP() (uint32, uint32) {
+	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+
+	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
+		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
+		return address, 0x00
+	}
+
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll)
+	haddress := uint32(cpu.getDRegister() + ll + 1)
+	return haddress, laddress
+}
+
 // DIRECT,X addressing mode otherwise
 func (cpu CPU) admDirectX() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)

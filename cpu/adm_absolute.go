@@ -17,6 +17,14 @@ func (cpu CPU) admAbsolute() (uint8, uint8) {
 	return cpu.memory.GetByte(address + 1), cpu.memory.GetByte(address)
 }
 
+//ABSOLUTE addressing mode pointer
+func (cpu CPU) admAbsoluteP() (uint32, uint32) {
+	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
+	address := utils.ReadUint32(cpu.getKRegister(), HH, LL)
+	return address + 1, address
+}
+
 // ABSOLUTE,X addressing mode
 func (cpu CPU) admAbsoluteX() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
