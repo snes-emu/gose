@@ -9,7 +9,7 @@ func (cpu *CPU) asl16(data uint16) uint16 {
 	// Get the highbit before shifting
 	cpu.cFlag = cpu.getCRegister()&0x8000 != 0
 
-	// Last asl value
+	// Last bit value
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
