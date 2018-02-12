@@ -100,9 +100,19 @@ func (cpu CPU) getXRegister() uint16 {
 	return cpu.X
 }
 
+// setXRegister sets the X register
+func (cpu *CPU) setXRegister(x uint16) {
+	cpu.X = x
+}
+
 // getXLRegister returns the lower 8 bits of the X index register
 func (cpu CPU) getXLRegister() uint8 {
 	return lowerBits(cpu.X)
+}
+
+// setXLRegister sets the lower 8 bits of the X register
+func (cpu *CPU) setXLRegister(x uint8) {
+	cpu.X = (cpu.X & 0xff00) | uint16(x)
 }
 
 // getXHRegister returns the upper 8 bits of the X index register
@@ -110,17 +120,37 @@ func (cpu CPU) getXHRegister() uint8 {
 	return upperBits(cpu.X)
 }
 
+// setXHRegister sets the upper 8 bits of the X register
+func (cpu *CPU) setXHRegister(x uint8) {
+	cpu.X = (cpu.X & 0x00ff) | uint16(x)
+}
+
 // getYRegister returns the Y index register
 func (cpu CPU) getYRegister() uint16 {
 	return cpu.Y
 }
 
-// getYLRegister returns the lower 8 bits of the Y index register
+// setYRegister sets the Y register
+func (cpu *CPU) setYRegister(y uint16) {
+	cpu.Y = y
+}
+
+// getYLRegister returns the lower 8 bits of the Y indey register
 func (cpu CPU) getYLRegister() uint8 {
 	return lowerBits(cpu.Y)
 }
 
-// getYHRegister returns the upper 8 bits of the Y index register
+// setYLRegister sets the lower 8 bits of the Y register
+func (cpu *CPU) setYLRegister(y uint8) {
+	cpu.Y = (cpu.Y & 0xff00) | uint16(y)
+}
+
+// getYHRegister returns the upper 8 bits of the Y indey register
 func (cpu CPU) getYHRegister() uint8 {
 	return upperBits(cpu.Y)
+}
+
+// setYHRegister sets the upper 8 bits of the Y register
+func (cpu *CPU) setYHRegister(y uint8) {
+	cpu.Y = (cpu.Y & 0x00ff) | uint16(y)
 }
