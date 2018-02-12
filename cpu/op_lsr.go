@@ -6,8 +6,8 @@ import "github.com/snes-emu/gose/utils"
 func (cpu *CPU) lsr16acc() {
 	result := cpu.getCRegister() >> 1
 
-	// Get the highbit before shifting
-	cpu.cFlag = cpu.getCRegister()&0x8000 != 0
+	// Get the lowbit before shifting
+	cpu.cFlag = cpu.getCRegister()&0x0001 != 0
 
 	// Last bit value
 	cpu.nFlag = result&0x8000 != 0
@@ -20,8 +20,8 @@ func (cpu *CPU) lsr16acc() {
 func (cpu *CPU) lsr8acc() {
 	result := cpu.getARegister() >> 1
 
-	// Get the highbit before shifting
-	cpu.cFlag = cpu.getARegister()&0x80 != 0
+	// Get the lowbit before shifting
+	cpu.cFlag = cpu.getARegister()&0x01 != 0
 
 	// Last bit value
 	cpu.nFlag = result&0x80 != 0
@@ -38,8 +38,8 @@ func (cpu *CPU) lsr16data(haddress, laddress uint32) {
 
 	result := data >> 1
 
-	// Get the highbit before shifting
-	cpu.cFlag = data&0x8000 != 0
+	// Get the lowbit before shifting
+	cpu.cFlag = data&0x0001 != 0
 
 	// Last bit value
 	cpu.nFlag = result&0x8000 != 0
@@ -57,8 +57,8 @@ func (cpu *CPU) lsr8data(addr uint32) {
 
 	result := data >> 1
 
-	// Get the highbit before shifting
-	cpu.cFlag = data&0x80 != 0
+	// Get the lowbit before shifting
+	cpu.cFlag = data&0x01 != 0
 
 	// Last bit value
 	cpu.nFlag = result&0x80 != 0
