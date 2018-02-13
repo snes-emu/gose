@@ -37,3 +37,14 @@ func makeCPU() CPU {
 	cpu.opcodes[0x61] = cpu.op61
 	return cpu
 }
+
+func (cpu *CPU) pushStack(data uint8) {
+	cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
+	cpu.S--
+}
+
+func (cpu *CPU) pullStack() uint8 {
+	data := cpu.memory.GetByteBank(0x00, cpu.getSRegister()+1)
+	cpu.S++
+	return data
+}
