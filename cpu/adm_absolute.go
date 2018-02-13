@@ -3,10 +3,10 @@ package cpu
 import "github.com/snes-emu/gose/utils"
 
 // ABSOLUTE addressing mode to use only for JMP	and JSR instructions
-func (cpu CPU) admAbsoluteJ() uint32 {
+func (cpu CPU) admAbsoluteJ() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	return utils.ReadUint32(cpu.getKRegister(), HH, LL)
+	return utils.ReadUint16(HH, LL)
 }
 
 //ABSOLUTE addressing mode
@@ -46,25 +46,25 @@ func (cpu CPU) admAbsoluteY() (uint8, uint8) {
 }
 
 // (ABSOLUTE) addressing mode
-func (cpu CPU) admPAbsolute() uint32 {
+func (cpu CPU) admPAbsoluteJ() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	address := utils.ReadUint32(0x00, HH, LL)
-	return utils.ReadUint32(cpu.getKRegister(), cpu.memory.GetByte(address+1), cpu.memory.GetByte(address))
+	address := utils.ReadUint16(HH, LL)
+	return utils.ReadUint16(cpu.memory.GetByteBank(0x00, address+1), cpu.memory.GetByteBank(0x00, address))
 }
 
 // [ABSOLUTE] addressing mode
-func (cpu CPU) admBAbsolute() uint32 {
+func (cpu CPU) admBAbsoluteJ() (uint8, uint16) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	address := utils.ReadUint32(0x00, HH, LL)
-	return utils.ReadUint32(cpu.memory.GetByte(address+2), cpu.memory.GetByte(address+1), cpu.memory.GetByte(address))
+	address := utils.ReadUint16(HH, LL)
+	return cpu.memory.GetByteBank(0x00, address+2), utils.ReadUint16(cpu.memory.GetByteBank(0x00, address+1), cpu.memory.GetByteBank(0x00, address))
 }
 
 // (ABSOLUTE,X) addressing mode
-func (cpu CPU) admPAbsoluteX() uint32 {
+func (cpu CPU) admPAbsoluteXJ() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	address := utils.ReadUint32(0x00, HH, LL)
-	return utils.ReadUint32(cpu.getKRegister(), cpu.memory.GetByte(address+uint32(cpu.getXRegister())+1), cpu.memory.GetByte(address+uint32(cpu.getXRegister())))
+	address := utils.ReadUint16(HH, LL) + cpu.getXRegister()
+	return utils.ReadUint16(cpu.memory.GetByteBank(0x00, address+1), cpu.memory.GetByteBank(0x00, address))
 }

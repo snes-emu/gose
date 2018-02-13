@@ -3,11 +3,11 @@ package cpu
 import "github.com/snes-emu/gose/utils"
 
 // LONG addressing mode to use with JMP instruction only
-func (cpu CPU) admLongJ() uint32 {
+func (cpu CPU) admLongJ() (uint8, uint16) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	MM := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+3)
-	return utils.ReadUint32(HH, MM, LL)
+	return HH, utils.ReadUint16(MM, LL)
 }
 
 // LONG addressing mode
