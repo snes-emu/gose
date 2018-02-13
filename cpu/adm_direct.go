@@ -74,26 +74,45 @@ func (cpu CPU) admPDirect8() (uint8, uint8) {
 
 // (DIRECT) addressing mode otherwise
 func (cpu CPU) admPDirect() (uint8, uint8) {
+	haddress, laddress := cpu.admPDirectP()
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+}
+
+// (DIRECT) addressing mode pointer
+func (cpu CPU) admPDirectP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	ll := uint16(LL)
 	laddress := uint32(cpu.getDRegister() + ll)
 	haddress := uint32(cpu.getDRegister() + ll + 1)
-	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+	return haddress, laddress
 }
 
 // [DIRECT] addressing mode
 func (cpu CPU) admBDirect() (uint8, uint8) {
+	haddr, laddr := cpu.admBDirectP()
+	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+}
+
+// [DIRECT] addressing mode pointer
+func (cpu CPU) admBDirectP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	address := cpu.getDRegister() + uint16(LL)
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
 	pointer := utils.ReadUint32(hh, mm, ll)
-	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+	return pointer + 1, pointer
 }
 
 // (DIRECT,X) addressing mode otherwise
 func (cpu CPU) admPDirectX() (uint8, uint8) {
+	haddr, laddr := cpu.admPDirectXP()
+	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+
+}
+
+// (DIRECT,X) addressing mode pointer
+func (cpu CPU) admPDirectXP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
@@ -102,7 +121,7 @@ func (cpu CPU) admPDirectX() (uint8, uint8) {
 		ll := cpu.memory.GetByte(laddress)
 		hh := cpu.memory.GetByte(haddress)
 		pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll)
-		return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+		return pointer + 1, pointer
 	}
 
 	l := uint16(LL)
@@ -111,12 +130,18 @@ func (cpu CPU) admPDirectX() (uint8, uint8) {
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
 	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll)
-	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+	return pointer + 1, pointer
 
 }
 
 // (DIRECT),Y addressing mode otherwise
 func (cpu CPU) admPDirectY() (uint8, uint8) {
+	haddr, laddr := cpu.admPDirectYP()
+	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+}
+
+// (DIRECT),Y addressing mode pointer
+func (cpu CPU) admPDirectYP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
@@ -126,7 +151,7 @@ func (cpu CPU) admPDirectY() (uint8, uint8) {
 		ll := cpu.memory.GetByte(laddress)
 		hh := cpu.memory.GetByte(haddress)
 		pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
-		return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+		return pointer + 1, pointer
 	}
 
 	l := uint16(LL)
@@ -135,16 +160,22 @@ func (cpu CPU) admPDirectY() (uint8, uint8) {
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
 	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
-	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+	return pointer + 1, pointer
 }
 
 // [DIRECT],Y addressing mode
 func (cpu CPU) admBDirectY() (uint8, uint8) {
+	haddr, laddr := cpu.admBDirectYP()
+	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+}
+
+// [DIRECT],Y addressing mode pointer
+func (cpu CPU) admBDirectYP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	address := cpu.getDRegister() + uint16(LL)
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
 	pointer := utils.ReadUint32(hh, mm, ll) + uint32(cpu.getYRegister())
-	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
+	return pointer + 1, pointer
 }
