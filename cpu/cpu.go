@@ -1,6 +1,9 @@
 package cpu
 
-import "github.com/snes-emu/gose/memory"
+import (
+	"github.com/snes-emu/gose/memory"
+	"github.com/snes-emu/gose/utils"
+)
 
 // CPU represents the cpu 65C816
 type CPU struct {
@@ -39,12 +42,23 @@ func makeCPU() CPU {
 }
 
 func (cpu *CPU) pushStack(data uint8) {
-	cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
-	cpu.S--
+	if cpu.eFlag {
+		cpu.memory.SetByteBank(data, 0x00, utils.ReadUint16(0x01, cpu.getSLRegister()))
+		cpu.setSLRegister(cpu.getSLRegister() - 1)
+	} else {
+		cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
+		cpu.S--
+	}
 }
 
 func (cpu *CPU) pullStack() uint8 {
-	data := cpu.memory.GetByteBank(0x00, cpu.getSRegister()+1)
+	var data uint8
+	if cpu.eFlag {
+		data = cpu.memory.GetByteBank(0x00, utils.ReadUint16(0x01, cpu.getSLRegister()+1))
+		cpu.setSLRegister(cpu.getSLRegister() + 1)
+		return data
+	}
+	data = cpu.memory.GetByteBank(0x00, cpu.getSRegister()+1)
 	cpu.S++
 	return data
 }
