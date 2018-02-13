@@ -39,10 +39,16 @@ func (cpu CPU) admAbsoluteXP() (uint32, uint32) {
 
 // ABSOLUTE,X addressing mode
 func (cpu CPU) admAbsoluteY() (uint8, uint8) {
+	haddr, laddr := cpu.admAbsoluteYP()
+	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+}
+
+// ABSOLUTE,X addressing mode pointer
+func (cpu CPU) admAbsoluteYP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.ReadUint32(cpu.getKRegister(), HH, LL)
-	return cpu.memory.GetByte(address + uint32(cpu.getYRegister()) + 1), cpu.memory.GetByte(address + uint32(cpu.getYRegister()))
+	return address + uint32(cpu.getYRegister()) + 1, address + uint32(cpu.getYRegister())
 }
 
 // (ABSOLUTE) addressing mode
