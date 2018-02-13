@@ -40,7 +40,9 @@ adm_modes = {
     'acc': 'Accumulator',
     'rel8': 'Relative8',
     'rel16': 'Relative16',
-    '(abs)': 'PAbsolute'
+    '(abs)': 'PAbsolute',
+    '(abs,X)': 'PAbsoluteX',
+    '[abs]': 'BAbsolute'
 }
 
 
