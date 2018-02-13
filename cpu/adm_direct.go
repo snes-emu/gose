@@ -15,7 +15,7 @@ func (cpu CPU) admDirectP() (uint32, uint32) {
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL)
-		return address, 0x00
+		return 0x00, address
 	}
 
 	ll := uint16(LL)
@@ -36,7 +36,7 @@ func (cpu CPU) admDirectXP() (uint32, uint32) {
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
-		return address, 0x00
+		return 0x00, address
 	}
 
 	ll := uint16(LL)
@@ -52,7 +52,7 @@ func (cpu CPU) admDirectY() (uint8, uint8) {
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getYLRegister())
-		return cpu.memory.GetByte(address), 0x00
+		return 0x00, cpu.memory.GetByte(address)
 	}
 
 	ll := uint16(LL)
