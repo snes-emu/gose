@@ -32,7 +32,6 @@ adm_modes = {
     '(dir),Y': 'PDirectY',
     '(dir)': 'PDirect',
     '(stk,S),Y': 'PStackSY',
-    'dir,X': 'DirectX',
     '[dir],Y': 'BDirectY',
     'abs,Y': 'AbsoluteY',
     'abs,X': 'AbsoluteX',
