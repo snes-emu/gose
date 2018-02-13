@@ -60,7 +60,7 @@ func (cpu *CPU) opA7() {
 }
 
 func (cpu *CPU) opA9() {
-	dataHi, dataLo := cpu.admImmediate()
+	dataHi, dataLo := cpu.admImmediateM()
 	cpu.lda(dataHi, dataLo)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3 - utils.BoolToUint16[cpu.mFlag]
