@@ -32,7 +32,7 @@ func (cpu *CPU) ldy(dataHi, dataLo uint8) {
 }
 
 func (cpu *CPU) opA0() {
-	dataHi, dataLo := cpu.admImmediateM()
+	dataHi, dataLo := cpu.admImmediateX()
 	cpu.ldy(dataHi, dataLo)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.xFlag]
 	cpu.PC += 3 - utils.BoolToUint16[cpu.xFlag]
