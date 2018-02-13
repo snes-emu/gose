@@ -42,7 +42,9 @@ adm_modes = {
     'rel16': 'Relative16',
     '(abs)': 'PAbsolute',
     '(abs,X)': 'PAbsoluteX',
-    '[abs]': 'BAbsolute'
+    '[abs]': 'BAbsolute',
+    'dir,X': 'DirectX',
+    'dir,Y': 'DirectY'
 }
 
 
