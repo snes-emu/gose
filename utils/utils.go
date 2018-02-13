@@ -38,3 +38,11 @@ func WriteUint16(MM uint16) (uint8, uint8) {
 	ret := buf.Bytes()
 	return ret[1], ret[0]
 }
+
+func WriteUint32(MM uint32) (uint8, uint8, uint8) {
+
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.LittleEndian, &MM)
+	ret := buf.Bytes()
+	return ret[2], ret[1], ret[0]
+}
