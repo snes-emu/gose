@@ -34,7 +34,7 @@ func (cpu *CPU) cpy(dataHi, dataLo uint8) {
 }
 
 func (cpu *CPU) opC0() {
-	dataHi, dataLo := cpu.admImmediate()
+	dataHi, dataLo := cpu.admImmediateX()
 	cpu.cpy(dataHi, dataLo)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.xFlag]
 }

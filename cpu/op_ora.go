@@ -58,7 +58,7 @@ func (cpu *CPU) op07() {
 }
 
 func (cpu *CPU) op09() {
-	dataHi, dataLo := cpu.admImmediate()
+	dataHi, dataLo := cpu.admImmediateM()
 	cpu.ora(dataHi, dataLo)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 }
