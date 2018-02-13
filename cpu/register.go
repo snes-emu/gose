@@ -90,9 +90,19 @@ func (cpu CPU) getSLRegister() uint8 {
 	return lowerBits(cpu.S)
 }
 
+// setSLRegister sets the lower 8 bits of the stack pointer
+func (cpu *CPU) setSLRegister(s uint8) {
+	cpu.C = (cpu.S & 0xff00) | uint16(s)
+}
+
 // getSHRegister returns the upper 8 bits of the stack pointer
 func (cpu CPU) getSHRegister() uint8 {
 	return upperBits(cpu.S)
+}
+
+// setSHRegister sets the upper 8 bits of the stack pointer
+func (cpu *CPU) setSHRegister(s uint8) {
+	cpu.C = (cpu.S & 0x00ff) | uint16(s)<<8
 }
 
 // getXRegister returns the X index register
