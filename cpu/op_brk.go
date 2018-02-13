@@ -20,7 +20,9 @@ func (cpu *CPU) op00() {
 		P += utils.BoolToUint8[cpu.bFlag] * 0x10
 		cpu.pushStack(P)
 		cpu.K = 0x00
-		cpu.PC = 0xFFF0
+		addressLo := cpu.memory.GetByteBank(0x00, 0xFFFE)
+		addressHi := cpu.memory.GetByteBank(0x00, 0xFFFF)
+		cpu.PC = utils.ReadUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -28,9 +30,12 @@ func (cpu *CPU) op00() {
 		P += utils.BoolToUint8[cpu.xFlag] * 0x10
 		cpu.pushStack(P)
 		cpu.K = 0x00
-		cpu.PC = 0xFF06
+		addressLo := cpu.memory.GetByteBank(0x00, 0xFFE6)
+		addressHi := cpu.memory.GetByteBank(0x00, 0xFFE7)
+		cpu.PC = utils.ReadUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
+	cpu.cycles += 8 - utils.BoolToUint16[cpu.eFlag]
 
 }
