@@ -1,14 +1,11 @@
 package cpu
 
-import "github.com/snes-emu/gose/utils"
-
 //opC8 performs a increment operation on the Y register, immediate mode
 func (cpu *CPU) opC8() {
-	dataHi, dataLo := cpu.admImmediate()
-	if cpu.mFlag {
-		cpu.setARegister(cpu.inc8(dataLo))
+	if cpu.xFlag {
+		cpu.setYLRegister(cpu.getYLRegister() + 1)
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.Y++
 	}
 	cpu.cycles += 2
 }
