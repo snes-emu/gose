@@ -26,7 +26,7 @@ adm_modes = {
     'stk,S': 'StackS',
     'dir': 'Direct',
     '[dir]': 'BDirect',
-    'imm': 'Immediate',
+    'imm': 'ImmediateM',
     'abs': 'Absolute',
     'long': 'Long',
     '(dir),Y': 'PDirectY',
