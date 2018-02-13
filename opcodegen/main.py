@@ -39,7 +39,8 @@ adm_modes = {
     'long,X': 'LongX',
     'acc': 'Accumulator',
     'rel8': 'Relative8',
-    'rel16': 'Relative16'
+    'rel16': 'Relative16',
+    '(abs)': 'PAbsolute'
 }
 
 
