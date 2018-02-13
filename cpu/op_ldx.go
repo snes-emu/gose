@@ -30,3 +30,38 @@ func (cpu *CPU) ldx(dataHi, dataLo uint8) {
 		cpu.ldx16(utils.ReadUint16(dataHi, dataLo))
 	}
 }
+
+func (cpu *CPU) opA2() {
+	dataHi, dataLo := cpu.admImmediateM()
+	cpu.ldx(dataHi, dataLo)
+	cpu.cycles += 3 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC += 3 - utils.BoolToUint16[cpu.xFlag]
+}
+
+func (cpu *CPU) opA6() {
+	dataHi, dataLo := cpu.admDirect()
+	cpu.ldx(dataHi, dataLo)
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) opAE() {
+	dataHi, dataLo := cpu.admAbsolute()
+	cpu.ldx(dataHi, dataLo)
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC += 3
+}
+
+func (cpu *CPU) opB6() {
+	dataHi, dataLo := cpu.admDirectY()
+	cpu.ldx(dataHi, dataLo)
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
+}
+
+func (cpu *CPU) opBE() {
+	dataHi, dataLo := cpu.admAbsoluteY()
+	cpu.ldx(dataHi, dataLo)
+	cpu.cycles += 6 - 2*utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
+	cpu.PC += 3
+}
