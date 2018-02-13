@@ -1,1 +1,20 @@
 package cpu
+
+func (cpu *CPU) opE2() {
+	_, dataLo := cpu.admImmediate8()
+	cpu.cFlag = cpu.cFlag || dataLo&0x01 != 0
+	cpu.zFlag = cpu.zFlag || dataLo&0x02 != 0
+	cpu.iFlag = cpu.iFlag || dataLo&0x04 != 0
+	cpu.dFlag = cpu.dFlag || dataLo&0x08 != 0
+	if cpu.eFlag {
+		cpu.bFlag = cpu.bFlag || dataLo&0x10 != 0
+	} else {
+		cpu.xFlag = cpu.xFlag || dataLo&0x10 != 0
+	}
+	cpu.mFlag = cpu.mFlag || dataLo&0x20 != 0
+	cpu.vFlag = cpu.vFlag || dataLo&0x40 != 0
+	cpu.nFlag = cpu.nFlag || dataLo&0x80 != 0
+	cpu.cycles += 3
+	cpu.PC += 2
+
+}
