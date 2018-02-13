@@ -58,7 +58,7 @@ func (cpu *CPU) op27() {
 }
 
 func (cpu *CPU) op29() {
-	dataHi, dataLo := cpu.admImmediate()
+	dataHi, dataLo := cpu.admImmediateM()
 	cpu.and(dataHi, dataLo)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 }

@@ -66,7 +66,7 @@ func (cpu *CPU) op3C() {
 }
 
 func (cpu *CPU) op89() {
-	dataHi, dataLo := cpu.admImmediate()
+	dataHi, dataLo := cpu.admImmediateM()
 	cpu.bit(dataHi, dataLo, true)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 }
