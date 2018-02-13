@@ -45,20 +45,26 @@ func (cpu CPU) admDirectXP() (uint32, uint32) {
 	return haddress, laddress
 }
 
-// DIRECT,X addressing mode otherwise
+// DIRECT,X addressing mode otherwise pointer
 func (cpu CPU) admDirectY() (uint8, uint8) {
+	haddress, laddress := cpu.admDirectYP()
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+}
+
+// DIRECT,X addressing mode otherwise
+func (cpu CPU) admDirectYP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 		address := utils.ReadUint32(0x00, cpu.getDHRegister(), LL+cpu.getYLRegister())
-		return 0x00, cpu.memory.GetByte(address)
+		return 0x00, address
 	}
 
 	ll := uint16(LL)
 	laddress := uint32(cpu.getDRegister() + ll + cpu.getYRegister())
 	haddress := uint32(cpu.getDRegister() + ll + cpu.getYRegister() + 1)
-	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+	return haddress, laddress
 }
 
 // (DIRECT) addressing mode when e is 1 and DL is $00
