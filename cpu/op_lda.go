@@ -2,7 +2,7 @@ package cpu
 
 import "github.com/snes-emu/gose/utils"
 
-// lda16 load data into the lower bits of the accumulator
+// lda16 load data into the accumulator
 func (cpu *CPU) lda16(data uint16) {
 
 	// Last bit value
