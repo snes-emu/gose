@@ -24,3 +24,7 @@ func (cpu *CPU) phy() {
 		cpu.phy16()
 	}
 }
+
+func (cpu *CPU) op5A() {
+	cpu.phy()
+}
