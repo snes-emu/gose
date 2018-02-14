@@ -32,3 +32,7 @@ func (cpu *CPU) plx() {
 		cpu.plx16()
 	}
 }
+
+func (cpu *CPU) opFA() {
+	cpu.plx()
+}
