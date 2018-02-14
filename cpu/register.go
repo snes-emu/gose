@@ -55,9 +55,19 @@ func (cpu CPU) getDLRegister() uint8 {
 	return lowerBits(cpu.D)
 }
 
+// setDLRegister sets the lower 8 bits of the direct register
+func (cpu *CPU) setDLRegister(d uint8) {
+	cpu.C = (cpu.D & 0xff00) | uint16(d)
+}
+
 // getDHRegister returns the upper 8 bits of the direct register
 func (cpu CPU) getDHRegister() uint8 {
 	return upperBits(cpu.D)
+}
+
+// setDLRegister sets the lower 8 bits of the direct register
+func (cpu *CPU) setDHRegister(d uint8) {
+	cpu.C = (cpu.D & 0x00ff) | uint16(d)<<8
 }
 
 // getKRegister returns the program bank register
