@@ -32,3 +32,7 @@ func (cpu *CPU) pla() {
 		cpu.pla16()
 	}
 }
+
+func (cpu *CPU) op68() {
+	cpu.pla()
+}
