@@ -24,3 +24,7 @@ func (cpu *CPU) phx() {
 		cpu.phx16()
 	}
 }
+
+func (cpu *CPU) opDA() {
+	cpu.phx()
+}
