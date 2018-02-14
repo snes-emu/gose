@@ -24,3 +24,7 @@ func (cpu *CPU) pha() {
 		cpu.pha16()
 	}
 }
+
+func (cpu *CPU) op48() {
+	cpu.pha()
+}
