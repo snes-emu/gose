@@ -32,3 +32,7 @@ func (cpu *CPU) ply() {
 		cpu.ply16()
 	}
 }
+
+func (cpu *CPU) op7A() {
+	cpu.ply()
+}
