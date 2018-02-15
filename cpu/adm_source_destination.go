@@ -1,7 +1,16 @@
 package cpu
 
 // SOURCE,DESTINATION addressing mode
-//TODO wrapping behavior is incorrect
-func (cpu CPU) admSourceDestination(SS uint8, TT uint8) (uint32, uint32) {
-	return uint32(SS)<<16 + uint32(cpu.getXRegister()), uint32(TT)<<16 + uint32(cpu.getYRegister())
+func (cpu CPU) admSourceDestination() (uint8, uint16, uint8, uint16) {
+	SBank := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+	DBank := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
+	var SAddress, DAddress uint16
+	if cpu.xFlag {
+		SAddress = uint16(cpu.getXLRegister())
+		DAddress = uint16(cpu.getYLRegister())
+	} else {
+		SAddress = cpu.getXRegister()
+		DAddress = cpu.getYRegister()
+	}
+	return SBank, SAddress, DBank, DAddress
 }
