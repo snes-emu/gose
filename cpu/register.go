@@ -95,6 +95,11 @@ func (cpu CPU) getSRegister() uint16 {
 	return cpu.S
 }
 
+// setSRegister sets the S register
+func (cpu *CPU) setSRegister(s uint16) {
+	cpu.S = s
+}
+
 // getSLRegister returns the lower 8 bits of the stack pointer
 func (cpu CPU) getSLRegister() uint8 {
 	return lowerBits(cpu.S)
