@@ -2,62 +2,40 @@ package cpu
 
 import "testing"
 
-func TestAdcExample1(t *testing.T) {
-	cpu := &CPU{
-		C:     0x0001,
-		mFlag: false,
-		dFlag: false,
-		cFlag: true,
+func TestAdc(t *testing.T) {
+
+	testCases := []struct {
+		expected       CPU
+		value          *CPU
+		dataHi, dataLo uint8
+		operator       func(uint8, uint8)
+	}{
+		{
+			expected: CPU{C: 0x2005},
+			value:    &CPU{C: 0x0001, cFlag: true},
+			dataHi:   0x20, dataLo: 0x03,
+		},
+		{
+			expected: CPU{C: 0x0006, mFlag: true},
+			value:    &CPU{C: 0x00ff, mFlag: true, cFlag: true},
+			dataHi:   0x00, dataLo: 0x06,
+		},
 	}
 
-	cpu.adc(0x20, 0x03)
+	for _, tc := range testCases {
+		tc.value.adc(tc.dataHi, tc.dataLo)
 
-	cpu2 := CPU{
-		C:     0x2005,
-		nFlag: false,
-		zFlag: false,
-		vFlag: false,
-		cFlag: false,
-	}
+		err := tc.value.compare(tc.expected)
 
-	err := cpu.compare(cpu2)
-
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestAdcExample2(t *testing.T) {
-	cpu := &CPU{
-		C:     0x00ff,
-		mFlag: true,
-		dFlag: false,
-		cFlag: true,
-	}
-
-	cpu.adc(0x00, 0x06)
-
-	cpu2 := CPU{
-		C:     0x0006,
-		mFlag: true,
-		nFlag: false,
-		zFlag: false,
-		vFlag: false,
-		cFlag: false,
-	}
-
-	err := cpu.compare(cpu2)
-
-	if err != nil {
-		t.Error(err)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 }
 
 func TestSbcExample1(t *testing.T) {
 	cpu := &CPU{
 		C:     0x0001,
-		mFlag: false,
-		dFlag: false,
 		cFlag: true,
 	}
 
@@ -66,9 +44,6 @@ func TestSbcExample1(t *testing.T) {
 	cpu2 := CPU{
 		C:     0xdffe,
 		nFlag: true,
-		zFlag: false,
-		vFlag: false,
-		cFlag: false,
 	}
 
 	err := cpu.compare(cpu2)
@@ -91,8 +66,6 @@ func TestSbcExample2(t *testing.T) {
 		C:     0x00ff,
 		mFlag: true,
 		nFlag: true,
-		zFlag: false,
-		cFlag: false,
 	}
 
 	err := cpu.compare(cpu2)
