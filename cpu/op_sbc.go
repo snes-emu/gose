@@ -15,7 +15,7 @@ func (cpu *CPU) sbc16(data uint16) uint16 {
 		// Last bit value
 		cpu.nFlag = result&0x8000 != 0
 		// Signed artihmetic overflow
-		cpu.vFlag = (data^result)&^(data^cpu.getCRegister())&0x8000 != 0
+		cpu.vFlag = ((data+1)^cpu.getCRegister())&^((data+1)^result)&0x8000 != 0
 		cpu.zFlag = result == 0
 		// Unsigned carry
 		cpu.cFlag = cpu.getCRegister() >= data
@@ -38,7 +38,7 @@ func (cpu *CPU) sbc8(data uint8) uint8 {
 		// Last bit value
 		cpu.nFlag = result&0x80 != 0
 		// Signed artihmetic overflow
-		cpu.vFlag = (data^result)&^(data^cpu.getARegister())&0x80 != 0
+		cpu.vFlag = ((data+1)^cpu.getARegister())&^((data+1)^result)&0x80 != 0
 		cpu.zFlag = result == 0
 		// Unsigned carry
 		cpu.cFlag = cpu.getARegister() >= data
