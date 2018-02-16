@@ -2,6 +2,31 @@ package cpu
 
 import "testing"
 
+func TestAdcExample1(t *testing.T) {
+	cpu := &CPU{
+		C:     0x0001,
+		mFlag: false,
+		dFlag: false,
+		cFlag: true,
+	}
+
+	cpu.adc(0x20, 0x03)
+
+	cpu2 := CPU{
+		C:     0x2005,
+		nFlag: false,
+		zFlag: false,
+		vFlag: false,
+		cFlag: false,
+	}
+
+	err := cpu.compare(cpu2)
+
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestSbcExample1(t *testing.T) {
 	cpu := &CPU{
 		C:     0x0001,
