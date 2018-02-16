@@ -27,7 +27,7 @@ type CPU struct {
 	X       uint16 // The X index register
 	Y       uint16 // The Y index register
 	cycles  uint16 // Number of cycles
-	memory  memory.Memory
+	memory  *memory.Memory
 	opcodes []cpuOperation
 }
 
@@ -37,7 +37,8 @@ var opcodes []cpuOperation
 
 func New() *CPU {
 	cpu := &CPU{}
-	cpu.opcodes[0x61] = cpu.op61
+	cpu.memory = memory.New()
+	// cpu.opcodes[0x61] = cpu.op61
 	return cpu
 }
 
