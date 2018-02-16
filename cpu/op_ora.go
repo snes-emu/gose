@@ -29,7 +29,7 @@ func (cpu *CPU) ora(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.ora8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.ora16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.ora16(utils.JoinUint16(dataHi, dataLo)))
 	}
 }
 

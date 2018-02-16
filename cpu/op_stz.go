@@ -5,7 +5,7 @@ import "github.com/snes-emu/gose/utils"
 // stz16 stores 0 in the memory
 func (cpu *CPU) stz16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.WriteUint16(0x0000)
+	dataHi, dataLo := utils.SplitUint16(0x0000)
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)

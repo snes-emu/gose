@@ -27,7 +27,7 @@ func (cpu *CPU) ldx(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.ldx8(dataLo)
 	} else {
-		cpu.ldx16(utils.ReadUint16(dataHi, dataLo))
+		cpu.ldx16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 

@@ -29,7 +29,7 @@ func (cpu *CPU) cpx(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.cpx8(dataLo)
 	} else {
-		cpu.cpx16(utils.ReadUint16(dataHi, dataLo))
+		cpu.cpx16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 

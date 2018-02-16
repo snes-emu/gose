@@ -29,7 +29,7 @@ func (cpu *CPU) cmp(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.sbc8(dataLo)
 	} else {
-		cpu.sbc16(utils.ReadUint16(dataHi, dataLo))
+		cpu.sbc16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 

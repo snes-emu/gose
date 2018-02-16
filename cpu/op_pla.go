@@ -7,7 +7,7 @@ func (cpu *CPU) pla16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.ReadUint16(dataHi, dataLo)
+	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result != 0

@@ -37,7 +37,7 @@ func (cpu *CPU) bit(dataHi, dataLo uint8, isImmediate bool) {
 	if cpu.mFlag {
 		cpu.bit8(dataLo, isImmediate)
 	} else {
-		cpu.bit16(utils.ReadUint16(dataHi, dataLo), isImmediate)
+		cpu.bit16(utils.JoinUint16(dataHi, dataLo), isImmediate)
 	}
 }
 

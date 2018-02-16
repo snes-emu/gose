@@ -4,7 +4,7 @@ import "github.com/snes-emu/gose/utils"
 
 // phx16 push the X register onto the stack
 func (cpu *CPU) phx16() {
-	dataHi, dataLo := utils.WriteUint16(cpu.getXRegister())
+	dataHi, dataLo := utils.SplitUint16(cpu.getXRegister())
 
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)

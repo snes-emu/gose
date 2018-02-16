@@ -4,7 +4,7 @@ import "github.com/snes-emu/gose/utils"
 
 // pha16 push the accumulator onto the stack
 func (cpu *CPU) pha16() {
-	dataHi, dataLo := utils.WriteUint16(cpu.getCRegister())
+	dataHi, dataLo := utils.SplitUint16(cpu.getCRegister())
 
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)

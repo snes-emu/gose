@@ -7,6 +7,6 @@ func (cpu *CPU) op6B() {
 	PCHi := cpu.pullStack()
 	cpu.K = cpu.pullStack()
 	cpu.cycles += 6
-	cpu.PC = utils.ReadUint16(PCHi, PCLo) + 1
+	cpu.PC = utils.JoinUint16(PCHi, PCLo) + 1
 
 }

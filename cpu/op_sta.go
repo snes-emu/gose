@@ -5,7 +5,7 @@ import "github.com/snes-emu/gose/utils"
 // sta16 stores the accumulator in the memory
 func (cpu *CPU) sta16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.WriteUint16(cpu.getCRegister())
+	dataHi, dataLo := utils.SplitUint16(cpu.getCRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)

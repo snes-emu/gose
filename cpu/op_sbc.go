@@ -53,7 +53,7 @@ func (cpu *CPU) sbc(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.sbc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.sbc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.sbc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 }
 

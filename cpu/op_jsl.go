@@ -5,7 +5,7 @@ import "github.com/snes-emu/gose/utils"
 // jsl jumps to a subroutine long
 func (cpu *CPU) jsl(haddr uint8, laddr uint16) {
 	cpu.pushStack(cpu.getKRegister())
-	hiaddr, loaddr := utils.WriteUint16(cpu.getPCRegister() + 3)
+	hiaddr, loaddr := utils.SplitUint16(cpu.getPCRegister() + 3)
 
 	cpu.pushStack(hiaddr)
 	cpu.pushStack(loaddr)

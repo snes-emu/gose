@@ -27,7 +27,7 @@ func (cpu *CPU) lda(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.lda8(dataLo)
 	} else {
-		cpu.lda16(utils.ReadUint16(dataHi, dataLo))
+		cpu.lda16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 

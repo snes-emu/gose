@@ -5,7 +5,7 @@ import (
 )
 
 func (cpu *CPU) op00() {
-	addressHi, addressLo := utils.WriteUint16(cpu.getPCRegister() + 2)
+	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -14,7 +14,7 @@ func (cpu *CPU) op00() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, 0xFFFE)
 		addressHi := cpu.memory.GetByteBank(0x00, 0xFFFF)
-		cpu.PC = utils.ReadUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -23,7 +23,7 @@ func (cpu *CPU) op00() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, 0xFFE6)
 		addressHi := cpu.memory.GetByteBank(0x00, 0xFFE7)
-		cpu.PC = utils.ReadUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true

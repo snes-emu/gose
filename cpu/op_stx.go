@@ -5,7 +5,7 @@ import "github.com/snes-emu/gose/utils"
 // stx16 stores the x register in the memory
 func (cpu *CPU) stx16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.WriteUint16(cpu.getXRegister())
+	dataHi, dataLo := utils.SplitUint16(cpu.getXRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)

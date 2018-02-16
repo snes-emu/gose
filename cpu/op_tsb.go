@@ -22,8 +22,8 @@ func (cpu *CPU) tsb(addressHi, addressLo uint32) {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.tsb8(cpu.memory.GetByte(addressLo)), addressLo)
 	} else {
-		result := cpu.tsb16(utils.ReadUint16(cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)))
-		resultHi, resultLo := utils.WriteUint16(result)
+		result := cpu.tsb16(utils.JoinUint16(cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)))
+		resultHi, resultLo := utils.SplitUint16(result)
 		cpu.memory.SetByte(resultLo, addressLo)
 		cpu.memory.SetByte(resultHi, addressHi)
 	}

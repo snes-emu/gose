@@ -29,7 +29,7 @@ func (cpu *CPU) and(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.and8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.and16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.and16(utils.JoinUint16(dataHi, dataLo)))
 	}
 }
 

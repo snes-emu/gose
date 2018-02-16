@@ -36,7 +36,7 @@ func (cpu *CPU) op1A() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 2
 }
@@ -47,7 +47,7 @@ func (cpu *CPU) opE6() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
@@ -58,7 +58,7 @@ func (cpu *CPU) opEE() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 }
@@ -69,7 +69,7 @@ func (cpu *CPU) opF6() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
@@ -80,7 +80,7 @@ func (cpu *CPU) opFE() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
 }

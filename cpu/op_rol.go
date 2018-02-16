@@ -42,7 +42,7 @@ func (cpu *CPU) rol8acc() {
 func (cpu *CPU) rol16data(haddress, laddress uint32) {
 	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 
-	data := utils.ReadUint16(dataHi, dataLo)
+	data := utils.JoinUint16(dataHi, dataLo)
 
 	result := data << 1
 
@@ -57,7 +57,7 @@ func (cpu *CPU) rol16data(haddress, laddress uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultHi, resultLo := utils.WriteUint16(data)
+	resultHi, resultLo := utils.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddress)
 	cpu.memory.SetByte(resultLo, laddress)

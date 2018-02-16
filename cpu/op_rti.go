@@ -8,7 +8,7 @@ func (cpu *CPU) op40() {
 	cpu.plp()
 	addressLo := cpu.pullStack()
 	addressHi := cpu.pullStack()
-	cpu.PC = utils.ReadUint16(addressHi, addressLo)
+	cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	if !cpu.eFlag {
 		cpu.K = cpu.pullStack()
 	}

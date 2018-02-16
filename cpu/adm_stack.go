@@ -29,6 +29,6 @@ func (cpu CPU) admPStackSYP() (uint32, uint32) {
 	haddress := uint32(cpu.getSRegister() + uint16(LL) + 1)
 	ll := cpu.memory.GetByte(laddress)
 	hh := cpu.memory.GetByte(haddress)
-	pointer := utils.ReadUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
 	return pointer + 1, pointer
 }

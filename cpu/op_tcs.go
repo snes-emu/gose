@@ -9,8 +9,8 @@ func (cpu *CPU) op1B() {
 	cpu.nFlag = cpu.C&0x8000 != 0
 	cpu.zFlag = cpu.C == 0
 	if cpu.eFlag {
-		_, dataLo := utils.WriteUint16(cpu.C)
-		cpu.S = utils.ReadUint16(0x01, dataLo)
+		_, dataLo := utils.SplitUint16(cpu.C)
+		cpu.S = utils.JoinUint16(0x01, dataLo)
 	} else {
 		cpu.S = cpu.C
 	}

@@ -29,7 +29,7 @@ func (cpu *CPU) eor(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.eor8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.eor16(utils.ReadUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.eor16(utils.JoinUint16(dataHi, dataLo)))
 	}
 }
 

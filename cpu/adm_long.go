@@ -7,7 +7,7 @@ func (cpu CPU) admLongJ() (uint8, uint16) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	MM := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+3)
-	return HH, utils.ReadUint16(MM, LL)
+	return HH, utils.JoinUint16(MM, LL)
 }
 
 // LONG addressing mode
@@ -21,7 +21,7 @@ func (cpu CPU) admLongP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	MM := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+3)
-	address := utils.ReadUint32(HH, MM, LL)
+	address := utils.JoinUint32(HH, MM, LL)
 	return address + 1, address
 }
 
@@ -36,6 +36,6 @@ func (cpu CPU) admLongXP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	MM := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+3)
-	address := utils.ReadUint32(HH, MM, LL) + uint32(cpu.getXRegister())
+	address := utils.JoinUint32(HH, MM, LL) + uint32(cpu.getXRegister())
 	return address + 1, address
 }

@@ -44,7 +44,7 @@ func New() *CPU {
 
 func (cpu *CPU) pushStack(data uint8) {
 	if cpu.eFlag {
-		cpu.memory.SetByteBank(data, 0x00, utils.ReadUint16(0x01, cpu.getSLRegister()))
+		cpu.memory.SetByteBank(data, 0x00, utils.JoinUint16(0x01, cpu.getSLRegister()))
 		cpu.setSLRegister(cpu.getSLRegister() - 1)
 	} else {
 		cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
@@ -55,7 +55,7 @@ func (cpu *CPU) pushStack(data uint8) {
 func (cpu *CPU) pullStack() uint8 {
 	var data uint8
 	if cpu.eFlag {
-		data = cpu.memory.GetByteBank(0x00, utils.ReadUint16(0x01, cpu.getSLRegister()+1))
+		data = cpu.memory.GetByteBank(0x00, utils.JoinUint16(0x01, cpu.getSLRegister()+1))
 		cpu.setSLRegister(cpu.getSLRegister() + 1)
 		return data
 	}

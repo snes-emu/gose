@@ -29,7 +29,7 @@ func (cpu *CPU) cpy(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.cpy8(dataLo)
 	} else {
-		cpu.cpy16(utils.ReadUint16(dataHi, dataLo))
+		cpu.cpy16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 
