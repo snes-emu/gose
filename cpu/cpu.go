@@ -35,8 +35,8 @@ type cpuOperation func()
 
 var opcodes []cpuOperation
 
-func makeCPU() CPU {
-	cpu := CPU{}
+func New() *CPU {
+	cpu := &CPU{}
 	cpu.opcodes[0x61] = cpu.op61
 	return cpu
 }
