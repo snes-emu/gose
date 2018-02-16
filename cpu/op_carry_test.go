@@ -22,55 +22,44 @@ func TestAdc(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
+	for i, tc := range testCases {
 		tc.value.adc(tc.dataHi, tc.dataLo)
 
 		err := tc.value.compare(tc.expected)
 
 		if err != nil {
-			t.Error(err)
+			t.Errorf("Test %v failed: \n%v", i, err)
 		}
 	}
 }
 
-func TestSbcExample1(t *testing.T) {
-	cpu := &CPU{
-		C:     0x0001,
-		cFlag: true,
+func TestSbc(t *testing.T) {
+
+	testCases := []struct {
+		expected       CPU
+		value          *CPU
+		dataHi, dataLo uint8
+		operator       func(uint8, uint8)
+	}{
+		{
+			expected: CPU{C: 0x00ff, mFlag: true, nFlag: true},
+			value:    &CPU{C: 0x0002, mFlag: true, cFlag: true},
+			dataHi:   0x00, dataLo: 0x03,
+		},
+		{
+			expected: CPU{C: 0xdffe, nFlag: true},
+			value:    &CPU{C: 0x0001, cFlag: true},
+			dataHi:   0x20, dataLo: 0x03,
+		},
 	}
 
-	cpu.sbc(0x20, 0x03)
+	for i, tc := range testCases {
+		tc.value.sbc(tc.dataHi, tc.dataLo)
 
-	cpu2 := CPU{
-		C:     0xdffe,
-		nFlag: true,
-	}
+		err := tc.value.compare(tc.expected)
 
-	err := cpu.compare(cpu2)
-
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestSbcExample2(t *testing.T) {
-	cpu := &CPU{
-		C:     0x0002,
-		mFlag: true,
-		cFlag: true,
-	}
-
-	cpu.sbc(0x00, 0x03)
-
-	cpu2 := CPU{
-		C:     0x00ff,
-		mFlag: true,
-		nFlag: true,
-	}
-
-	err := cpu.compare(cpu2)
-
-	if err != nil {
-		t.Error(err)
+		if err != nil {
+			t.Errorf("Test %v failed: \n%v", i, err)
+		}
 	}
 }
