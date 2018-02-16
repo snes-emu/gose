@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func (cpu CPU) compare(cpu2 CPU) error {
+func (cpu2 CPU) compare(cpu CPU) error {
 	msg := ""
 
 	if cpu.C != cpu2.C {
