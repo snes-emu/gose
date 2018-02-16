@@ -9,3 +9,11 @@ func (cpu *CPU) opEB() {
 	cpu.cycles += 3
 	cpu.PC++
 }
+
+func (cpu *CPU) opFB() {
+	temp := cpu.eFlag
+	cpu.eFlag = cpu.cFlag
+	cpu.cFlag = temp
+	cpu.cycles += 2
+	cpu.PC++
+}
