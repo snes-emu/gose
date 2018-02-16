@@ -27,9 +27,9 @@ func (cpu *CPU) cmp8(data uint8) {
 // cmp compare the accumulator to the data handling the 16bit/8bit distinction
 func (cpu *CPU) cmp(dataHi, dataLo uint8) {
 	if cpu.mFlag {
-		cpu.sbc8(dataLo)
+		cpu.cmp8(dataLo)
 	} else {
-		cpu.sbc16(utils.JoinUint16(dataHi, dataLo))
+		cpu.cmp16(utils.JoinUint16(dataHi, dataLo))
 	}
 }
 
