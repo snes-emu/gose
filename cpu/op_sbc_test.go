@@ -2,7 +2,7 @@ package cpu
 
 import "testing"
 
-func TestAdcExample1(t *testing.T) {
+func TestSbcExample1(t *testing.T) {
 	cpu := New()
 
 	cpu.setCRegister(0x0001)
@@ -23,7 +23,7 @@ func TestAdcExample1(t *testing.T) {
 	}
 }
 
-func TestAdcExample2(t *testing.T) {
+func TestSbcExample2(t *testing.T) {
 	cpu := New()
 
 	cpu.setCRegister(0x0001)
