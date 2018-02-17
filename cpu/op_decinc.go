@@ -43,44 +43,56 @@ func (cpu *CPU) op3A() {
 
 //opC6 performs a decrement operation on memory through direct addressing mode
 func (cpu *CPU) opC6() {
-	dataHi, dataLo := cpu.admDirect()
+	addressHi, addressLo := cpu.admDirectP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.dec8(dataLo))
+		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
 //opCE performs a decrement operation on memory through the absolute addressing mode
 func (cpu *CPU) opCE() {
-	dataHi, dataLo := cpu.admAbsolute()
+	addressHi, addressLo := cpu.admAbsoluteP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.dec8(dataLo))
+		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 }
 
 //opD6 performs a decrement operation on memory through direct,X addressing mode
 func (cpu *CPU) opD6() {
-	dataHi, dataLo := cpu.admDirectX()
+	addressHi, addressLo := cpu.admDirectXP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.dec8(dataLo))
+		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
 //opDE performs a decrement operation on memory through absolute,X addressing mode
 func (cpu *CPU) opDE() {
-	dataHi, dataLo := cpu.admAbsoluteX()
+	addressHi, addressLo := cpu.admAbsoluteXP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.dec8(dataLo))
+		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
 }
