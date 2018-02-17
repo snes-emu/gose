@@ -8,7 +8,6 @@ func TestAnd(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0xf231},
@@ -44,7 +43,6 @@ func TestEor(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0x0f06},
@@ -80,7 +78,6 @@ func TestOra(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0xf006},

@@ -8,7 +8,6 @@ func TestXba(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0x6789},
@@ -33,7 +32,6 @@ func TestXce(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{eFlag: true},

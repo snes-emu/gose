@@ -8,7 +8,6 @@ func TestCmp(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0x1234},
@@ -44,7 +43,6 @@ func TestCpx(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{X: 0x1234},
@@ -80,7 +78,6 @@ func TestCpy(t *testing.T) {
 		value          *CPU
 		expected       CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{Y: 0x2567},

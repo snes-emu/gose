@@ -11,7 +11,6 @@ func TestBit(t *testing.T) {
 		value          *CPU
 		dataHi, dataLo uint8
 		immediate      bool
-		operator       func(uint8, uint8)
 	}{
 		{
 			value:    &CPU{C: 0x0043, DBR: 0x12, mFlag: true},

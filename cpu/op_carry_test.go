@@ -8,7 +8,6 @@ func TestAdc(t *testing.T) {
 		expected       CPU
 		value          *CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			expected: CPU{C: 0x2005},
@@ -39,7 +38,6 @@ func TestSbc(t *testing.T) {
 		expected       CPU
 		value          *CPU
 		dataHi, dataLo uint8
-		operator       func(uint8, uint8)
 	}{
 		{
 			expected: CPU{C: 0x00ff, mFlag: true, nFlag: true},
