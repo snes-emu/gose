@@ -5,39 +5,42 @@ import (
 )
 
 //pea pushes the next 16bit value into the stack
-func (cpu *CPU) pea(data uint16) {
-	dataHi, dataLo := utils.SplitUint16(data)
+func (cpu *CPU) pea(dataHi, dataLo uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
-	cpu.cycles += 5
 }
 
-func (cpu *CPU) opF4(data uint16) {
-	cpu.pea(data)
+func (cpu *CPU) opF4() {
+	dataHi, dataLo := cpu.admImmediate16()
+	cpu.pea(dataHi, dataLo)
+	cpu.cycles += 5
+	cpu.PC += 3
 }
 
 //pei pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) pei() {
-	dataHi, dataLo := cpu.admDirect()
+func (cpu *CPU) pei(dataHi, dataLo uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
-	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
 func (cpu *CPU) opD4() {
-	cpu.pei()
+	dataHi, dataLo := cpu.admDirect()
+	cpu.pei(dataHi, dataLo)
+	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 //per pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) per(data uint16) {
-	dataHi, dataLo := utils.SplitUint16(data)
+func (cpu *CPU) per(dataHi, dataLo uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
-	cpu.cycles += 6
 }
 
-func (cpu *CPU) op62(data uint16) {
-	cpu.per(data)
+func (cpu *CPU) op62() {
+	dataHi, dataLo := cpu.admImmediate16()
+	cpu.per(dataHi, dataLo)
+	cpu.cycles += 6
+	cpu.PC += 3
 }
 
 // pha16 push the accumulator onto the stack
