@@ -51,7 +51,7 @@ func (cpu *CPU) opC2() {
 	if cpu.eFlag {
 		cpu.bFlag = cpu.bFlag && dataLo&0x10 == 0
 	} else {
-		cpu.xFlag = cpu.xFlag && dataLo&0x10 == 0
+		cpu.setXFlag(cpu.xFlag && dataLo&0x10 == 0)
 	}
 	cpu.mFlag = cpu.mFlag && dataLo&0x20 == 0
 	cpu.vFlag = cpu.vFlag && dataLo&0x40 == 0
@@ -70,7 +70,7 @@ func (cpu *CPU) opE2() {
 	if cpu.eFlag {
 		cpu.bFlag = cpu.bFlag || dataLo&0x10 != 0
 	} else {
-		cpu.xFlag = cpu.xFlag || dataLo&0x10 != 0
+		cpu.setXFlag(cpu.xFlag || dataLo&0x10 != 0)
 	}
 	cpu.mFlag = cpu.mFlag || dataLo&0x20 != 0
 	cpu.vFlag = cpu.vFlag || dataLo&0x40 != 0

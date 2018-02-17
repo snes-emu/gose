@@ -213,10 +213,10 @@ func (cpu *CPU) plp() {
 	cpu.nFlag = P&0x80 != 0
 	if cpu.eFlag {
 		cpu.bFlag = P&0x10 != 0
-		cpu.xFlag = true
+		cpu.setXFlag(true)
 		cpu.mFlag = true
 	} else {
-		cpu.xFlag = P&0x10 != 0
+		cpu.setXFlag(P&0x10 != 0)
 	}
 }
 
