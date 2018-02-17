@@ -73,3 +73,39 @@ func TestCpx(t *testing.T) {
 		}
 	}
 }
+
+func TestCpy(t *testing.T) {
+
+	testCases := []struct {
+		value          *CPU
+		expected       CPU
+		dataHi, dataLo uint8
+		operator       func(uint8, uint8)
+	}{
+		{
+			value:    &CPU{Y: 0x2567},
+			expected: CPU{Y: 0x2567, zFlag: true, cFlag: true},
+			dataHi:   0x25, dataLo: 0x67,
+		},
+		{
+			value:    &CPU{Y: 0x0019, xFlag: true},
+			expected: CPU{Y: 0x0019, xFlag: true, zFlag: true, cFlag: true},
+			dataHi:   0x00, dataLo: 0x19,
+		},
+		{
+			value:    &CPU{Y: 0x00da, xFlag: true},
+			expected: CPU{Y: 0x00da, xFlag: true},
+			dataHi:   0x00, dataLo: 0xd9,
+		},
+	}
+
+	for i, tc := range testCases {
+		tc.value.cpy(tc.dataHi, tc.dataLo)
+
+		err := tc.value.compare(tc.expected)
+
+		if err != nil {
+			t.Errorf("Test %v failed: \n%v", i, err)
+		}
+	}
+}
