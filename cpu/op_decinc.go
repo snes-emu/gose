@@ -41,7 +41,7 @@ func (cpu *CPU) op3A() {
 	cpu.cycles += 2
 }
 
-//opC6 performs a decrement operation on the D register
+//opC6 performs a decrement operation on memory through direct addressing mode
 func (cpu *CPU) opC6() {
 	dataHi, dataLo := cpu.admDirect()
 	if cpu.mFlag {
@@ -52,7 +52,7 @@ func (cpu *CPU) opC6() {
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
-//opCE performs a decrement operation through the absolute access mode
+//opCE performs a decrement operation on memory through the absolute addressing mode
 func (cpu *CPU) opCE() {
 	dataHi, dataLo := cpu.admAbsolute()
 	if cpu.mFlag {
@@ -63,7 +63,7 @@ func (cpu *CPU) opCE() {
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 }
 
-//opD6 performs a decrement operation on the X register, direct mode
+//opD6 performs a decrement operation on memory through direct,X addressing mode
 func (cpu *CPU) opD6() {
 	dataHi, dataLo := cpu.admDirectX()
 	if cpu.mFlag {
@@ -74,7 +74,7 @@ func (cpu *CPU) opD6() {
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
-//opDE performs a decrement operation on the X register, absolute mode
+//opDE performs a decrement operation on memory through absolute,X addressing mode
 func (cpu *CPU) opDE() {
 	dataHi, dataLo := cpu.admAbsoluteX()
 	if cpu.mFlag {
@@ -162,7 +162,7 @@ func (cpu *CPU) op1A() {
 	cpu.cycles += 2
 }
 
-//opE6 performs a increment operation on the D register
+//opE6 performs a increment operation on memory through direct addressing mode
 func (cpu *CPU) opE6() {
 	dataHi, dataLo := cpu.admDirect()
 	if cpu.mFlag {
@@ -184,7 +184,7 @@ func (cpu *CPU) opEE() {
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 }
 
-//opF6 performs a increment operation on the X register, direct mode
+//opF6 performs a increment operation on memory through direct,X addressing mode
 func (cpu *CPU) opF6() {
 	dataHi, dataLo := cpu.admDirectX()
 	if cpu.mFlag {
@@ -195,7 +195,7 @@ func (cpu *CPU) opF6() {
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
-//opF6 performs a increment operation on the X register, absolute mode
+//opF6 performs a increment operation on memory through absolute,X addressing mode
 func (cpu *CPU) opFE() {
 	dataHi, dataLo := cpu.admAbsoluteX()
 	if cpu.mFlag {
