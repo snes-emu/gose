@@ -179,3 +179,10 @@ func (cpu CPU) getYHRegister() uint8 {
 func (cpu *CPU) setYHRegister(y uint8) {
 	cpu.Y = (cpu.Y & 0x00ff) | uint16(y)
 }
+
+// setXFlag sets the x flag and take care of the reset of X and Y higher bits
+func (cpu *CPU) setXFlag(x bool) {
+	cpu.xFlag = x
+	cpu.setXHRegister(0x00)
+	cpu.setYHRegister(0x00)
+}
