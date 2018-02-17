@@ -11,9 +11,7 @@ func (cpu *CPU) opEB() {
 }
 
 func (cpu *CPU) opFB() {
-	temp := cpu.eFlag
-	cpu.eFlag = cpu.cFlag
-	cpu.cFlag = temp
+	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
 	cpu.cycles += 2
 	cpu.PC++
 }
