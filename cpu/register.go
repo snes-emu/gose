@@ -183,6 +183,8 @@ func (cpu *CPU) setYHRegister(y uint8) {
 // setXFlag sets the x flag and take care of the reset of X and Y higher bits
 func (cpu *CPU) setXFlag(x bool) {
 	cpu.xFlag = x
-	cpu.setXHRegister(0x00)
-	cpu.setYHRegister(0x00)
+	if x {
+		cpu.setXHRegister(0x00)
+		cpu.setYHRegister(0x00)
+	}
 }
