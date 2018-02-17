@@ -1,27 +1,32 @@
 package memory
 
+const bankNumber = 256
+const offsetMask = 0xFFFF
+
 type Memory struct {
-	bytes []uint8
+	bank [bankNumber][]uint8
 }
 
 func New() *Memory {
-	return &Memory{
-		make([]byte, 65535),
+	memory := &Memory{}
+	for bank := 0; bank < bankNumber; bank++ {
+		memory.bank[bank] = make([]byte, 1<<16)
 	}
+	return memory
 }
 
 func (memory Memory) GetByte(index uint32) uint8 {
-	return memory.bytes[index]
+	return memory.bank[index>>16][index&offsetMask]
 }
 
 func (memory Memory) GetByteBank(K uint8, address uint16) uint8 {
-	return memory.bytes[uint32(K)<<16 + +uint32(address)]
+	return memory.bank[K][address]
 }
 
 func (memory Memory) SetByte(value uint8, index uint32) {
-	memory.bytes[index] = value
+	memory.bank[index>>16][index&offsetMask] = value
 }
 
 func (memory Memory) SetByteBank(value uint8, K uint8, address uint16) {
-	memory.bytes[uint32(K)<<16 + +uint32(address)] = value
+	memory.bank[K][address] = value
 }
