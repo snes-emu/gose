@@ -88,9 +88,18 @@ func (cpu *CPU) opDE() {
 //opCA performs a decrement operation on the X register
 func (cpu *CPU) opCA() {
 	if cpu.xFlag {
-		cpu.setXLRegister(cpu.getXLRegister() - 1)
+		result := cpu.getXLRegister() - 1
+		cpu.setXLRegister(result)
+		// Last bit value
+		cpu.nFlag = result&0x80 != 0
+		// Zero result flag
+		cpu.zFlag = result == 0
 	} else {
 		cpu.X--
+		// Last bit value
+		cpu.nFlag = cpu.X&0x8000 != 0
+		// Zero result flag
+		cpu.zFlag = cpu.X == 0
 	}
 	cpu.cycles += 2
 }
