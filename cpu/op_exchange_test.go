@@ -26,3 +26,28 @@ func TestXba(t *testing.T) {
 		}
 	}
 }
+
+func TestXce(t *testing.T) {
+
+	testCases := []struct {
+		value          *CPU
+		expected       CPU
+		dataHi, dataLo uint8
+		operator       func(uint8, uint8)
+	}{
+		{
+			value:    &CPU{eFlag: true},
+			expected: CPU{cFlag: true, PC: 1},
+		},
+	}
+
+	for i, tc := range testCases {
+		tc.value.opFB()
+
+		err := tc.value.compare(tc.expected)
+
+		if err != nil {
+			t.Errorf("Test %v failed: \n%v", i, err)
+		}
+	}
+}
