@@ -4,28 +4,40 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
-//opF4 pushes the next 16bit value into the stack
-func (cpu *CPU) opF4(data uint16) {
+//pea pushes the next 16bit value into the stack
+func (cpu *CPU) pea(data uint16) {
 	dataHi, dataLo := utils.SplitUint16(data)
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
 	cpu.cycles += 5
 }
 
-//opD4 pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) opD4() {
+func (cpu *CPU) opF4(data uint16) {
+	cpu.pea(data)
+}
+
+//pei pushes 16bit data into the stack, called thanks to the next 8bit value
+func (cpu *CPU) pei() {
 	dataHi, dataLo := cpu.admDirect()
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
-//op62 pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) op62(data uint16) {
+func (cpu *CPU) opD4() {
+	cpu.pei()
+}
+
+//per pushes 16bit data into the stack, called thanks to the next 8bit value
+func (cpu *CPU) per(data uint16) {
 	dataHi, dataLo := utils.SplitUint16(data)
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
 	cpu.cycles += 6
+}
+
+func (cpu *CPU) op62(data uint16) {
+	cpu.per(data)
 }
 
 // pha16 push the accumulator onto the stack
