@@ -176,44 +176,56 @@ func (cpu *CPU) op1A() {
 
 //opE6 performs a increment operation on memory through direct addressing mode
 func (cpu *CPU) opE6() {
-	dataHi, dataLo := cpu.admDirect()
+	addressHi, addressLo := cpu.admDirectP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.inc8(dataLo))
+		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
 //opEE performs a increment operation through the absolute access mode
 func (cpu *CPU) opEE() {
-	dataHi, dataLo := cpu.admAbsolute()
+	addressHi, addressLo := cpu.admAbsoluteP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.inc8(dataLo))
+		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 }
 
 //opF6 performs a increment operation on memory through direct,X addressing mode
 func (cpu *CPU) opF6() {
-	dataHi, dataLo := cpu.admDirectX()
+	addressHi, addressLo := cpu.admDirectXP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.inc8(dataLo))
+		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 }
 
 //opF6 performs a increment operation on memory through absolute,X addressing mode
 func (cpu *CPU) opFE() {
-	dataHi, dataLo := cpu.admAbsoluteX()
+	addressHi, addressLo := cpu.admAbsoluteXP()
+	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
-		cpu.setARegister(cpu.inc8(dataLo))
+		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
 }
