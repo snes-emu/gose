@@ -107,9 +107,18 @@ func (cpu *CPU) opCA() {
 //op88 performs a decrement operation on the Y register, immediate mode
 func (cpu *CPU) op88() {
 	if cpu.xFlag {
-		cpu.setYLRegister(cpu.getYLRegister() - 1)
+		result := cpu.getYLRegister() - 1
+		cpu.setYLRegister(result)
+		// Last bit value
+		cpu.nFlag = result&0x80 != 0
+		// Zero result flag
+		cpu.zFlag = result == 0
 	} else {
 		cpu.Y--
+		// Last bit value
+		cpu.nFlag = cpu.Y&0x8000 != 0
+		// Zero result flag
+		cpu.zFlag = cpu.Y == 0
 	}
 	cpu.cycles += 2
 }
