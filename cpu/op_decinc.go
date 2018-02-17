@@ -209,19 +209,38 @@ func (cpu *CPU) opFE() {
 //opE8 performs a increment operation on the X register, immediate mode
 func (cpu *CPU) opE8() {
 	if cpu.xFlag {
-		cpu.setXLRegister(cpu.getXLRegister() + 1)
+		result := cpu.getXLRegister() + 1
+		cpu.setXLRegister(result)
+		// Last bit value
+		cpu.nFlag = result&0x80 != 0
+		// Zero result flag
+		cpu.zFlag = result == 0
 	} else {
 		cpu.X++
+		// Last bit value
+		cpu.nFlag = cpu.X&0x8000 != 0
+		// Zero result flag
+		cpu.zFlag = cpu.X == 0
+		cpu.cycles += 2
 	}
-	cpu.cycles += 2
 }
 
 //opC8 performs a increment operation on the Y register, immediate mode
 func (cpu *CPU) opC8() {
 	if cpu.xFlag {
-		cpu.setYLRegister(cpu.getYLRegister() + 1)
+		result := cpu.getYLRegister() + 1
+		cpu.setXLRegister(result)
+		// Last bit value
+		cpu.nFlag = result&0x80 != 0
+		// Zero result flag
+		cpu.zFlag = result == 0
 	} else {
 		cpu.Y++
+		// Last bit value
+		cpu.nFlag = cpu.Y&0x8000 != 0
+		// Zero result flag
+		cpu.zFlag = cpu.Y == 0
+		cpu.cycles += 2
 	}
 	cpu.cycles += 2
 }
