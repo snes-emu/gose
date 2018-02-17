@@ -137,7 +137,7 @@ func (cpu CPU) getXLRegister() uint8 {
 
 // setXLRegister sets the lower 8 bits of the X register
 func (cpu *CPU) setXLRegister(x uint8) {
-	cpu.X = (cpu.X & 0xff00) | uint16(x)
+	cpu.X = uint16(x)
 }
 
 // getXHRegister returns the upper 8 bits of the X index register
@@ -147,7 +147,7 @@ func (cpu CPU) getXHRegister() uint8 {
 
 // setXHRegister sets the upper 8 bits of the X register
 func (cpu *CPU) setXHRegister(x uint8) {
-	cpu.X = (cpu.X & 0x00ff) | uint16(x)
+	cpu.X = uint16(x)
 }
 
 // getYRegister returns the Y index register
