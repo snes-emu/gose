@@ -4,7 +4,7 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
-func (cpu *CPU) op00() {
+func (cpu *CPU) brk() {
 	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
@@ -28,10 +28,13 @@ func (cpu *CPU) op00() {
 	cpu.dFlag = false
 	cpu.iFlag = true
 	cpu.cycles += 8 - utils.BoolToUint16[cpu.eFlag]
-
 }
 
-func (cpu *CPU) op02() {
+func (cpu *CPU) op00() {
+	cpu.brk()
+}
+
+func (cpu *CPU) cop() {
 	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
@@ -55,4 +58,8 @@ func (cpu *CPU) op02() {
 	cpu.iFlag = true
 	cpu.cycles += 8 - utils.BoolToUint16[cpu.eFlag]
 
+}
+
+func (cpu *CPU) op02() {
+	cpu.cop()
 }
