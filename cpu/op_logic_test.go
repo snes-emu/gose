@@ -73,3 +73,39 @@ func TestEor(t *testing.T) {
 		}
 	}
 }
+
+func TestOra(t *testing.T) {
+
+	testCases := []struct {
+		value          *CPU
+		expected       CPU
+		dataHi, dataLo uint8
+		operator       func(uint8, uint8)
+	}{
+		{
+			value:    &CPU{C: 0xf006},
+			expected: CPU{C: 0xf107, nFlag: true},
+			dataHi:   0xf1, dataLo: 0x03,
+		},
+		{
+			value:    &CPU{C: 0x0000, mFlag: true},
+			expected: CPU{C: 0x00ff, mFlag: true, nFlag: true},
+			dataHi:   0x00, dataLo: 0xff,
+		},
+		{
+			value:    &CPU{C: 0x0000, mFlag: true},
+			expected: CPU{C: 0x0000, mFlag: true, zFlag: true},
+			dataHi:   0x00, dataLo: 0x00,
+		},
+	}
+
+	for i, tc := range testCases {
+		tc.value.ora(tc.dataHi, tc.dataLo)
+
+		err := tc.value.compare(tc.expected)
+
+		if err != nil {
+			t.Errorf("Test %v failed: \n%v", i, err)
+		}
+	}
+}
