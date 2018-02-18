@@ -2,7 +2,7 @@ package cpu
 
 import "github.com/snes-emu/gose/utils"
 
-func (cpu *CPU) op40() {
+func (cpu *CPU) rti() {
 	cpu.plp()
 	addressLo := cpu.pullStack()
 	addressHi := cpu.pullStack()
@@ -14,18 +14,29 @@ func (cpu *CPU) op40() {
 
 }
 
-func (cpu *CPU) op6B() {
+func (cpu *CPU) op40() {
+	cpu.rti()
+}
+
+func (cpu *CPU) rtl() {
 	PCLo := cpu.pullStack()
 	PCHi := cpu.pullStack()
 	cpu.K = cpu.pullStack()
 	cpu.cycles += 6
 	cpu.PC = utils.JoinUint16(PCHi, PCLo) + 1
-
 }
 
-func (cpu *CPU) op60() {
+func (cpu *CPU) op6B() {
+	cpu.rtl()
+}
+
+func (cpu *CPU) rts() {
 	PCLo := cpu.pullStack()
 	PCHi := cpu.pullStack()
 	cpu.cycles += 6
 	cpu.PC = utils.JoinUint16(PCHi, PCLo) + 1
+}
+
+func (cpu *CPU) op60() {
+	cpu.rts()
 }
