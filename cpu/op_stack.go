@@ -39,16 +39,12 @@ func (cpu *CPU) op62() {
 // pha16 push the accumulator onto the stack
 func (cpu *CPU) pha16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getCRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // pha8 push the lower bit of the accumulator onto the stack
 func (cpu *CPU) pha8() {
-	data := cpu.getARegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getARegister())
 }
 
 func (cpu *CPU) pha() {
@@ -109,16 +105,12 @@ func (cpu *CPU) op08() {
 // phx16 push the X register onto the stack
 func (cpu *CPU) phx16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getXRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // phx8 push the lower bit of the X register onto the stack
 func (cpu *CPU) phx8() {
-	data := cpu.getXLRegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getXLRegister())
 }
 
 func (cpu *CPU) phx() {
@@ -131,21 +123,19 @@ func (cpu *CPU) phx() {
 
 func (cpu *CPU) opDA() {
 	cpu.phx()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // phy16 push the Y register onto the stack
 func (cpu *CPU) phy16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getYRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // phy8 push the lower bit of the Y register onto the stack
 func (cpu *CPU) phy8() {
-	data := cpu.getYLRegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getYLRegister())
 }
 
 func (cpu *CPU) phy() {
