@@ -9,6 +9,7 @@ const hiROM = 1
 const exLoROM = 2
 const exHiROM = 3
 
+// Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
 	main    [bankNumber][]uint8
 	sram    [sramSize]uint8
@@ -16,6 +17,7 @@ type Memory struct {
 	romType int
 }
 
+// New creates a Memory struct and initialize it
 func New() *Memory {
 	memory := &Memory{}
 	for bank := 0; bank < bankNumber; bank++ {
@@ -24,6 +26,7 @@ func New() *Memory {
 	return memory
 }
 
+// LoadROM takes a memory buffer and load it into memory depending ROM type
 func (memory *Memory) LoadROM(ROM []byte) {
 
 	// only LoROM for now
@@ -41,12 +44,14 @@ func (memory *Memory) LoadROM(ROM []byte) {
 	}
 }
 
+//GetByte gets a byte by its complete address
 func (memory Memory) GetByte(index uint32) uint8 {
 	K := index >> 16
 	offset := index & offsetMask
 	return memory.GetByteBank(uint8(K), uint16(offset))
 }
 
+//GetByteBank gets a byte by memory bank and offset
 func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	switch memory.romType {
 	case loROM:
@@ -67,12 +72,14 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	}
 }
 
+//SetByte sets a byte by its complete address
 func (memory *Memory) SetByte(value uint8, index uint32) {
 	K := index >> 16
 	offset := index & offsetMask
 	memory.SetByteBank(value, uint8(K), uint16(offset))
 }
 
+//SetByteBank sets a byte by memory bank and offset
 func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	if K < 0x40 {
 		if offset < 0x2000 {
