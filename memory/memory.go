@@ -67,5 +67,13 @@ func (memory Memory) SetByte(value uint8, index uint32) {
 }
 
 func (memory Memory) SetByteBank(value uint8, K uint8, offset uint16) {
-	memory.main[K][offset] = value
+	if K < 0x40 {
+		if offset < 0x2000 {
+			memory.wram[offset] = value
+		}
+	} else if K > 0x6F && K < 0x7E && offset < 0x8000 {
+		memory.sram[offset] = value
+	} else if K > 0x7D && K < 0x80 {
+		memory.wram[offset+uint16(K)-0x7E] = value
+	}
 }
