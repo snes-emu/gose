@@ -48,16 +48,23 @@ func (memory Memory) GetByte(index uint32) uint8 {
 }
 
 func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
-	if K < 0x40 {
-		if offset < 0x2000 {
-			return memory.wram[offset]
+	switch memory.romType {
+	case loROM:
+		if K < 0x40 || (0x7F < K && K < 0xC0) {
+			if offset < 0x2000 {
+				return memory.wram[offset]
+			}
+		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
+			return memory.sram[offset]
+		} else if K > 0x7D && K < 0x80 {
+			return memory.wram[offset+uint16(K)-0x7E]
+		} else if 0xFD < K && offset < 0x8000 {
+			return memory.sram[offset]
 		}
-	} else if K > 0x6F && K < 0x7E && offset < 0x8000 {
-		return memory.sram[offset]
-	} else if K > 0x7D && K < 0x80 {
-		return memory.wram[offset+uint16(K)-0x7E]
+		return memory.main[K][offset]
+	default:
+		return 0x00
 	}
-	return memory.main[K][offset]
 }
 
 func (memory *Memory) SetByte(value uint8, index uint32) {
