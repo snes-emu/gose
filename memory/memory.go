@@ -60,13 +60,13 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	return memory.main[K][offset]
 }
 
-func (memory Memory) SetByte(value uint8, index uint32) {
+func (memory *Memory) SetByte(value uint8, index uint32) {
 	K := index >> 16
 	offset := index & offsetMask
 	memory.SetByteBank(value, uint8(K), uint16(offset))
 }
 
-func (memory Memory) SetByteBank(value uint8, K uint8, offset uint16) {
+func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	if K < 0x40 {
 		if offset < 0x2000 {
 			memory.wram[offset] = value
