@@ -17,28 +17,16 @@ func (cpu *CPU) opF4() {
 	cpu.PC += 3
 }
 
-//pei pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) pei(dataHi, dataLo uint8) {
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
-}
-
 func (cpu *CPU) opD4() {
 	dataHi, dataLo := cpu.admDirect()
-	cpu.pei(dataHi, dataLo)
+	cpu.pea(dataHi, dataLo)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
-//per pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) per(dataHi, dataLo uint8) {
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
-}
-
 func (cpu *CPU) op62() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.per(dataHi, dataLo)
+	cpu.pea(dataHi, dataLo)
 	cpu.cycles += 6
 	cpu.PC += 3
 }
