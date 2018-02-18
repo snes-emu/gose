@@ -27,7 +27,7 @@ func New() *Memory {
 func (memory *Memory) LoadROM(ROM []byte) {
 
 	// only LoROM for now
-	if memory.romType == 0 {
+	if memory.romType == loROM {
 		for bank := 0x00; bank < 0x80; bank++ {
 			memory.main[bank] = make([]byte, 0xFFFF+1)
 			for offset := 0x8000; offset < 0x10000; offset++ {
