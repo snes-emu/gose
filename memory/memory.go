@@ -42,17 +42,30 @@ func (memory *Memory) LoadROM(ROM []byte) {
 }
 
 func (memory Memory) GetByte(index uint32) uint8 {
-	return memory.main[index>>16][index&offsetMask]
+	K := index >> 16
+	offset := index & offsetMask
+	if K < 0x40 {
+		if offset < 0x2000 {
+			return memory.wram[offset]
+		}
+	} else if K > 0x6F && K < 0x7E && offset < 0x8000 {
+		return memory.sram[offset]
+	} else if K > 0x7D && K < 0x80 {
+		return memory.wram[offset+K-0x7E]
+	}
+	return memory.main[K][offset]
 }
 
-func (memory Memory) GetByteBank(K uint8, address uint16) uint8 {
-	return memory.main[K][address]
+func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
+	return memory.main[K][offset]
 }
 
 func (memory Memory) SetByte(value uint8, index uint32) {
-	memory.main[index>>16][index&offsetMask] = value
+	K := index >> 16
+	offset := index & offsetMask
+	memory.main[K][offset] = value
 }
 
-func (memory Memory) SetByteBank(value uint8, K uint8, address uint16) {
-	memory.main[K][address] = value
+func (memory Memory) SetByteBank(value uint8, K uint8, offset uint16) {
+	memory.main[K][offset] = value
 }
