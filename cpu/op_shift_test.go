@@ -9,10 +9,10 @@ import (
 func TestAsl(t *testing.T) {
 
 	mem := memory.New()
-	mem.SetByteBank(0x8f, 0x12, 0xabcd)
+	mem.SetByteBank(0x8f, 0x7E, 0xabcd)
 
 	mem2 := memory.New()
-	mem2.SetByteBank(0x1e, 0x12, 0xabcd)
+	mem2.SetByteBank(0x1e, 0x7E, 0xabcd)
 
 	testCases := []struct {
 		value          *CPU
@@ -21,9 +21,9 @@ func TestAsl(t *testing.T) {
 		isAcc          bool
 	}{
 		{
-			value:    &CPU{C: 0x0c, DBR: 0x12, mFlag: true, memory: mem},
-			expected: CPU{C: 0x0c, DBR: 0x12, cFlag: true, mFlag: true, memory: mem2},
-			addrHi:   0x0, addrLo: 0x12abcd,
+			value:    &CPU{C: 0x0c, DBR: 0x7E, mFlag: true, memory: mem},
+			expected: CPU{C: 0x0c, DBR: 0x7E, cFlag: true, mFlag: true, memory: mem2},
+			addrHi:   0x0, addrLo: 0x7eabcd,
 		},
 	}
 

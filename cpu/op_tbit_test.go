@@ -9,10 +9,10 @@ import (
 func TestTrb(t *testing.T) {
 
 	mem := memory.New()
-	mem.SetByteBank(0x9c, 0x12, 0xabcd)
+	mem.SetByteBank(0x9c, 0x7e, 0xabcd)
 
 	mem2 := memory.New()
-	mem2.SetByteBank(0x90, 0x12, 0xabcd)
+	mem2.SetByteBank(0x90, 0x7e, 0xabcd)
 
 	testCases := []struct {
 		value          *CPU
@@ -22,7 +22,7 @@ func TestTrb(t *testing.T) {
 		{
 			value:    &CPU{C: 0x0c, DBR: 0x12, mFlag: true, memory: mem},
 			expected: CPU{C: 0x0c, DBR: 0x12, mFlag: true, memory: mem2},
-			addrHi:   0x0, addrLo: 0x12abcd,
+			addrHi:   0x0, addrLo: 0x7eabcd,
 		},
 	}
 
