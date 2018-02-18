@@ -4,11 +4,16 @@ const bankNumber = 256
 const offsetMask = 0xFFFF
 const sramSize = 0x8000
 const wramSize = 0x20000
+const loROM = 0
+const hiROM = 1
+const exLoROM = 2
+const exHiROM = 3
 
 type Memory struct {
-	main [bankNumber][]uint8
-	sram [sramSize]uint8
-	wram [wramSize]uint8
+	main    [bankNumber][]uint8
+	sram    [sramSize]uint8
+	wram    [wramSize]uint8
+	romType int
 }
 
 func New() *Memory {
@@ -19,10 +24,10 @@ func New() *Memory {
 	return memory
 }
 
-func (memory *Memory) LoadROM(ROM []byte, ROMType int) {
+func (memory *Memory) LoadROM(ROM []byte) {
 
 	// only LoROM for now
-	if ROMType == 0 {
+	if memory.romType == 0 {
 		for bank := 0x00; bank < 0x80; bank++ {
 			memory.main[bank] = make([]byte, 0xFFFF+1)
 			for offset := 0x8000; offset < 0x10000; offset++ {
