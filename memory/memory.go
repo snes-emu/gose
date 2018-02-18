@@ -33,7 +33,7 @@ func (memory *Memory) LoadROM(ROM []byte) {
 	switch memory.romType {
 	case loROM:
 		for bank := 0x00; bank < 0x80; bank++ {
-			memory.main[bank] = make([]byte, 0xFFFF+1)
+			memory.main[bank] = make([]byte, 0x10000)
 			for offset := 0x8000; offset < 0x10000; offset++ {
 				memory.main[bank][offset] = ROM[offset+(bank-1)*0x8000]
 			}
