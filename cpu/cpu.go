@@ -298,6 +298,13 @@ func New() *CPU {
 	return cpu
 }
 
+func (cpu *CPU) Execute(cycles uint16) {
+	for cpu.cycles < cycles {
+		opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
+		cpu.opcodes[opcode]()
+	}
+}
+
 func (cpu *CPU) pushStack(data uint8) {
 	if cpu.eFlag {
 		cpu.memory.SetByteBank(data, 0x00, utils.JoinUint16(0x01, cpu.getSLRegister()))
