@@ -1,14 +1,15 @@
 package cpu
 
-import "github.com/snes-emu/gose/utils"
+import (
+	"github.com/snes-emu/gose/utils"
+)
 
 // lda16 load data into the accumulator
 func (cpu *CPU) lda16(data uint16) {
 
 	// Last bit value
 	cpu.nFlag = data&0x8000 != 0
-	cpu.zFlag = data != 0
-
+	cpu.zFlag = data == 0
 	cpu.setCRegister(data)
 }
 
@@ -17,7 +18,7 @@ func (cpu *CPU) lda8(data uint8) {
 
 	// Last bit value
 	cpu.nFlag = data&0x80 != 0
-	cpu.zFlag = data != 0
+	cpu.zFlag = data == 0
 
 	cpu.setARegister(data)
 }
@@ -141,7 +142,7 @@ func (cpu *CPU) ldx16(data uint16) {
 
 	// Last bit value
 	cpu.nFlag = data&0x8000 != 0
-	cpu.zFlag = data != 0
+	cpu.zFlag = data == 0
 
 	cpu.setXRegister(data)
 }
@@ -151,7 +152,7 @@ func (cpu *CPU) ldx8(data uint8) {
 
 	// Last bit value
 	cpu.nFlag = data&0x80 != 0
-	cpu.zFlag = data != 0
+	cpu.zFlag = data == 0
 
 	cpu.setXLRegister(data)
 }
@@ -205,7 +206,7 @@ func (cpu *CPU) ldy16(data uint16) {
 
 	// Last bit value
 	cpu.nFlag = data&0x8000 != 0
-	cpu.zFlag = data != 0
+	cpu.zFlag = data == 0
 
 	cpu.setYRegister(data)
 }
@@ -215,7 +216,7 @@ func (cpu *CPU) ldy8(data uint8) {
 
 	// Last bit value
 	cpu.nFlag = data&0x80 != 0
-	cpu.zFlag = data != 0
+	cpu.zFlag = data == 0
 
 	cpu.setYLRegister(data)
 }
