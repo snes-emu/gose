@@ -1,6 +1,6 @@
 package cpu
 
-func (cpu *CPU) opEB() {
+func (cpu *CPU) xba() {
 	temp := cpu.getBRegister()
 	cpu.setBRegister(cpu.getARegister())
 	cpu.setARegister(temp)
@@ -10,8 +10,16 @@ func (cpu *CPU) opEB() {
 	cpu.PC++
 }
 
-func (cpu *CPU) opFB() {
+func (cpu *CPU) opEB() {
+	cpu.xba()
+}
+
+func (cpu *CPU) xce() {
 	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
 	cpu.cycles += 2
 	cpu.PC++
+}
+
+func (cpu *CPU) opFB() {
+	cpu.xce()
 }
