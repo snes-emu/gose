@@ -2,9 +2,9 @@ package cpu
 
 import "github.com/snes-emu/gose/utils"
 
-// bit16 performs a bitwise or for 16bits variables
+// bit16 performs a bitwise and for 16bits variables
 func (cpu *CPU) bit16(data uint16, isImmediate bool) uint16 {
-	result := cpu.getCRegister() | data
+	result := cpu.getCRegister() & data
 
 	// Last bit value
 	if !isImmediate {
@@ -17,9 +17,9 @@ func (cpu *CPU) bit16(data uint16, isImmediate bool) uint16 {
 	return result
 }
 
-// bit8 performs a bitwise or for 8bits variables
+// bit8 performs a bitwise and for 8bits variables
 func (cpu *CPU) bit8(data uint8, isImmediate bool) uint8 {
-	result := cpu.getARegister() | data
+	result := cpu.getARegister() & data
 
 	// Last bit value
 	if !isImmediate {
@@ -32,7 +32,7 @@ func (cpu *CPU) bit8(data uint8, isImmediate bool) uint8 {
 	return result
 }
 
-// bit performs a bitwise or taking care of 16/8bits cases
+// bit performs a bitwise and taking care of 16/8bits cases
 func (cpu *CPU) bit(dataHi, dataLo uint8, isImmediate bool) {
 	if cpu.mFlag {
 		cpu.bit8(dataLo, isImmediate)
