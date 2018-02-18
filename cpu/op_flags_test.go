@@ -30,3 +30,26 @@ func TestSep(t *testing.T) {
 		}
 	}
 }
+
+func TestClc(t *testing.T) {
+	testCases := []struct {
+		value          *CPU
+		expected       CPU
+		dataHi, dataLo uint8
+	}{
+		{
+			value:    &CPU{cFlag: true},
+			expected: CPU{PC: 0x01},
+		},
+	}
+
+	for i, tc := range testCases {
+		tc.value.clc()
+
+		err := tc.value.compare(tc.expected)
+
+		if err != nil {
+			t.Errorf("Test %v failed: \n%v", i, err)
+		}
+	}
+}
