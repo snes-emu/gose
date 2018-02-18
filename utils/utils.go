@@ -19,7 +19,7 @@ var BoolToUint8 = map[bool]uint8{
 
 func JoinUint32(HH uint8, MM uint8, LL uint8) uint32 {
 	var ret uint32
-	buf := bytes.NewBuffer([]byte{LL, MM, HH})
+	buf := bytes.NewBuffer([]byte{LL, MM, HH, 0x00})
 	binary.Read(buf, binary.LittleEndian, &ret)
 	return ret
 }
