@@ -2,10 +2,13 @@ package cpu
 
 import "github.com/snes-emu/gose/utils"
 
+func (cpu *CPU) branch(cond bool, offset uint16) {
+	cpu.cycles += 2 + utils.BoolToUint16[cond] + utils.BoolToUint16[cond]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
+	cpu.PC += offset*utils.BoolToUint16[cond] + 2
+}
+
 func (cpu *CPU) bcc(offset uint16) {
-	t := !cpu.cFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(!cpu.cFlag, offset)
 }
 
 func (cpu *CPU) op90() {
@@ -13,9 +16,7 @@ func (cpu *CPU) op90() {
 }
 
 func (cpu *CPU) bcs(offset uint16) {
-	t := cpu.cFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(cpu.cFlag, offset)
 }
 
 func (cpu *CPU) opB0() {
@@ -23,9 +24,7 @@ func (cpu *CPU) opB0() {
 }
 
 func (cpu *CPU) beq(offset uint16) {
-	t := cpu.zFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(cpu.zFlag, offset)
 }
 
 func (cpu *CPU) opF0() {
@@ -33,9 +32,7 @@ func (cpu *CPU) opF0() {
 }
 
 func (cpu *CPU) bmi(offset uint16) {
-	t := cpu.nFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(cpu.nFlag, offset)
 }
 
 func (cpu *CPU) op30() {
@@ -43,9 +40,7 @@ func (cpu *CPU) op30() {
 }
 
 func (cpu *CPU) bne(offset uint16) {
-	t := !cpu.zFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(!cpu.zFlag, offset)
 }
 
 func (cpu *CPU) opD0() {
@@ -53,9 +48,7 @@ func (cpu *CPU) opD0() {
 }
 
 func (cpu *CPU) bpl(offset uint16) {
-	t := !cpu.nFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(!cpu.nFlag, offset)
 }
 
 func (cpu *CPU) op10() {
@@ -72,9 +65,7 @@ func (cpu *CPU) op80() {
 }
 
 func (cpu *CPU) bvc(offset uint16) {
-	t := !cpu.vFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(!cpu.vFlag, offset)
 }
 
 func (cpu *CPU) op50() {
@@ -82,9 +73,7 @@ func (cpu *CPU) op50() {
 }
 
 func (cpu *CPU) bvs(offset uint16) {
-	t := cpu.vFlag
-	cpu.cycles += 2 + utils.BoolToUint16[t] + utils.BoolToUint16[t]*utils.BoolToUint16[cpu.eFlag]*utils.BoolToUint16[cpu.pFlag]
-	cpu.PC += offset*utils.BoolToUint16[t] + 2
+	cpu.branch(cpu.vFlag, offset)
 }
 
 func (cpu *CPU) op70() {
