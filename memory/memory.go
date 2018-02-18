@@ -82,13 +82,18 @@ func (memory *Memory) SetByte(value uint8, index uint32) {
 
 //SetByteBank sets a byte by memory bank and offset
 func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
-	if K < 0x40 {
-		if offset < 0x2000 {
-			memory.wram[offset] = value
+	switch memory.romType {
+	case loROM:
+		if K < 0x40 || (0x7F < K && K < 0xC0) {
+			if offset < 0x2000 {
+				memory.wram[offset] = value
+			}
+		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
+			memory.sram[offset] = value
+		} else if K > 0x7D && K < 0x80 {
+			memory.wram[offset+uint16(K)-0x7E] = value
+		} else if 0xFD < K && offset < 0x8000 {
+			memory.sram[offset] = value
 		}
-	} else if K > 0x6F && K < 0x7E && offset < 0x8000 {
-		memory.sram[offset] = value
-	} else if K > 0x7D && K < 0x80 {
-		memory.wram[offset+uint16(K)-0x7E] = value
 	}
 }
