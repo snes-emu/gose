@@ -170,7 +170,7 @@ func (cpu *CPU) pla16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setCRegister(result)
 }
@@ -180,7 +180,7 @@ func (cpu *CPU) pla8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setARegister(result)
 }
@@ -246,7 +246,7 @@ func (cpu *CPU) plx16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setXRegister(result)
 }
@@ -256,7 +256,7 @@ func (cpu *CPU) plx8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setXLRegister(result)
 }
@@ -281,7 +281,7 @@ func (cpu *CPU) ply16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setYRegister(result)
 }
@@ -291,7 +291,7 @@ func (cpu *CPU) ply8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setYLRegister(result)
 }
