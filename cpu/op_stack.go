@@ -61,6 +61,8 @@ func (cpu *CPU) pha() {
 
 func (cpu *CPU) op48() {
 	cpu.pha()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC++
 }
 
 func (cpu *CPU) op8B() {
@@ -156,6 +158,8 @@ func (cpu *CPU) phy() {
 
 func (cpu *CPU) op5A() {
 	cpu.phy()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // pla16 pull the accumulator from the stack
@@ -191,6 +195,8 @@ func (cpu *CPU) pla() {
 
 func (cpu *CPU) op68() {
 	cpu.pla()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC++
 }
 
 func (cpu *CPU) opAB() {
@@ -267,6 +273,8 @@ func (cpu *CPU) plx() {
 
 func (cpu *CPU) opFA() {
 	cpu.plx()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // ply16 pull the Y register from the stack
@@ -302,4 +310,6 @@ func (cpu *CPU) ply() {
 
 func (cpu *CPU) op7A() {
 	cpu.ply()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
