@@ -19,6 +19,23 @@ func New() *Memory {
 	return memory
 }
 
+func (memory *Memory) LoadROM(ROM []byte, ROMType int) {
+
+	// only LoROM for now
+	if ROMType == 0 {
+		for bank := 0x00; bank < 0x80; bank++ {
+			memory.main[bank] = make([]byte, 0xFFFF+1)
+			for offset := 0x8000; offset < 0x10000; offset++ {
+				memory.main[bank][offset] = ROM[offset+(bank-1)*0x8000]
+			}
+		}
+
+		for bank := 0x80; bank < 0x100; bank++ {
+			memory.main[bank] = memory.main[bank-0x80]
+		}
+	}
+}
+
 func (memory Memory) GetByte(index uint32) uint8 {
 	return memory.main[index>>16][index&offsetMask]
 }
