@@ -4,29 +4,34 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
-//pea pushes the next 16bit value into the stack
-func (cpu *CPU) pea(dataHi, dataLo uint8) {
+//p16 pushes the next 16-bit value into the stack
+func (cpu *CPU) p16(dataHi, dataLo uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
 }
 
+//p8 pushes the next 8-bit value into the stack
+func (cpu *CPU) p8(data uint8) {
+	cpu.pushStack(data)
+}
+
 func (cpu *CPU) opF4() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.pea(dataHi, dataLo)
+	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 5
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opD4() {
 	dataHi, dataLo := cpu.admDirect()
-	cpu.pea(dataHi, dataLo)
+	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op62() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.pea(dataHi, dataLo)
+	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 6
 	cpu.PC += 3
 }
