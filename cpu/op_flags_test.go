@@ -21,7 +21,7 @@ func TestSep(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.opE2()
+		tc.value.sep()
 
 		err := tc.value.compare(tc.expected)
 
