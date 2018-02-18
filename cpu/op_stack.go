@@ -4,55 +4,47 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
-//pea pushes the next 16bit value into the stack
-func (cpu *CPU) pea(data uint16) {
-	dataHi, dataLo := utils.SplitUint16(data)
+//p16 pushes the next 16-bit value into the stack
+func (cpu *CPU) p16(dataHi, dataLo uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
+}
+
+//p8 pushes the next 8-bit value into the stack
+func (cpu *CPU) p8(data uint8) {
+	cpu.pushStack(data)
+}
+
+func (cpu *CPU) opF4() {
+	dataHi, dataLo := cpu.admImmediate16()
+	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 5
-}
-
-func (cpu *CPU) opF4(data uint16) {
-	cpu.pea(data)
-}
-
-//pei pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) pei() {
-	dataHi, dataLo := cpu.admDirect()
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
-	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 3
 }
 
 func (cpu *CPU) opD4() {
-	cpu.pei()
+	dataHi, dataLo := cpu.admDirect()
+	cpu.p16(dataHi, dataLo)
+	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
-//per pushes 16bit data into the stack, called thanks to the next 8bit value
-func (cpu *CPU) per(data uint16) {
-	dataHi, dataLo := utils.SplitUint16(data)
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+func (cpu *CPU) op62() {
+	dataHi, dataLo := cpu.admImmediate16()
+	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 6
-}
-
-func (cpu *CPU) op62(data uint16) {
-	cpu.per(data)
+	cpu.PC += 3
 }
 
 // pha16 push the accumulator onto the stack
 func (cpu *CPU) pha16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getCRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // pha8 push the lower bit of the accumulator onto the stack
 func (cpu *CPU) pha8() {
-	data := cpu.getARegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getARegister())
 }
 
 func (cpu *CPU) pha() {
@@ -65,6 +57,8 @@ func (cpu *CPU) pha() {
 
 func (cpu *CPU) op48() {
 	cpu.pha()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC++
 }
 
 func (cpu *CPU) op8B() {
@@ -111,16 +105,12 @@ func (cpu *CPU) op08() {
 // phx16 push the X register onto the stack
 func (cpu *CPU) phx16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getXRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // phx8 push the lower bit of the X register onto the stack
 func (cpu *CPU) phx8() {
-	data := cpu.getXLRegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getXLRegister())
 }
 
 func (cpu *CPU) phx() {
@@ -133,21 +123,19 @@ func (cpu *CPU) phx() {
 
 func (cpu *CPU) opDA() {
 	cpu.phx()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // phy16 push the Y register onto the stack
 func (cpu *CPU) phy16() {
 	dataHi, dataLo := utils.SplitUint16(cpu.getYRegister())
-
-	cpu.pushStack(dataHi)
-	cpu.pushStack(dataLo)
+	cpu.p16(dataHi, dataLo)
 }
 
 // phy8 push the lower bit of the Y register onto the stack
 func (cpu *CPU) phy8() {
-	data := cpu.getYLRegister()
-
-	cpu.pushStack(data)
+	cpu.p8(cpu.getYLRegister())
 }
 
 func (cpu *CPU) phy() {
@@ -160,6 +148,8 @@ func (cpu *CPU) phy() {
 
 func (cpu *CPU) op5A() {
 	cpu.phy()
+	cpu.cycles += 4 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // pla16 pull the accumulator from the stack
@@ -195,6 +185,8 @@ func (cpu *CPU) pla() {
 
 func (cpu *CPU) op68() {
 	cpu.pla()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC++
 }
 
 func (cpu *CPU) opAB() {
@@ -271,6 +263,8 @@ func (cpu *CPU) plx() {
 
 func (cpu *CPU) opFA() {
 	cpu.plx()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
 
 // ply16 pull the Y register from the stack
@@ -306,4 +300,6 @@ func (cpu *CPU) ply() {
 
 func (cpu *CPU) op7A() {
 	cpu.ply()
+	cpu.cycles += 5 - utils.BoolToUint16[cpu.xFlag]
+	cpu.PC++
 }
