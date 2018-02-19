@@ -25,7 +25,7 @@ func TestBrk(t *testing.T) {
 	}{
 		{
 			value:    &CPU{S: 0x01ff, PC: 0x3456, K: 0x12, dFlag: true, memory: mem},
-			expected: CPU{S: 0x01fb, iFlag: true, PC: 0xcdab, memory: mem2},
+			expected: CPU{S: 0x01fb, iFlag: true, PC: 0x0000, memory: mem2},
 		},
 	}
 
