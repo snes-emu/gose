@@ -16,6 +16,8 @@ func (cpu *CPU) opEB() {
 
 func (cpu *CPU) xce() {
 	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
+
+	// Reset m flag, x flag and SH register for emumation mode
 	if cpu.eFlag {
 		cpu.mFlag = true
 		cpu.setXFlag(true)
