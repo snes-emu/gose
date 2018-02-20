@@ -63,3 +63,21 @@ func (cpu *CPU) pullStack() uint8 {
 	cpu.S++
 	return data
 }
+
+func (cpu *CPU) pushStackNew(data uint8) {
+	cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
+	cpu.S--
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+}
+
+func (cpu *CPU) pullStackNew() uint8 {
+	var data uint8
+	data = cpu.memory.GetByteBank(0x00, cpu.getSRegister()+1)
+	cpu.S++
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+	return data
+}
