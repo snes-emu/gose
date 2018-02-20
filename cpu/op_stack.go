@@ -23,7 +23,7 @@ func (cpu *CPU) opF4() {
 }
 
 func (cpu *CPU) opD4() {
-	dataHi, dataLo := cpu.admDirect()
+	dataHi, dataLo := cpu.admDirectNew()
 	cpu.p16(dataHi, dataLo)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
