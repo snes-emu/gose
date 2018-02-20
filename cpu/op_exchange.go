@@ -16,6 +16,11 @@ func (cpu *CPU) opEB() {
 
 func (cpu *CPU) xce() {
 	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
+	if cpu.eFlag {
+		cpu.mFlag = true
+		cpu.setXFlag(true)
+		cpu.setSHRegister(0x01)
+	}
 	cpu.cycles += 2
 	cpu.PC++
 }
