@@ -64,6 +64,57 @@ func (cpu *CPU) pullStack() uint8 {
 	return data
 }
 
+func (cpu *CPU) pushStackNew8(data uint8) {
+	cpu.pushStackNew(data)
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+}
+
+func (cpu *CPU) pushStackNew16(dataHi, dataLo uint8) {
+	cpu.pushStackNew(dataHi)
+	cpu.pushStackNew(dataLo)
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+}
+
+func (cpu *CPU) pushStackNew24(dataHi, dataMid, dataLo uint8) {
+	cpu.pushStackNew(dataHi)
+	cpu.pushStackNew(dataMid)
+	cpu.pushStackNew(dataLo)
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+}
+
+func (cpu *CPU) pullStackNew8() (data uint8) {
+	data = cpu.pullStackNew()
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+	return
+}
+
+func (cpu *CPU) pullStackNew16() (dataHi, dataLo uint8) {
+	dataLo = cpu.pullStackNew()
+	dataHi = cpu.pullStackNew()
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+	return
+}
+
+func (cpu *CPU) pullStackNew24() (dataHi, dataMid, dataLo uint8) {
+	dataLo = cpu.pullStackNew()
+	dataMid = cpu.pullStackNew()
+	dataHi = cpu.pullStackNew()
+	if cpu.eFlag {
+		cpu.setSHRegister(0x01)
+	}
+	return
+}
+
 func (cpu *CPU) pushStackNew(data uint8) {
 	cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
 	cpu.S--
