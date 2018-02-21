@@ -34,6 +34,7 @@ func (cpu CPU) admAbsoluteXP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.JoinUint32(cpu.getDBRRegister(), HH, LL)
+	cpu.pFlag = uint16(LL)+0x00FF+cpu.getXRegister()+1 > 0xFF
 	return address + uint32(cpu.getXRegister()) + 1, address + uint32(cpu.getXRegister())
 }
 
@@ -48,6 +49,7 @@ func (cpu CPU) admAbsoluteYP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.JoinUint32(cpu.getDBRRegister(), HH, LL)
+	cpu.pFlag = uint16(LL)+0x00FF+cpu.getYRegister()+1 > 0xFF
 	return address + uint32(cpu.getYRegister()) + 1, address + uint32(cpu.getYRegister())
 }
 
