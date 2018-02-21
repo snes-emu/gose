@@ -19,10 +19,9 @@ func (cpu *CPU) op40() {
 }
 
 func (cpu *CPU) rtl() {
-	PCLo := cpu.pullStack()
-	PCHi := cpu.pullStack()
-	cpu.K = cpu.pullStack()
+	PCLo, PCHi, K := cpu.pullStackNew24()
 	cpu.cycles += 6
+	cpu.K = K
 	cpu.PC = utils.JoinUint16(PCHi, PCLo) + 1
 }
 
