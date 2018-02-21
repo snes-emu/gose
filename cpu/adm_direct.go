@@ -170,6 +170,7 @@ func (cpu CPU) admPDirectYP() (uint32, uint32) {
 	}
 
 	l := uint16(LL)
+	cpu.pFlag = cpu.getDRegister()&0x00FF+l+1 > 0xFF
 	laddress := uint32(cpu.getDRegister() + l)
 	hadress := uint32(cpu.getDRegister() + l + 1)
 	hh := cpu.memory.GetByte(hadress)
