@@ -73,6 +73,15 @@ func (cpu *CPU) jsr(addr uint16) {
 	cpu.jmp(addr)
 }
 
+// jsr jumps to a subroutine for new addressing mode
+func (cpu *CPU) jsrNew(addr uint16) {
+	haddr, laddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+
+	cpu.pushStackNew16(haddr, laddr)
+
+	cpu.jmp(addr)
+}
+
 func (cpu *CPU) op20() {
 	addr := cpu.admAbsoluteJ()
 	cpu.jsr(addr)
@@ -82,7 +91,7 @@ func (cpu *CPU) op20() {
 
 func (cpu *CPU) opFC() {
 	addr := cpu.admPAbsoluteXJ()
-	cpu.jsr(addr)
+	cpu.jsrNew(addr)
 	cpu.cycles += 8
 	cpu.PC += 3
 }
