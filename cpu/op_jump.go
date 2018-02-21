@@ -50,11 +50,8 @@ func (cpu *CPU) opDC() {
 
 // jsl jumps to a subroutine long
 func (cpu *CPU) jsl(haddr uint8, laddr uint16) {
-	cpu.pushStack(cpu.getKRegister())
 	hiaddr, loaddr := utils.SplitUint16(cpu.getPCRegister() + 3)
-
-	cpu.pushStack(hiaddr)
-	cpu.pushStack(loaddr)
+	cpu.pushStackNew24(cpu.getKRegister(), hiaddr, loaddr)
 
 	cpu.jmpLong(haddr, laddr)
 }
