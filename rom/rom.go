@@ -21,30 +21,30 @@ type ROM struct {
 // ParseROM parses a ROM file representation in bytes and return a representation
 func ParseROM(data []byte) (*ROM, error) {
 	rom := &ROM{
-		data: data,
+		Data: data,
 	}
 
 	// SMC header should be of len 0 or 512
-	smcHeaderSize := len(rom.data) % 0x400
+	smcHeaderSize := len(rom.Data) % 0x400
 	if smcHeaderSize != 0 && smcHeaderSize != 512 {
 		return nil, fmt.Errorf("The smc header of this rom is not conventional (len: %v)", smcHeaderSize)
 	}
 
 	// Remove smc header
-	rom.data = rom.data[smcHeaderSize:]
+	rom.Data = rom.Data[smcHeaderSize:]
 
 	// Set rom parameters
 	if rom.isLo() {
-		rom.Title = string(rom.data[0x7fc0:0x7fd4])
-		rom.isFast = rom.data[0x7fd5]&0x30 != 0
-		rom.size = 0x400 << rom.data[0x7fd7]
-		rom.sramSize = 0x400 << rom.data[0x7fd8]
+		rom.Title = string(rom.Data[0x7fc0:0x7fd4])
+		rom.isFast = rom.Data[0x7fd5]&0x30 != 0
+		rom.size = 0x400 << rom.Data[0x7fd7]
+		rom.sramSize = 0x400 << rom.Data[0x7fd8]
 		rom.Type = LoROM
 	} else {
-		rom.Title = string(rom.data[0xffc0:0xffd4])
-		rom.isFast = rom.data[0xffd5]&0x30 != 0
-		rom.size = 0x400 << rom.data[0xffd7]
-		rom.sramSize = 0x400 << rom.data[0xffd8]
+		rom.Title = string(rom.Data[0xffc0:0xffd4])
+		rom.isFast = rom.Data[0xffd5]&0x30 != 0
+		rom.size = 0x400 << rom.Data[0xffd7]
+		rom.sramSize = 0x400 << rom.Data[0xffd8]
 		rom.Type = HiROM
 	}
 
