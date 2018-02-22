@@ -10,12 +10,12 @@ const (
 )
 
 type ROM struct {
-	data     []byte
-	Title    string
-	size     uint
-	isFast   bool
-	sramSize uint
-	Type     uint
+	data     []byte // Raw bytes of the rom
+	Title    string // Rom title
+	size     uint   // Size of the rom
+	isFast   bool   // Whether or not the ROM is of type Fast
+	sramSize uint   // SRAM size
+	Type     uint   // Type of the Rom (LoROM, HiROM, ExLoROM, ExHiROM)
 }
 
 // ParseROM parses a ROM file representation in bytes and return a representation
