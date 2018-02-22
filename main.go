@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 )
 
 var filename string
@@ -14,5 +15,9 @@ func Flags() {
 
 func main() {
 	Flags()
-	fmt.Println(filename)
+	ROM, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
+	fmt.Println(ROM)
 }
