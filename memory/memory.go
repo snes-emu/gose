@@ -1,22 +1,17 @@
 package memory
 
+import "github.com/snes-emu/gose/rom"
+
 const bankNumber = 256
 const offsetMask = 0xFFFF
 const sramSize = 0x8000
 const wramSize = 0x20000
-const (
-	loROM = iota
-	hiROM
-	exLoROM
-	exHiROM
-)
 
 // Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
-	main    [bankNumber][]uint8
-	sram    [sramSize]uint8
-	wram    [wramSize]uint8
-	romType int
+	main [bankNumber][]uint8
+	sram [sramSize]uint8
+	wram [wramSize]uint8
 }
 
 // New creates a Memory struct and initialize it
@@ -29,15 +24,15 @@ func New() *Memory {
 }
 
 // LoadROM takes a memory buffer and load it into memory depending ROM type
-func (memory *Memory) LoadROM(ROM []byte) {
+func (memory *Memory) LoadROM(r rom.ROM) {
 
 	// only LoROM for now
-	switch memory.romType {
-	case loROM:
+	switch r.Type {
+	case rom.LoROM:
 		for bank := 0x00; bank < 0x80; bank++ {
 			memory.main[bank] = make([]byte, 0x10000)
 			for offset := 0x8000; offset < 0x10000; offset++ {
-				memory.main[bank][offset] = ROM[offset+(bank-1)*0x8000]
+				memory.main[bank][offset] = r.Data[offset+(bank-1)*0x8000]
 			}
 		}
 
