@@ -1,6 +1,8 @@
 package memory
 
-import "github.com/snes-emu/gose/rom"
+import (
+	"github.com/snes-emu/gose/rom"
+)
 
 const bankNumber = 256
 const offsetMask = 0xFFFF
@@ -9,16 +11,17 @@ const wramSize = 0x20000
 
 // Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
-	main [bankNumber][]uint8
-	sram [sramSize]uint8
-	wram [wramSize]uint8
+	main    [bankNumber][]uint8
+	sram    [sramSize]uint8
+	wram    [wramSize]uint8
+	romType uint
 }
 
 // New creates a Memory struct and initialize it
 func New() *Memory {
 	memory := &Memory{}
 	for bank := 0; bank < bankNumber; bank++ {
-		memory.main[bank] = make([]byte, 1<<16)
+		memory.main[bank] = make([]byte, 0x10000)
 	}
 	return memory
 }
@@ -29,10 +32,13 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 	// only LoROM for now
 	switch r.Type {
 	case rom.LoROM:
+		memory.romType = rom.LoROM
+		romSize := len(r.Data)
 		for bank := 0x00; bank < 0x80; bank++ {
-			memory.main[bank] = make([]byte, 0x10000)
 			for offset := 0x8000; offset < 0x10000; offset++ {
-				memory.main[bank][offset] = r.Data[offset+(bank-1)*0x8000]
+				if pos := offset + (bank-1)*0x8000; pos < romSize {
+					memory.main[bank][offset] = r.Data[pos]
+				}
 			}
 		}
 
@@ -52,7 +58,7 @@ func (memory Memory) GetByte(index uint32) uint8 {
 //GetByteBank gets a byte by memory bank and offset
 func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	switch memory.romType {
-	case loROM:
+	case rom.LoROM:
 		if K < 0x40 || (0x7F < K && K < 0xC0) {
 			if offset < 0x2000 {
 				return memory.wram[offset]
@@ -80,7 +86,7 @@ func (memory *Memory) SetByte(value uint8, index uint32) {
 //SetByteBank sets a byte by memory bank and offset
 func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	switch memory.romType {
-	case loROM:
+	case rom.LoROM:
 		if K < 0x40 || (0x7F < K && K < 0xC0) {
 			if offset < 0x2000 {
 				memory.wram[offset] = value
