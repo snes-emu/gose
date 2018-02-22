@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
+
+	"github.com/snes-emu/gose/rom"
 )
 
 var filename string
@@ -17,7 +20,14 @@ func main() {
 	Flags()
 	ROM, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Errorf("%v", err)
+		log.Fatalf("%v", err)
 	}
-	fmt.Println(ROM)
+
+	rom, err := rom.ParseROM(ROM)
+
+	if err != nil {
+		log.Fatalf("There were a problem while importing the ROM: %v", err)
+	}
+
+	fmt.Println(rom.Title)
 }
