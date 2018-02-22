@@ -3,12 +3,17 @@ package rom
 import "fmt"
 
 const (
+	// LoROM type
 	LoROM = iota
+	// HiROM type
 	HiROM
+	// ExLoROM type
 	ExLoROM
+	// ExHiROM type
 	ExHiROM
 )
 
+// ROM struct
 type ROM struct {
 	Data     []byte // Raw bytes of the rom
 	Title    string // Rom title
@@ -53,7 +58,7 @@ func ParseROM(data []byte) (*ROM, error) {
 
 // isLo checks if the ROM is of type LoROM
 func (rom ROM) isLo() bool {
-	for _, c := range rom.data[0x7fc0:0x7fd4] {
+	for _, c := range rom.Data[0x7fc0:0x7fd4] {
 		// check if all chars are ascii characters
 		if c > 0x7f || c < 0x1f {
 			return false
