@@ -3,8 +3,11 @@ package rom
 import "fmt"
 
 type ROM struct {
-	data  []byte
-	Title string
+	data     []byte
+	Title    string
+	size     uint
+	isFast   bool
+	sramSize uint
 }
 
 // ParseROM parses a ROM file representation in bytes and return a representation
@@ -22,11 +25,17 @@ func ParseROM(data []byte) (*ROM, error) {
 	// Remove smc header
 	rom.data = rom.data[smcHeaderSize:]
 
-	// Set rom Title
+	// Set rom parameters
 	if rom.isLo() {
 		rom.Title = string(rom.data[0x7fc0:0x7fd4])
+		rom.isFast = rom.data[0x7fd5]&0x30 != 0
+		rom.size = 0x400 << rom.data[0x7fd7]
+		rom.sramSize = 0x400 << rom.data[0x7fd8]
 	} else {
 		rom.Title = string(rom.data[0xffc0:0xffd4])
+		rom.isFast = rom.data[0xffd5]&0x30 != 0
+		rom.size = 0x400 << rom.data[0xffd7]
+		rom.sramSize = 0x400 << rom.data[0xffd8]
 	}
 
 	return rom, nil
