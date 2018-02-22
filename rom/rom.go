@@ -10,7 +10,7 @@ const (
 )
 
 type ROM struct {
-	data     []byte // Raw bytes of the rom
+	Data     []byte // Raw bytes of the rom
 	Title    string // Rom title
 	size     uint   // Size of the rom
 	isFast   bool   // Whether or not the ROM is of type Fast
