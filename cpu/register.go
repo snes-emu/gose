@@ -57,7 +57,7 @@ func (cpu CPU) getDLRegister() uint8 {
 
 // setDLRegister sets the lower 8 bits of the direct register
 func (cpu *CPU) setDLRegister(d uint8) {
-	cpu.C = (cpu.D & 0xff00) | uint16(d)
+	cpu.D = (cpu.D & 0xff00) | uint16(d)
 }
 
 // getDHRegister returns the upper 8 bits of the direct register
@@ -67,7 +67,7 @@ func (cpu CPU) getDHRegister() uint8 {
 
 // setDLRegister sets the lower 8 bits of the direct register
 func (cpu *CPU) setDHRegister(d uint8) {
-	cpu.C = (cpu.D & 0x00ff) | uint16(d)<<8
+	cpu.D = (cpu.D & 0x00ff) | uint16(d)<<8
 }
 
 // getKRegister returns the program bank register
@@ -107,7 +107,7 @@ func (cpu CPU) getSLRegister() uint8 {
 
 // setSLRegister sets the lower 8 bits of the stack pointer
 func (cpu *CPU) setSLRegister(s uint8) {
-	cpu.C = (cpu.S & 0xff00) | uint16(s)
+	cpu.S = (cpu.S & 0xff00) | uint16(s)
 }
 
 // getSHRegister returns the upper 8 bits of the stack pointer
@@ -117,7 +117,7 @@ func (cpu CPU) getSHRegister() uint8 {
 
 // setSHRegister sets the upper 8 bits of the stack pointer
 func (cpu *CPU) setSHRegister(s uint8) {
-	cpu.C = (cpu.S & 0x00ff) | uint16(s)<<8
+	cpu.S = (cpu.S & 0x00ff) | uint16(s)<<8
 }
 
 // getXRegister returns the X index register
