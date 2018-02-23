@@ -15,14 +15,9 @@ func (cpu *CPU) opEB() {
 }
 
 func (cpu *CPU) xce() {
-	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
-
-	// Reset m flag, x flag and SH register for emulation mode
-	if cpu.eFlag {
-		cpu.mFlag = true
-		cpu.setXFlag(true)
-		cpu.setSHRegister(0x01)
-	}
+	temp := cpu.eFlag
+	cpu.setEFlag(cpu.cFlag)
+	cpu.cFlag = temp
 	cpu.cycles += 2
 	cpu.PC++
 }
