@@ -4,6 +4,13 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
+const (
+	brkNativeVector    = 0xFFE6
+	copNativeVector    = 0xFFE4
+	brkEmulationVector = 0xFFFE
+	copEmulationVector = 0xFFF4
+)
+
 func (cpu *CPU) brk() {
 	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
@@ -12,8 +19,8 @@ func (cpu *CPU) brk() {
 		cpu.bFlag = true
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFFE)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFFF)
+		addressLo := cpu.memory.GetByteBank(0x00, brkEmulationVector)
+		addressHi := cpu.memory.GetByteBank(0x00, brkEmulationVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
@@ -21,8 +28,8 @@ func (cpu *CPU) brk() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFE6)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFE7)
+		addressLo := cpu.memory.GetByteBank(0x00, brkNativeVector)
+		addressHi := cpu.memory.GetByteBank(0x00, brkNativeVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
@@ -41,8 +48,8 @@ func (cpu *CPU) cop() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFF4)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFF5)
+		addressLo := cpu.memory.GetByteBank(0x00, copEmulationVector)
+		addressHi := cpu.memory.GetByteBank(0x00, copEmulationVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
@@ -50,8 +57,8 @@ func (cpu *CPU) cop() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFE4)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFE5)
+		addressLo := cpu.memory.GetByteBank(0x00, copNativeVector)
+		addressHi := cpu.memory.GetByteBank(0x00, copNativeVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
