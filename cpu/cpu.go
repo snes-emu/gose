@@ -298,6 +298,10 @@ func New() *CPU {
 	return cpu
 }
 
+func (cpu *CPU) Init() {
+	cpu.reset()
+}
+
 func (cpu *CPU) Execute(cycles uint16) {
 	for cpu.cycles < cycles {
 		opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
