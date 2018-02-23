@@ -188,3 +188,13 @@ func (cpu *CPU) setXFlag(x bool) {
 		cpu.setYHRegister(0x00)
 	}
 }
+
+func (cpu *CPU) setEFlag(e bool) {
+	cpu.eFlag = e
+	// Reset m flag, x flag and SH register for emulation mode
+	if cpu.eFlag {
+		cpu.mFlag = true
+		cpu.setXFlag(true)
+		cpu.setSHRegister(0x01)
+	}
+}
