@@ -66,14 +66,12 @@ func (cpu *CPU) nmi() {
 }
 
 func (cpu *CPU) reset() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
 	cpu.setEFlag(true)
-	cpu.pushStack(addressHi)
-	cpu.pushStack(addressLo)
-	cpu.php()
+	cpu.D = 0x0000
+	cpu.DBR = 0x00
 	cpu.K = 0x00
-	addressLo = cpu.memory.GetByteBank(0x00, resetEmulationVector)
-	addressHi = cpu.memory.GetByteBank(0x00, resetEmulationVector+1)
+	addressLo := cpu.memory.GetByteBank(0x00, resetEmulationVector)
+	addressHi := cpu.memory.GetByteBank(0x00, resetEmulationVector+1)
 	cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	cpu.dFlag = false
 	cpu.iFlag = true
