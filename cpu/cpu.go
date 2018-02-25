@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"fmt"
+
 	"github.com/snes-emu/gose/memory"
 	"github.com/snes-emu/gose/utils"
 )
@@ -35,9 +37,8 @@ type cpuOperation func()
 
 var opcodes []cpuOperation
 
-func New() *CPU {
-	cpu := &CPU{}
-	cpu.memory = memory.New()
+func New(memory *memory.Memory) *CPU {
+	cpu := &CPU{memory: memory}
 	cpu.opcodes[0x0] = cpu.op00
 	cpu.opcodes[0x1] = cpu.op01
 	cpu.opcodes[0x2] = cpu.op02
@@ -305,6 +306,7 @@ func (cpu *CPU) Init() {
 func (cpu *CPU) Execute(cycles uint16) {
 	for cpu.cycles < cycles {
 		opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
+		fmt.Printf("%x\n", opcode)
 		cpu.opcodes[opcode]()
 	}
 }
