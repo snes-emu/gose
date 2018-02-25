@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 
+	"github.com/snes-emu/gose/cpu"
 	"github.com/snes-emu/gose/memory"
 	"github.com/snes-emu/gose/rom"
 )
@@ -24,6 +26,7 @@ func main() {
 	}
 
 	rom, err := rom.ParseROM(ROM)
+	fmt.Println(rom.Title)
 
 	if err != nil {
 		log.Fatalf("There were a problem while importing the ROM: %v", err)
@@ -31,4 +34,7 @@ func main() {
 
 	mem := memory.New()
 	mem.LoadROM(*rom)
+	cpu := cpu.New(mem)
+	cpu.Init()
+	cpu.Execute(100)
 }
