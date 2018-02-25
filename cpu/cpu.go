@@ -177,7 +177,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0x87] = cpu.op87
 	cpu.opcodes[0x88] = cpu.op88
 	cpu.opcodes[0x89] = cpu.op89
-	//cpu.opcodes[0x8A] = cpu.op8A
+	cpu.opcodes[0x8A] = cpu.op8A
 	cpu.opcodes[0x8B] = cpu.op8B
 	cpu.opcodes[0x8C] = cpu.op8C
 	cpu.opcodes[0x8D] = cpu.op8D
@@ -191,10 +191,10 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0x95] = cpu.op95
 	cpu.opcodes[0x96] = cpu.op96
 	cpu.opcodes[0x97] = cpu.op97
-	//cpu.opcodes[0x98] = cpu.op98
+	cpu.opcodes[0x98] = cpu.op98
 	cpu.opcodes[0x99] = cpu.op99
-	//cpu.opcodes[0x9A] = cpu.op9A
-	//cpu.opcodes[0x9B] = cpu.op9B
+	cpu.opcodes[0x9A] = cpu.op9A
+	cpu.opcodes[0x9B] = cpu.op9B
 	cpu.opcodes[0x9C] = cpu.op9C
 	cpu.opcodes[0x9D] = cpu.op9D
 	cpu.opcodes[0x9E] = cpu.op9E
@@ -207,9 +207,9 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xA5] = cpu.opA5
 	cpu.opcodes[0xA6] = cpu.opA6
 	cpu.opcodes[0xA7] = cpu.opA7
-	//cpu.opcodes[0xA8] = cpu.opA8
+	cpu.opcodes[0xA8] = cpu.opA8
 	cpu.opcodes[0xA9] = cpu.opA9
-	//cpu.opcodes[0xAA] = cpu.opAA
+	cpu.opcodes[0xAA] = cpu.opAA
 	cpu.opcodes[0xAB] = cpu.opAB
 	cpu.opcodes[0xAC] = cpu.opAC
 	cpu.opcodes[0xAD] = cpu.opAD
@@ -225,8 +225,8 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xB7] = cpu.opB7
 	cpu.opcodes[0xB8] = cpu.opB8
 	cpu.opcodes[0xB9] = cpu.opB9
-	//cpu.opcodes[0xBA] = cpu.opBA
-	//cpu.opcodes[0xBB] = cpu.opBB
+	cpu.opcodes[0xBA] = cpu.opBA
+	cpu.opcodes[0xBB] = cpu.opBB
 	cpu.opcodes[0xBC] = cpu.opBC
 	cpu.opcodes[0xBD] = cpu.opBD
 	cpu.opcodes[0xBE] = cpu.opBE
