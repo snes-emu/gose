@@ -4,6 +4,17 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
+const (
+	abortNativeVector    = 0xFFE8
+	nmiNativeVector      = 0xFFEA
+	resetNativeVector    = 0xFFEC
+	irqNativeVector      = 0xFFEE
+	abortEmulationVector = 0xFFF8
+	nmiEmulationVector   = 0xFFFA
+	resetEmulationVector = 0xFFFC
+	irqEmulationVector   = 0xFFFE
+)
+
 func (cpu *CPU) abort() {
 	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
@@ -11,8 +22,8 @@ func (cpu *CPU) abort() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFF8)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFF9)
+		addressLo := cpu.memory.GetByteBank(0x00, abortEmulationVector)
+		addressHi := cpu.memory.GetByteBank(0x00, abortEmulationVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
@@ -20,8 +31,8 @@ func (cpu *CPU) abort() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFE8)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFE9)
+		addressLo := cpu.memory.GetByteBank(0x00, abortNativeVector)
+		addressHi := cpu.memory.GetByteBank(0x00, abortNativeVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
@@ -36,8 +47,8 @@ func (cpu *CPU) nmi() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFFA)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFFB)
+		addressLo := cpu.memory.GetByteBank(0x00, nmiEmulationVector)
+		addressHi := cpu.memory.GetByteBank(0x00, nmiEmulationVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
@@ -45,8 +56,8 @@ func (cpu *CPU) nmi() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFEA)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFEB)
+		addressLo := cpu.memory.GetByteBank(0x00, nmiNativeVector)
+		addressHi := cpu.memory.GetByteBank(0x00, nmiNativeVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false
@@ -55,14 +66,12 @@ func (cpu *CPU) nmi() {
 }
 
 func (cpu *CPU) reset() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
-	cpu.eFlag = true
-	cpu.pushStack(addressHi)
-	cpu.pushStack(addressLo)
-	cpu.php()
+	cpu.setEFlag(true)
+	cpu.D = 0x0000
+	cpu.DBR = 0x00
 	cpu.K = 0x00
-	addressLo = cpu.memory.GetByteBank(0x00, 0xFFFC)
-	addressHi = cpu.memory.GetByteBank(0x00, 0xFFFD)
+	addressLo := cpu.memory.GetByteBank(0x00, resetEmulationVector)
+	addressHi := cpu.memory.GetByteBank(0x00, resetEmulationVector+1)
 	cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -76,8 +85,8 @@ func (cpu *CPU) irq() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFFE)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFFF)
+		addressLo := cpu.memory.GetByteBank(0x00, irqEmulationVector)
+		addressHi := cpu.memory.GetByteBank(0x00, irqEmulationVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
@@ -85,8 +94,8 @@ func (cpu *CPU) irq() {
 		cpu.pushStack(addressLo)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, 0xFFEE)
-		addressHi := cpu.memory.GetByteBank(0x00, 0xFFEF)
+		addressLo := cpu.memory.GetByteBank(0x00, irqNativeVector)
+		addressHi := cpu.memory.GetByteBank(0x00, irqNativeVector+1)
 		cpu.PC = utils.JoinUint16(addressHi, addressLo)
 	}
 	cpu.dFlag = false

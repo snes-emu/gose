@@ -7,11 +7,12 @@ func (cpu *CPU) tcd() {
 	// Last bit value
 	cpu.nFlag = cpu.D&0x8000 != 0
 	cpu.zFlag = cpu.D == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op5B() {
 	cpu.tcd()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tcs() {
@@ -24,11 +25,12 @@ func (cpu *CPU) tcs() {
 	} else {
 		cpu.S = cpu.C
 	}
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op1B() {
 	cpu.tcs()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tdc() {
@@ -36,11 +38,12 @@ func (cpu *CPU) tdc() {
 	// Last bit value
 	cpu.nFlag = cpu.C&0x8000 != 0
 	cpu.zFlag = cpu.C == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op7B() {
 	cpu.tdc()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tsc() {
@@ -48,9 +51,162 @@ func (cpu *CPU) tsc() {
 	// Last bit value
 	cpu.nFlag = cpu.S&0x8000 != 0
 	cpu.zFlag = cpu.S == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op3B() {
 	cpu.tsc()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) tax() {
+	if cpu.xFlag {
+		result := cpu.getARegister()
+		cpu.setXLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.X = cpu.C
+		cpu.nFlag = cpu.X&0x8000 != 0
+		cpu.setXFlag(cpu.X == 0)
+	}
+}
+
+func (cpu *CPU) opAA() {
+	cpu.tax()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) tay() {
+	if cpu.xFlag {
+		result := cpu.getARegister()
+		cpu.setYLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.Y = cpu.C
+		cpu.nFlag = cpu.Y&0x8000 != 0
+		cpu.setXFlag(cpu.Y == 0)
+	}
+}
+
+func (cpu *CPU) opA8() {
+	cpu.tay()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) tsx() {
+	if cpu.xFlag {
+		result := cpu.getSLRegister()
+		cpu.setXLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.X = cpu.S
+		cpu.nFlag = cpu.X&0x8000 != 0
+		cpu.setXFlag(cpu.X == 0)
+	}
+}
+
+func (cpu *CPU) opBA() {
+	cpu.tsx()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) txa() {
+	if cpu.mFlag {
+		result := cpu.getXLRegister()
+		cpu.setARegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.C = cpu.X
+		cpu.nFlag = cpu.C&0x8000 != 0
+		cpu.setXFlag(cpu.C == 0)
+	}
+}
+
+func (cpu *CPU) op8A() {
+	cpu.txa()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) txs() {
+	if cpu.eFlag {
+		result := cpu.getXLRegister()
+		cpu.setSLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.S = cpu.X
+		cpu.nFlag = cpu.S&0x8000 != 0
+		cpu.setXFlag(cpu.S == 0)
+	}
+}
+
+func (cpu *CPU) op9A() {
+	cpu.txs()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) txy() {
+	if cpu.eFlag {
+		result := cpu.getXLRegister()
+		cpu.setYLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.Y = cpu.X
+		cpu.nFlag = cpu.Y&0x8000 != 0
+		cpu.setXFlag(cpu.Y == 0)
+	}
+}
+
+func (cpu *CPU) op9B() {
+	cpu.txy()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) tya() {
+	if cpu.eFlag {
+		result := cpu.getYLRegister()
+		cpu.setARegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.C = cpu.Y
+		cpu.nFlag = cpu.C&0x8000 != 0
+		cpu.setXFlag(cpu.C == 0)
+	}
+}
+
+func (cpu *CPU) op98() {
+	cpu.tya()
+	cpu.cycles += 2
+	cpu.PC++
+}
+
+func (cpu *CPU) tyx() {
+	if cpu.eFlag {
+		result := cpu.getYLRegister()
+		cpu.setXLRegister(result)
+		cpu.nFlag = result&0x80 != 0
+		cpu.setXFlag(result == 0)
+	} else {
+		cpu.X = cpu.Y
+		cpu.nFlag = cpu.X&0x8000 != 0
+		cpu.setXFlag(cpu.X == 0)
+	}
+}
+
+func (cpu *CPU) opBB() {
+	cpu.tyx()
+	cpu.cycles += 2
+	cpu.PC++
 }

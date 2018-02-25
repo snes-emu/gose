@@ -15,23 +15,26 @@ func (cpu *CPU) p8(data uint8) {
 	cpu.pushStack(data)
 }
 
+// PEA instruction
 func (cpu *CPU) opF4() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.p16(dataHi, dataLo)
+	cpu.pushStackNew16(dataHi, dataLo)
 	cpu.cycles += 5
 	cpu.PC += 3
 }
 
+// PEI instruction
 func (cpu *CPU) opD4() {
-	dataHi, dataLo := cpu.admDirect()
-	cpu.p16(dataHi, dataLo)
+	dataHi, dataLo := cpu.admDirectNew()
+	cpu.pushStackNew16(dataHi, dataLo)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
+// PER instuction
 func (cpu *CPU) op62() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.p16(dataHi, dataLo)
+	cpu.pushStackNew16(dataHi, dataLo)
 	cpu.cycles += 6
 	cpu.PC += 3
 }
@@ -61,21 +64,23 @@ func (cpu *CPU) op48() {
 	cpu.PC++
 }
 
+// PHB instruction
 func (cpu *CPU) op8B() {
-	cpu.pushStack(cpu.getDBRRegister())
+	cpu.pushStackNew8(cpu.getDBRRegister())
 	cpu.cycles += 3
 	cpu.PC++
 }
 
+// PHD instruction
 func (cpu *CPU) op0B() {
-	cpu.pushStack(cpu.getDHRegister())
-	cpu.pushStack(cpu.getDLRegister())
+	cpu.pushStackNew16(utils.SplitUint16(cpu.getDRegister()))
 	cpu.cycles += 4
 	cpu.PC++
 }
 
+// PHK instruction
 func (cpu *CPU) op4B() {
-	cpu.pushStack(cpu.getKRegister())
+	cpu.pushStackNew8(cpu.getKRegister())
 	cpu.cycles += 3
 	cpu.PC++
 }
@@ -160,7 +165,7 @@ func (cpu *CPU) pla16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setCRegister(result)
 }
@@ -170,7 +175,7 @@ func (cpu *CPU) pla8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setARegister(result)
 }
@@ -189,17 +194,18 @@ func (cpu *CPU) op68() {
 	cpu.PC++
 }
 
+// PLB instruction
 func (cpu *CPU) opAB() {
-	cpu.DBR = cpu.pullStack()
+	cpu.DBR = cpu.pullStackNew8()
 	cpu.nFlag = cpu.getDBRRegister()&0x80 != 0
 	cpu.zFlag = cpu.getDBRRegister() == 0
 	cpu.cycles += 4
 	cpu.PC++
 }
 
+// PLD instruction
 func (cpu *CPU) op2B() {
-	cpu.setDHRegister(cpu.pullStack())
-	cpu.setDLRegister(cpu.pullStack())
+	cpu.D = utils.JoinUint16(cpu.pullStackNew16())
 	cpu.nFlag = cpu.getDRegister()&0x80 != 0
 	cpu.zFlag = cpu.getDRegister() == 0
 	cpu.cycles += 4
@@ -238,7 +244,7 @@ func (cpu *CPU) plx16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setXRegister(result)
 }
@@ -248,7 +254,7 @@ func (cpu *CPU) plx8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setXLRegister(result)
 }
@@ -275,7 +281,7 @@ func (cpu *CPU) ply16() {
 	result := utils.JoinUint16(dataHi, dataLo)
 
 	cpu.nFlag = result&0x8000 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setYRegister(result)
 }
@@ -285,7 +291,7 @@ func (cpu *CPU) ply8() {
 	result := cpu.pullStack()
 
 	cpu.nFlag = result&0x80 != 0
-	cpu.zFlag = result != 0
+	cpu.zFlag = result == 0
 
 	cpu.setYLRegister(result)
 }

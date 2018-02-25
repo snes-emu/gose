@@ -24,6 +24,15 @@ func (cpu CPU) admDirectP() (uint32, uint32) {
 	return haddress, laddress
 }
 
+// DIRECT addressing mode for "new" intructions (only use by PEI)
+func (cpu CPU) admDirectNew() (uint8, uint8) {
+	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+	ll := uint16(LL)
+	laddress := uint32(cpu.getDRegister() + ll)
+	haddress := uint32(cpu.getDRegister() + ll + 1)
+	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+}
+
 // DIRECT,X addressing mode otherwise
 func (cpu CPU) admDirectX() (uint8, uint8) {
 	haddress, laddress := cpu.admDirectXP()
@@ -161,6 +170,7 @@ func (cpu CPU) admPDirectYP() (uint32, uint32) {
 	}
 
 	l := uint16(LL)
+	cpu.pFlag = cpu.getDRegister()&0x00FF+l+1 > 0xFF
 	laddress := uint32(cpu.getDRegister() + l)
 	hadress := uint32(cpu.getDRegister() + l + 1)
 	hh := cpu.memory.GetByte(hadress)

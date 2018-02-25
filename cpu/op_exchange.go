@@ -15,7 +15,9 @@ func (cpu *CPU) opEB() {
 }
 
 func (cpu *CPU) xce() {
-	cpu.eFlag, cpu.cFlag = cpu.cFlag, cpu.eFlag
+	temp := cpu.eFlag
+	cpu.setEFlag(cpu.cFlag)
+	cpu.cFlag = temp
 	cpu.cycles += 2
 	cpu.PC++
 }
