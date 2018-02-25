@@ -64,11 +64,11 @@ func (cpu *CPU) tax() {
 		result := cpu.getARegister()
 		cpu.setXLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.X = cpu.C
 		cpu.nFlag = cpu.X&0x8000 != 0
-		cpu.xFlag = cpu.X == 0
+		cpu.setXFlag(cpu.X == 0)
 	}
 }
 
@@ -83,11 +83,11 @@ func (cpu *CPU) tay() {
 		result := cpu.getARegister()
 		cpu.setYLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.Y = cpu.C
 		cpu.nFlag = cpu.Y&0x8000 != 0
-		cpu.xFlag = cpu.Y == 0
+		cpu.setXFlag(cpu.Y == 0)
 	}
 }
 
@@ -102,11 +102,11 @@ func (cpu *CPU) tsx() {
 		result := cpu.getSLRegister()
 		cpu.setXLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.X = cpu.S
 		cpu.nFlag = cpu.X&0x8000 != 0
-		cpu.xFlag = cpu.X == 0
+		cpu.setXFlag(cpu.X == 0)
 	}
 }
 
@@ -121,11 +121,11 @@ func (cpu *CPU) txa() {
 		result := cpu.getXLRegister()
 		cpu.setARegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.C = cpu.X
 		cpu.nFlag = cpu.C&0x8000 != 0
-		cpu.xFlag = cpu.C == 0
+		cpu.setXFlag(cpu.C == 0)
 	}
 }
 
@@ -140,11 +140,11 @@ func (cpu *CPU) txs() {
 		result := cpu.getXLRegister()
 		cpu.setSLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.S = cpu.X
 		cpu.nFlag = cpu.S&0x8000 != 0
-		cpu.xFlag = cpu.S == 0
+		cpu.setXFlag(cpu.S == 0)
 	}
 }
 
@@ -159,11 +159,11 @@ func (cpu *CPU) txy() {
 		result := cpu.getXLRegister()
 		cpu.setYLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.Y = cpu.X
 		cpu.nFlag = cpu.Y&0x8000 != 0
-		cpu.xFlag = cpu.Y == 0
+		cpu.setXFlag(cpu.Y == 0)
 	}
 }
 
@@ -178,11 +178,11 @@ func (cpu *CPU) tya() {
 		result := cpu.getYLRegister()
 		cpu.setARegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.C = cpu.Y
 		cpu.nFlag = cpu.C&0x8000 != 0
-		cpu.xFlag = cpu.C == 0
+		cpu.setXFlag(cpu.C == 0)
 	}
 }
 
@@ -197,11 +197,11 @@ func (cpu *CPU) tyx() {
 		result := cpu.getYLRegister()
 		cpu.setXLRegister(result)
 		cpu.nFlag = result&0x80 != 0
-		cpu.xFlag = result == 0
+		cpu.setXFlag(result == 0)
 	} else {
 		cpu.X = cpu.Y
 		cpu.nFlag = cpu.X&0x8000 != 0
-		cpu.xFlag = cpu.X == 0
+		cpu.setXFlag(cpu.X == 0)
 	}
 }
 
