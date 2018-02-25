@@ -7,11 +7,12 @@ func (cpu *CPU) tcd() {
 	// Last bit value
 	cpu.nFlag = cpu.D&0x8000 != 0
 	cpu.zFlag = cpu.D == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op5B() {
 	cpu.tcd()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tcs() {
@@ -24,11 +25,12 @@ func (cpu *CPU) tcs() {
 	} else {
 		cpu.S = cpu.C
 	}
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op1B() {
 	cpu.tcs()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tdc() {
@@ -36,11 +38,12 @@ func (cpu *CPU) tdc() {
 	// Last bit value
 	cpu.nFlag = cpu.C&0x8000 != 0
 	cpu.zFlag = cpu.C == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op7B() {
 	cpu.tdc()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tsc() {
@@ -48,11 +51,12 @@ func (cpu *CPU) tsc() {
 	// Last bit value
 	cpu.nFlag = cpu.S&0x8000 != 0
 	cpu.zFlag = cpu.S == 0
-	cpu.cycles += 2
 }
 
 func (cpu *CPU) op3B() {
 	cpu.tsc()
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) tax() {
