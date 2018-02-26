@@ -33,11 +33,13 @@ func (cpu *CPU) op14() {
 	addressHi, addressLo := cpu.admDirectP()
 	cpu.trb(addressHi, addressLo)
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 func (cpu *CPU) op1C() {
 	addressHi, addressLo := cpu.admAbsoluteP()
 	cpu.trb(addressHi, addressLo)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 // tsb16 test the bits of the data with the bits of the accumulator then set the bits of the data that are ones in the accumulator 16bit operation
@@ -69,9 +71,12 @@ func (cpu *CPU) op04() {
 	addressHi, addressLo := cpu.admDirectP()
 	cpu.tsb(addressHi, addressLo)
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
+
 func (cpu *CPU) op0C() {
 	addressHi, addressLo := cpu.admAbsoluteP()
 	cpu.tsb(addressHi, addressLo)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
