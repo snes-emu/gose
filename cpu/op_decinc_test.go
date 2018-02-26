@@ -11,7 +11,7 @@ func TestInx(t *testing.T) {
 	}{
 		{
 			value:    &CPU{X: 0x7FFF},
-			expected: CPU{X: 0x8000, nFlag: true},
+			expected: CPU{X: 0x8000, nFlag: true, PC: 1},
 		},
 	}
 
