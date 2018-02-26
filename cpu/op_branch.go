@@ -82,7 +82,7 @@ func (cpu *CPU) op70() {
 
 func (cpu *CPU) brl(offset uint16) {
 	cpu.cycles += 4
-	cpu.PC += offset + 2
+	cpu.PC += offset + 3
 }
 
 func (cpu *CPU) op82() {
