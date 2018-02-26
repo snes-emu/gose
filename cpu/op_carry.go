@@ -99,6 +99,13 @@ func (cpu *CPU) op6D() {
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 }
 
+func (cpu *CPU) op6F() {
+
+	dataHi, dataLo := cpu.admLong()
+	cpu.adc(dataHi, dataLo)
+	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
+}
+
 func (cpu *CPU) op71() {
 
 	dataHi, dataLo := cpu.admPDirectY()
