@@ -264,6 +264,13 @@ func (cpu *CPU) opED() {
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 }
 
+func (cpu *CPU) opEF() {
+
+	dataHi, dataLo := cpu.admLong()
+	cpu.sbc(dataHi, dataLo)
+	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
+}
+
 func (cpu *CPU) opF1() {
 
 	dataHi, dataLo := cpu.admPDirectY()
