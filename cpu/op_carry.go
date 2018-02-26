@@ -104,6 +104,7 @@ func (cpu *CPU) op6F() {
 	dataHi, dataLo := cpu.admLong()
 	cpu.adc(dataHi, dataLo)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 4
 }
 
 func (cpu *CPU) op71() {
@@ -269,6 +270,7 @@ func (cpu *CPU) opEF() {
 	dataHi, dataLo := cpu.admLong()
 	cpu.sbc(dataHi, dataLo)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 4
 }
 
 func (cpu *CPU) opF1() {
