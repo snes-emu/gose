@@ -150,7 +150,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0x6C] = cpu.op6C
 	cpu.opcodes[0x6D] = cpu.op6D
 	cpu.opcodes[0x6E] = cpu.op6E
-	//cpu.opcodes[0x6F] = cpu.op6F
+	cpu.opcodes[0x6F] = cpu.op6F
 	cpu.opcodes[0x70] = cpu.op70
 	cpu.opcodes[0x71] = cpu.op71
 	cpu.opcodes[0x72] = cpu.op72
@@ -278,7 +278,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xEC] = cpu.opEC
 	cpu.opcodes[0xED] = cpu.opED
 	cpu.opcodes[0xEE] = cpu.opEE
-	//cpu.opcodes[0xEF] = cpu.opEF
+	cpu.opcodes[0xEF] = cpu.opEF
 	cpu.opcodes[0xF0] = cpu.opF0
 	cpu.opcodes[0xF1] = cpu.opF1
 	cpu.opcodes[0xF2] = cpu.opF2
