@@ -39,6 +39,7 @@ func (cpu *CPU) op3A() {
 		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 2
+	cpu.PC++
 }
 
 //opC6 performs a decrement operation on memory through direct addressing mode
@@ -53,6 +54,7 @@ func (cpu *CPU) opC6() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 //opCE performs a decrement operation on memory through the absolute addressing mode
@@ -67,6 +69,7 @@ func (cpu *CPU) opCE() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 //opD6 performs a decrement operation on memory through direct,X addressing mode
@@ -81,6 +84,7 @@ func (cpu *CPU) opD6() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 //opDE performs a decrement operation on memory through absolute,X addressing mode
@@ -95,6 +99,7 @@ func (cpu *CPU) opDE() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 //opCA performs a decrement operation on the X register
@@ -114,6 +119,7 @@ func (cpu *CPU) opCA() {
 		cpu.zFlag = cpu.X == 0
 	}
 	cpu.cycles += 2
+	cpu.PC++
 }
 
 //op88 performs a decrement operation on the Y register, immediate mode
@@ -133,6 +139,7 @@ func (cpu *CPU) op88() {
 		cpu.zFlag = cpu.Y == 0
 	}
 	cpu.cycles += 2
+	cpu.PC++
 }
 
 func (cpu *CPU) inc16(data uint16) uint16 {
@@ -172,6 +179,7 @@ func (cpu *CPU) op1A() {
 		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
 	}
 	cpu.cycles += 2
+	cpu.PC++
 }
 
 //opE6 performs a increment operation on memory through direct addressing mode
@@ -186,6 +194,7 @@ func (cpu *CPU) opE6() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 //opEE performs a increment operation through the absolute access mode
@@ -200,6 +209,7 @@ func (cpu *CPU) opEE() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 //opF6 performs a increment operation on memory through direct,X addressing mode
@@ -214,6 +224,7 @@ func (cpu *CPU) opF6() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 //opF6 performs a increment operation on memory through absolute,X addressing mode
@@ -228,6 +239,7 @@ func (cpu *CPU) opFE() {
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
 	cpu.cycles += 9 - 2*utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 //opE8 performs a increment operation on the X register, immediate mode
@@ -245,8 +257,9 @@ func (cpu *CPU) opE8() {
 		cpu.nFlag = cpu.X&0x8000 != 0
 		// Zero result flag
 		cpu.zFlag = cpu.X == 0
-		cpu.cycles += 2
 	}
+	cpu.cycles += 2
+	cpu.PC++
 }
 
 //opC8 performs a increment operation on the Y register, immediate mode
@@ -267,4 +280,5 @@ func (cpu *CPU) opC8() {
 		cpu.cycles += 2
 	}
 	cpu.cycles += 2
+	cpu.PC++
 }
