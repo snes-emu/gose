@@ -45,28 +45,33 @@ func (cpu *CPU) op24() {
 	dataHi, dataLo := cpu.admDirect()
 	cpu.bit(dataHi, dataLo, false)
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 func (cpu *CPU) op2C() {
 	dataHi, dataLo := cpu.admAbsolute()
 	cpu.bit(dataHi, dataLo, false)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3
 }
 
 func (cpu *CPU) op34() {
 	dataHi, dataLo := cpu.admDirectX()
 	cpu.bit(dataHi, dataLo, false)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
+	cpu.PC += 2
 }
 
 func (cpu *CPU) op3C() {
 	dataHi, dataLo := cpu.admAbsoluteX()
 	cpu.bit(dataHi, dataLo, false)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] - utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
+	cpu.PC += 3
 }
 
 func (cpu *CPU) op89() {
 	dataHi, dataLo := cpu.admImmediateM()
 	cpu.bit(dataHi, dataLo, true)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
+	cpu.PC += 3 - utils.BoolToUint16[cpu.mFlag]
 }
