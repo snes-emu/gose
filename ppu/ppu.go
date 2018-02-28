@@ -10,9 +10,9 @@ type PPU struct {
 	cgramAddr uint16 // store the cgram address over 512 byte (not the Word addr !)
 	cgramLsb  uint8  // temporary variable for the cgdata register
 
-	oamAddr            uint16 // the OAM addr p------b aaaaaaaa (p is the Obj Priority activation bit and the rest represents the oam addr)
+	oamAddr            uint16 // the OAM addr p------b aaaaaaaa  (p is the Obj Priority activation bit and the rest represents the oam addr) stored as ba aaaaaaaf where f is the flip
 	oamLastWrittenAddr uint16 // variable to hold the last written oamAddr
-	oamFlip            uint16 // Hold addr flip (even or odd part of a word)
+	oamPriorityBit     bool   // Hold addr flip (even or odd part of a word)
 	oamLsb             uint8  // temporary variable for the oamdata register
 }
 
