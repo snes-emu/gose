@@ -22,7 +22,6 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 		ppu.oamLsb = data
 	} else {
 		// Remove the Obj Priority activation bit and keep only the b aaaaaaaa part
-		addr := 2 * (ppu.oamAddr & 0x01ff)
 		ppu.oam[ppu.oamAddr-1] = ppu.oamLsb
 		ppu.oam[ppu.oamAddr] = data
 	}
@@ -33,7 +32,7 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 
 // 2138 - RDOAM - OAM Data Read (R)
 func (ppu *PPU) rdoam(_ uint8) uint8 {
-	res := ppu.oam[2*(ppu.oamLastWrittenAddr&0x01ff)+ppu.oamFlip]
+	res := ppu.oam[ppu.oamLastWrittenAddr]
 	// Increment address only if Flip value is 1 (end of a word reached)
 	ppu.oamAddr = (ppu.oamAddr + ppu.oamAddr%2) % 544
 	return res
