@@ -2,14 +2,14 @@ package ppu
 
 // 2102 - OAMADDL
 func (ppu *PPU) oamaddl(data uint8) uint8 {
-	ppu.oamAddr = (ppu.oamAddr & 0x0100) | uint16(data)
+	ppu.oamAddr = (ppu.oamLastWrittenAddr & 0x0100) | uint16(data)
 	ppu.oamLastWrittenAddr = ppu.oamAddr
 	return 0
 }
 
 // 2103 - OAMADDH
 func (ppu *PPU) oamaddh(data uint8) uint8 {
-	ppu.oamAddr = (uint16(data) << 8) | (ppu.oamAddr & 0x00ff)
+	ppu.oamAddr = (uint16(data) << 8) | (ppu.oamLastWrittenAddr & 0x00ff)
 	ppu.oamLastWrittenAddr = ppu.oamAddr
 	return 0
 }
@@ -21,7 +21,7 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 		ppu.oamLsb = data
 	} else {
 		// Remove the Obj Priority activation bit and keep only the b aaaaaaaa part
-		addr := 2 * (ppu.oamLastWrittenAddr & 0x01ff)
+		addr := 2 * (ppu.oamAddr & 0x01ff)
 		ppu.oam[addr] = ppu.oamLsb
 		ppu.oam[addr+1] = data
 
