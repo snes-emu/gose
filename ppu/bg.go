@@ -29,3 +29,27 @@ func (ppu *PPU) mosaic(data uint8) {
 	}
 	ppu.mosaicSize = data >> 4
 }
+
+// 2107h - BG1SC - BG1 Screen Base and Screen Size (W)
+func (ppu *PPU) bg1sc(data uint8) {
+	ppu.bg[0].screenSize = data & 3
+	ppu.bg[0].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+}
+
+// 2108h - BG2SC - BG2 Screen Base and Screen Size (W)
+func (ppu *PPU) bg2sc(data uint8) {
+	ppu.bg[1].screenSize = data & 3
+	ppu.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+}
+
+// 2109h - BG3SC - BG3 Screen Base and Screen Size (W)
+func (ppu *PPU) bg3sc(data uint8) {
+	ppu.bg[1].screenSize = data & 3
+	ppu.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+}
+
+// 210Ah - BG4SC - BG4 Screen Base and Screen Size (W)
+func (ppu *PPU) bg4sc(data uint8) {
+	ppu.bg[1].screenSize = data & 3
+	ppu.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+}
