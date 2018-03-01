@@ -14,6 +14,10 @@ type PPU struct {
 	oamLastWrittenAddr uint16 // variable to hold the last written oamAddr
 	oamPriorityBit     bool   // Hold addr flip (even or odd part of a word)
 	oamLsb             uint8  // temporary variable for the oamdata register
+
+	bg           [4]BG // BG array containing the 4 backgrounds
+	bgScrollPrev uint8 // temporary variable for bg scrolling
+	bgScreenMode uint8 // Screen mode from 0 to 7
 }
 
 type register func(uint8) uint8
