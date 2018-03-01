@@ -20,7 +20,10 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 	if ppu.oamAddr%2 == 0 {
 		// Write to the temporary variable
 		ppu.oamLsb = data
-	} else {
+	}
+	if ppu.oamAddr > 0x1FF {
+		ppu.oam[ppu.oamAddr] = data
+	} else if ppu.oamAddr%2 == 1 {
 		// Remove the Obj Priority activation bit and keep only the b aaaaaaaa part
 		ppu.oam[ppu.oamAddr-1] = ppu.oamLsb
 		ppu.oam[ppu.oamAddr] = data
