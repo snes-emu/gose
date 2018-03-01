@@ -18,6 +18,7 @@ type PPU struct {
 	bg           [4]BG // BG array containing the 4 backgrounds
 	bgScrollPrev uint8 // temporary variable for bg scrolling
 	bgScreenMode uint8 // Screen mode from 0 to 7
+	mosaicSize   uint8 // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 }
 
 type register func(uint8) uint8
