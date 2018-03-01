@@ -35,8 +35,7 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 
 // 2138 - RDOAM - OAM Data Read (R)
 func (ppu *PPU) rdoam(_ uint8) uint8 {
-	res := ppu.oam[ppu.oamLastWrittenAddr]
-	// Increment address only if Flip value is 1 (end of a word reached)
-	ppu.oamAddr = (ppu.oamAddr + ppu.oamAddr%2) % 544
+	res := ppu.oam[ppu.oamAddr]
+	ppu.oamAddr = (ppu.oamAddr + 1) % 544
 	return res
 }
