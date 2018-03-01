@@ -17,7 +17,15 @@ func (ppu *PPU) bgmode(data uint8) {
 	ppu.bgScreenMode = data & 7
 	ppu.bg[2].Priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
-		ppu.bg[i].TileSize = data&(1<<4+i) != 0
+		ppu.bg[i].TileSize = data&(1<<(4+i)) != 0
 	}
 
+}
+
+// 2106h - MOSAIC - Mosaic Size and Mosaic Enable (W)
+func (ppu *PPU) mosaic(data uint8) {
+	for i := uint8(0); i < 4; i++ {
+		ppu.bg[i].Mosaic = data&(1<<i) != 0
+	}
+	ppu.mosaicSize = data >> 4
 }
