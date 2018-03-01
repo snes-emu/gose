@@ -44,12 +44,12 @@ func (ppu *PPU) bg2sc(data uint8) {
 
 // 2109h - BG3SC - BG3 Screen Base and Screen Size (W)
 func (ppu *PPU) bg3sc(data uint8) {
-	ppu.bg[1].screenSize = data & 3
-	ppu.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.bg[2].screenSize = data & 3
+	ppu.bg[2].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
 }
 
 // 210Ah - BG4SC - BG4 Screen Base and Screen Size (W)
 func (ppu *PPU) bg4sc(data uint8) {
-	ppu.bg[1].screenSize = data & 3
-	ppu.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.bg[3].screenSize = data & 3
+	ppu.bg[3].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
 }
