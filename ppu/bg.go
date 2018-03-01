@@ -53,3 +53,14 @@ func (ppu *PPU) bg4sc(data uint8) {
 	ppu.bg[3].screenSize = data & 3
 	ppu.bg[3].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
 }
+
+// 210Bh/210Ch - BG12NBA/BG34NBA - BG Character Data Area Designation (W)
+func (ppu *PPU) bg12nba(data uint8) {
+	ppu.bg[0].tileSetBaseAddress = uint16(data&0x0F) << 12
+	ppu.bg[1].tileSetBaseAddress = uint16(data&0xF0) << 8
+}
+
+func (ppu *PPU) bg34nba(data uint8) {
+	ppu.bg[2].tileSetBaseAddress = uint16(data&0x0F) << 12
+	ppu.bg[3].tileSetBaseAddress = uint16(data&0xF0) << 8
+}
