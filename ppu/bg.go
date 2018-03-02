@@ -67,48 +67,52 @@ func (ppu *PPU) bg34nba(data uint8) {
 
 // 210Dh - BG1HOFS - BG1 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg1hofs(data uint8) {
-	ppu.bg[0].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev &^ 7)) | ((ppu.bg[0].horizontalScroll >> 8) & 7)
-	ppu.bgScrollPrev = data
+	ppu.bg[0].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev1 &^ 7)) | uint16(ppu.bgScrollPrev2&7)
+	ppu.bgScrollPrev1 = data
+	ppu.bgScrollPrev2 = data
 }
 
 // 210Eh - BG1VOFS - BG1 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg1vofs(data uint8) {
-	ppu.bg[0].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev)
-	ppu.bgScrollPrev = data
+	ppu.bg[0].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev1)
+	ppu.bgScrollPrev1 = data
 }
 
 // 210Fh - BG2HOFS - BG2 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg2hofs(data uint8) {
-	ppu.bg[1].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev &^ 7)) | ((ppu.bg[1].horizontalScroll >> 8) & 7)
-	ppu.bgScrollPrev = data
+	ppu.bg[1].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev1 &^ 7)) | uint16(ppu.bgScrollPrev2&7)
+	ppu.bgScrollPrev1 = data
+	ppu.bgScrollPrev2 = data
 }
 
 // 2110h - BG2VOFS - BG2 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg2vofs(data uint8) {
-	ppu.bg[1].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev)
-	ppu.bgScrollPrev = data
+	ppu.bg[1].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev1)
+	ppu.bgScrollPrev1 = data
 }
 
 // 2111h - BG3HOFS - BG3 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg3hofs(data uint8) {
-	ppu.bg[2].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev &^ 7)) | ((ppu.bg[2].horizontalScroll >> 8) & 7)
-	ppu.bgScrollPrev = data
+	ppu.bg[2].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev1 &^ 7)) | uint16(ppu.bgScrollPrev2&7)
+	ppu.bgScrollPrev1 = data
+	ppu.bgScrollPrev2 = data
 }
 
 // 2112h - BG3VOFS - BG3 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg3vofs(data uint8) {
-	ppu.bg[2].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev)
-	ppu.bgScrollPrev = data
+	ppu.bg[2].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev1)
+	ppu.bgScrollPrev1 = data
 }
 
 // 2113h - BG4HOFS - BG4 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg4hofs(data uint8) {
-	ppu.bg[3].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev &^ 7)) | ((ppu.bg[3].horizontalScroll >> 8) & 7)
-	ppu.bgScrollPrev = data
+	ppu.bg[3].horizontalScroll = uint16(data)<<8 | uint16((ppu.bgScrollPrev1 &^ 7)) | uint16(ppu.bgScrollPrev2&7)
+	ppu.bgScrollPrev1 = data
+	ppu.bgScrollPrev2 = data
 }
 
 // 2114h - BG4VOFS - BG4 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg4vofs(data uint8) {
-	ppu.bg[3].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev)
-	ppu.bgScrollPrev = data
+	ppu.bg[3].horizontalScroll = uint16(data)<<8 | uint16(ppu.bgScrollPrev1)
+	ppu.bgScrollPrev1 = data
 }
