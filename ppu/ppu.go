@@ -15,6 +15,10 @@ type PPU struct {
 	oamPriorityBit     bool   // Hold addr flip (even or odd part of a word)
 	oamLsb             uint8  // temporary variable for the oamdata register
 
+	objectSize            uint8  // index representing object size in pixel
+	objectTileBaseAddress uint16 // Tile used for sprites base address in VRAM
+	objectTileGapAddress  uint16 // Gap between object tile 0x0FF and 0x100 in VRAM
+
 	bg            [4]BG // BG array containing the 4 backgrounds
 	bgScrollPrev1 uint8 // temporary variable for bg scrolling
 	bgScrollPrev2 uint8 // temporary variable for bg scrolling
