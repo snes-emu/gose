@@ -39,3 +39,11 @@ func (ppu *PPU) rdoam(_ uint8) uint8 {
 	ppu.oamAddr = (ppu.oamAddr + 1) % 544
 	return res
 }
+
+// 2101h - OBSEL - Object Size and Object Base (W)
+func (ppu *PPU) obsel(data uint8) uint8 {
+	ppu.objectSize = (data >> 5)
+	ppu.objectTileBaseAddress = uint16(data&0x7) << 14
+	ppu.objectTileGapAddress = uint16((data>>3)&0x3) << 13
+	return 0
+}
