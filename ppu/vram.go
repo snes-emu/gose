@@ -36,3 +36,26 @@ func (ppu *PPU) vmain(data uint8) uint8 {
 
 	return 0
 }
+
+// 2118 - VMDATAL - VRAM Data Write (lower 8bit) (W)
+func (ppu *PPU) vmdatal(data uint8) uint8 {
+
+	ppu.vram[2*ppu.getVramAddr()] = data
+
+	if ppu.vramIncrementMode {
+		ppu.vramAddr += ppu.vramIncrementAmount
+	}
+
+	return 0
+}
+
+// 2119 - VMDATAH - VRAM Data Write (upper 8bit) (W)
+func (ppu *PPU) vmdatah(data uint8) uint8 {
+	ppu.vram[2*ppu.getVramAddr()+1] = data
+
+	if !ppu.vramIncrementMode {
+		ppu.vramAddr += ppu.vramIncrementAmount
+	}
+
+	return 0
+}
