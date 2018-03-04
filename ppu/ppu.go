@@ -30,6 +30,7 @@ type PPU struct {
 	m7ScreenOver                           uint8  // Mode 7 screen over variable (possible values are 0,1,2 or 3)
 	m7Cache                                uint16 // Mode 7 cache value used in various registers like M7A or M7HOFS
 	m7aParam, m7bParam, m7cParam, m7dParam uint16 // Rotation/scaling parameters used in mode 7
+	m7hofsParam, m7vofsParam               uint16 // Mode 7 horizontal and vertical scroll offset parameters
 
 }
 

@@ -35,3 +35,17 @@ func (ppu *PPU) m7d(data uint8) uint8 {
 	ppu.m7Cache = ppu.m7dParam
 	return 0
 }
+
+// 210D - M7HOFS - Mode 7 Horizontal Scroll (X) (W)
+func (ppu *PPU) m7hofs(data uint8) uint8 {
+	ppu.m7hofsParam = (ppu.m7hofsParam << 8) | ppu.m7Cache
+	ppu.m7Cache = ppu.m7hofsParam
+	return 0
+}
+
+// 210E - M7VOFS - Mode 7 Vertical Scroll (Y) (W)
+func (ppu *PPU) m7vofs(data uint8) uint8 {
+	ppu.m7vofsParam = (ppu.m7vofsParam << 8) | ppu.m7Cache
+	ppu.m7Cache = ppu.m7vofsParam
+	return 0
+}
