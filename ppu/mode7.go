@@ -49,3 +49,17 @@ func (ppu *PPU) m7vofs(data uint8) uint8 {
 	ppu.m7Cache = ppu.m7vofsParam
 	return 0
 }
+
+// 211F - M7X - Rotation/Scaling Center Coordinate X (W)
+func (ppu *PPU) m7x(data uint8) uint8 {
+	ppu.m7xParam = (ppu.m7xParam << 8) | ppu.m7Cache
+	ppu.m7Cache = ppu.m7xParam
+	return 0
+}
+
+// 2120 - M7Y - Rotation/Scaling Center Coordinate Y (W)
+func (ppu *PPU) m7y(data uint8) uint8 {
+	ppu.m7yParam = (ppu.m7yParam << 8) | ppu.m7Cache
+	ppu.m7Cache = ppu.m7yParam
+	return 0
+}
