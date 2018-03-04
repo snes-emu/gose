@@ -24,6 +24,10 @@ type PPU struct {
 	bgScrollPrev2 uint8 // temporary variable for bg scrolling
 	bgScreenMode  uint8 // Screen mode from 0 to 7
 	mosaicSize    uint8 // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+
+	m7VerticalFlip                         bool   // Vertical flip flag used in mode7
+	m7HorizontalFlip                       bool   // Horizontal flip flag used in mode7
+	m7ScreenOver                           uint8  // Mode 7 screen over variable (possible values are 0,1,2 or 3)
 	m7Cache                                uint16 // Mode 7 cache value used in various registers like M7A or M7HOFS
 	m7aParam, m7bParam, m7cParam, m7dParam uint16 // Rotation/scaling parameters used in mode 7
 

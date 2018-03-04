@@ -1,5 +1,13 @@
 package ppu
 
+// 211Ah - M7SEL - Rotation/Scaling Mode Settings (W)
+func (ppu *PPU) m7sel(data uint8) uint8 {
+	ppu.m7ScreenOver = data & 0xc0 >> 6
+	ppu.m7VerticalFlip = data&0x2 != 0
+	ppu.m7HorizontalFlip = data&0x1 != 0
+	return 0
+}
+
 // 211B - M7A - Rotation/Scaling Parameter A (and Maths 16bit operand) (W)
 func (ppu *PPU) m7a(data uint8) uint8 {
 	ppu.m7aParam = (ppu.m7aParam << 8) | ppu.m7Cache
