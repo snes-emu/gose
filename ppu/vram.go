@@ -2,21 +2,21 @@ package ppu
 
 import "fmt"
 
-// vramAddrTranslation Performs the address translation
-func (ppu PPU) vramAddrTranslation(addr uint16) uint16 {
+// getVramAddr returns the vram addr performing the address translation
+func (ppu PPU) getVramAddr() uint16 {
 	switch ppu.vramAddrMapping {
 	case 0x0:
 		// No remapping
-		return addr
+		return ppu.vramAddr
 	case 0x1:
 		// Remap addressing aaaaaaaaBBBccccc => aaaaaaaacccccBBB
-		return (addr & 0xff00) | ((addr & 0xe0) >> 5) | ((addr & 0x1f) << 3)
+		return (ppu.vramAddr & 0xff00) | ((ppu.vramAddr & 0xe0) >> 5) | ((ppu.vramAddr & 0x1f) << 3)
 	case 0x2:
 		// Remap addressing aaaaaaaBBBcccccc => aaaaaaaccccccBBB
-		return (addr & 0xfe00) | ((addr & 0x1c0) >> 6) | ((addr & 0x3F) << 3)
+		return (ppu.vramAddr & 0xfe00) | ((ppu.vramAddr & 0x1c0) >> 6) | ((ppu.vramAddr & 0x3F) << 3)
 	case 0x3:
 		// Remap addressing aaaaaaBBBccccccc => aaaaaacccccccBBB
-		return (addr & 0xfc00) | ((addr & 0xb80) >> 7) | ((addr & 0x7F) << 3)
+		return (ppu.vramAddr & 0xfc00) | ((ppu.vramAddr & 0xb80) >> 7) | ((ppu.vramAddr & 0x7F) << 3)
 
 	default:
 		panic(fmt.Sprintf("Unknown vram Addr mapping mode: %v", ppu.vramAddrMapping))
