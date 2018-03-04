@@ -10,6 +10,7 @@ type BG struct {
 	tileSetBaseAddress uint16 // base address for tile set in VRAM
 	horizontalScroll   uint16 // horizontal scroll in pixel
 	verticalScroll     uint16 // vertical scroll in pixel
+	colorMath          bool   // Flag to control colors on the BG (False: Display RAW Main Screen as such (without math), True: Apply math on Mainscreen)
 }
 
 // 2105h - BGMODE - BG Mode and BG Character Size (W)
