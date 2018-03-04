@@ -25,9 +25,10 @@ type PPU struct {
 	bgScreenMode  uint8 // Screen mode from 0 to 7
 	mosaicSize    uint8 // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 
-	vramIncrementMode   bool  // vram Address increment mode
-	vramIncrementAmount uint8 // vram Address increment amount
-	vramAddrMapping     uint8 // vram Address remaping (4 mode available)
+	vramIncrementMode   bool   // vram Address increment mode
+	vramIncrementAmount uint16 // vram Address increment amount
+	vramAddrMapping     uint8  // vram Address remaping (4 mode available)
+	vramAddr            uint16 // The vram addr (a word address !)
 }
 
 type register func(uint8) uint8
