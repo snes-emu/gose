@@ -24,6 +24,11 @@ type PPU struct {
 	bgScrollPrev2 uint8 // temporary variable for bg scrolling
 	bgScreenMode  uint8 // Screen mode from 0 to 7
 	mosaicSize    uint8 // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+
+	mainScreenBlack uint8 // Force main screen black (possible values: (3=Always, 2=MathWindow, 1=NotMathWin, 0=Never))
+	colorMathEnable uint8 // Global color math enable (possible values: (0=Always, 1=MathWindow, 2=NotMathWin, 3=Never))
+	enableSubscreen bool  // Sub Screen BG/OBJ Enable    (0=No/Backdrop only, 1=Yes/Backdrop+BG+OBJ)
+	directColor     bool  // Direct Color (for 256-color BGs)  (0=Use Palette, 1=Direct Color)
 }
 
 type register func(uint8) uint8
