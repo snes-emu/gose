@@ -79,3 +79,29 @@ func (ppu *PPU) vmdatah(data uint8) uint8 {
 
 	return 0
 }
+
+// 2139 - RDVRAML - VRAM Data Read (lower 8bit) (R)
+func (ppu *PPU) rdvraml(_ uint8) uint8 {
+	res := ppu.vram[2*ppu.getVramAddr()]
+
+	if ppu.vramIncrementMode {
+		ppu.vramAddr += ppu.vramIncrementAmount
+		newAddr := ppu.getVramAddr()
+		ppu.vramCache = utils.JoinUint16(ppu.vram[2*newAddr+1], ppu.vram[2*newAddr])
+	}
+
+	return res
+}
+
+// 213A - RDVRAMH - VRAM Data Read (upper 8bit) (R)
+func (ppu *PPU) rdvramh(_ uint8) uint8 {
+	res := ppu.vram[2*ppu.getVramAddr()+1]
+
+	if !ppu.vramIncrementMode {
+		ppu.vramAddr += ppu.vramIncrementAmount
+		newAddr := ppu.getVramAddr()
+		ppu.vramCache = utils.JoinUint16(ppu.vram[2*newAddr+1], ppu.vram[2*newAddr])
+	}
+
+	return res
+}
