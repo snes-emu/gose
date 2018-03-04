@@ -1,6 +1,10 @@
 package ppu
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/snes-emu/gose/utils"
+)
 
 // getVramAddr returns the vram addr performing the address translation
 func (ppu PPU) getVramAddr() uint16 {
@@ -34,6 +38,22 @@ func (ppu *PPU) vmain(data uint8) uint8 {
 	ppu.vramIncrementAmount = incrementValues[data&0x3]
 	ppu.vramAddrMapping = data & 0xc >> 2
 
+	return 0
+}
+
+// 2116 - VMADDL - VRAM Address (lower 8bit) (W)
+func (ppu *PPU) vmaddl(data uint8) uint8 {
+	ppu.vramAddr = (ppu.vramAddr & 0xff00) | uint16(data)
+	newAddr := ppu.getVramAddr()
+	ppu.vramCache = utils.JoinUint16(ppu.vram[2*newAddr+1], ppu.vram[2*newAddr])
+	return 0
+}
+
+// 2117 - VMADDH - VRAM Address (upper 8bit) (W)
+func (ppu *PPU) vmaddh(data uint8) uint8 {
+	ppu.vramAddr = uint16(data)<<8 | (ppu.vramAddr & 0x0ff)
+	newAddr := ppu.getVramAddr()
+	ppu.vramCache = utils.JoinUint16(ppu.vram[2*newAddr+1], ppu.vram[2*newAddr])
 	return 0
 }
 
