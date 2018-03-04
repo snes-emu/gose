@@ -29,6 +29,7 @@ type PPU struct {
 	vramIncrementAmount uint16 // vram Address increment amount
 	vramAddrMapping     uint8  // vram Address remaping (4 mode available)
 	vramAddr            uint16 // The vram addr (a word address !)
+	vramCache           uint16 // a cache value used when using vmaddl/vmaddh registers that stores the vram value at the new address
 }
 
 type register func(uint8) uint8
