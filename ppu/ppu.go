@@ -24,6 +24,9 @@ type PPU struct {
 	bgScrollPrev2 uint8 // temporary variable for bg scrolling
 	bgScreenMode  uint8 // Screen mode from 0 to 7
 	mosaicSize    uint8 // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+	m7Cache                                uint16 // Mode 7 cache value used in various registers like M7A or M7HOFS
+	m7aParam, m7bParam, m7cParam, m7dParam uint16 // Rotation/scaling parameters used in mode 7
+
 }
 
 type register func(uint8) uint8
