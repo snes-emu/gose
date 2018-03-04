@@ -29,6 +29,9 @@ type PPU struct {
 	colorMathEnable uint8 // Global color math enable (possible values: (0=Always, 1=MathWindow, 2=NotMathWin, 3=Never))
 	enableSubscreen bool  // Sub Screen BG/OBJ Enable    (0=No/Backdrop only, 1=Yes/Backdrop+BG+OBJ)
 	directColor     bool  // Direct Color (for 256-color BGs)  (0=Use Palette, 1=Direct Color)
+	colorRed        uint8 // Red color
+	colorBlue       uint8 // Blue color
+	colorGreen      uint8 // Green color
 }
 
 type register func(uint8) uint8

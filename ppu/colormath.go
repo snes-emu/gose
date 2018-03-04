@@ -12,3 +12,17 @@ func (ppu *PPU) cgwsel(data uint8) uint8 {
 // 2131 - CGADSUB - Color Math Control Register B (W)
 
 // 2132 - COLDATA - Color Math Sub Screen Backdrop Color (W)
+func (ppu *PPU) coldata(data uint8) uint8 {
+	intensity := data & 0x1f
+
+	if (data & 0x80) != 0 {
+		ppu.colorBlue = intensity
+	}
+	if (data & 0x40) != 0 {
+		ppu.colorGreen = intensity
+	}
+	if (data & 0x20) != 0 {
+		ppu.colorRed = intensity
+	}
+	return 0
+}
