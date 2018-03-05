@@ -33,10 +33,10 @@ func (ppu *PPU) cgadsub(data uint8) uint8 {
 
 	ppu.colorMath.div2 = (data & 0x40) != 0
 
-	ppu.bg[3].colorMath = (data & 0x8) != 0
-	ppu.bg[2].colorMath = (data & 0x4) != 0
-	ppu.bg[1].colorMath = (data & 0x2) != 0
-	ppu.bg[0].colorMath = (data & 0x1) != 0
+	ppu.backgroundData.bg[3].colorMath = (data & 0x8) != 0
+	ppu.backgroundData.bg[2].colorMath = (data & 0x4) != 0
+	ppu.backgroundData.bg[1].colorMath = (data & 0x2) != 0
+	ppu.backgroundData.bg[0].colorMath = (data & 0x1) != 0
 
 	ppu.colorMath.backdrop = (data & 0x20) != 0
 	ppu.colorMath.obj = (data & 0x10) != 0
