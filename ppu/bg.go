@@ -1,23 +1,24 @@
 package ppu
 
 // BG stores data about a background
-type BG struct {
-	TileSize           bool   // false 8x8 tiles, true 16x16 tiles
-	Mosaic             bool   // mosaic mode enabled
-	Priority           bool   // Only useful for BG3
+type bg struct {
+	tileSize           bool   // false 8x8 tiles, true 16x16 tiles
+	mosaic             bool   // mosaic mode enabled
+	priority           bool   // Only useful for BG3
 	screenSize         uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
 	tileMapBaseAddress uint16 // base address for tile map in VRAM
 	tileSetBaseAddress uint16 // base address for tile set in VRAM
 	horizontalScroll   uint16 // horizontal scroll in pixel
 	verticalScroll     uint16 // vertical scroll in pixel
+	colorMath          bool   // Flag to control colors on the BG (False: Display RAW Main Screen as such (without math), True: Apply math on Mainscreen)
 }
 
 // 2105h - BGMODE - BG Mode and BG Character Size (W)
 func (ppu *PPU) bgmode(data uint8) uint8 {
 	ppu.bgScreenMode = data & 7
-	ppu.bg[2].Priority = data&8 != 0
+	ppu.bg[2].priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
-		ppu.bg[i].TileSize = data&(1<<(4+i)) != 0
+		ppu.bg[i].tileSize = data&(1<<(4+i)) != 0
 	}
 	return 0
 
@@ -26,7 +27,7 @@ func (ppu *PPU) bgmode(data uint8) uint8 {
 // 2106h - MOSAIC - Mosaic Size and Mosaic Enable (W)
 func (ppu *PPU) mosaic(data uint8) uint8 {
 	for i := uint8(0); i < 4; i++ {
-		ppu.bg[i].Mosaic = data&(1<<i) != 0
+		ppu.bg[i].mosaic = data&(1<<i) != 0
 	}
 	ppu.mosaicSize = data >> 4
 	return 0
