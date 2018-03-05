@@ -24,6 +24,8 @@ type PPU struct {
 	bgScrollPrev2 uint8  // temporary variable for bg scrolling
 	bgScreenMode  uint8  // Screen mode from 0 to 7
 	mosaicSize    uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+
+	colorMath *colorMath // Color math parameters
 }
 
 type register func(uint8) uint8
