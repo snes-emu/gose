@@ -21,6 +21,8 @@ type PPU struct {
 
 	backgroundData *backgroundData // background data
 	colorMath      *colorMath      // Color math parameters
+
+	m7 *m7 // mode 7 parameters
 }
 
 type register func(uint8) uint8
