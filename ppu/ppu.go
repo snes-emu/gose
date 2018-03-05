@@ -26,6 +26,8 @@ type PPU struct {
 	mosaicSize    uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 
 	colorMath *colorMath // Color math parameters
+
+	m7 *m7 // mode 7 parameters
 }
 
 type register func(uint8) uint8
