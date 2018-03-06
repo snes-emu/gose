@@ -1,49 +1,61 @@
 package ppu
 
-// 2102 - OAMADDL
+type oam struct {
+	bytes           [0x200 + 0x20]byte // oam represents the object attribute memory (512 + 32 Bytes)
+	addr            uint16             // the OAM addr p------b aaaaaaaa  (p is the Obj Priority activation bit and the rest represents the oam addr) stored as ba aaaaaaaf where f is the flip
+	lastWrittenAddr uint16             // variable to hold the last written oam.addr
+	priorityBit     bool               // Hold addr flip (even or odd part of a word)
+	lsb             uint8              // temporary variable for the oamdata register
+
+	objectSize            uint8  // index representing object size in pixel
+	objectTileBaseAddress uint16 // Tile used for sprites base address in VRAM
+	objectTileGapAddress  uint16 // Gap between object tile 0x0FF and 0x100 in VRAM
+}
+
+// 2102 - oam.aDDL
 func (ppu *PPU) oamaddl(data uint8) uint8 {
-	ppu.oamAddr = (ppu.oamLastWrittenAddr & 0x0200) | (uint16(data) << 1)
-	ppu.oamLastWrittenAddr = ppu.oamAddr
+	ppu.oam.addr = (ppu.oam.lastWrittenAddr & 0x0200) | (uint16(data) << 1)
+	ppu.oam.lastWrittenAddr = ppu.oam.addr
 	return 0
 }
 
-// 2103 - OAMADDH
+// 2103 - oam.aDDH
 func (ppu *PPU) oamaddh(data uint8) uint8 {
-	ppu.oamPriorityBit = data&0x80 != 0
-	ppu.oamAddr = (uint16(data) << 9) | (ppu.oamLastWrittenAddr & 0x01fe)
-	ppu.oamLastWrittenAddr = ppu.oamAddr
+	ppu.oam.priorityBit = data&0x80 != 0
+	ppu.oam.addr = (uint16(data) << 9) | (ppu.oam.lastWrittenAddr & 0x01fe)
+	ppu.oam.lastWrittenAddr = ppu.oam.addr
 	return 0
 }
 
 // 2104 - OAMDATA - OAM Data Write (W)
 func (ppu *PPU) oamdata(data uint8) uint8 {
-	if ppu.oamAddr%2 == 0 {
+	if ppu.oam.addr%2 == 0 {
 		// Write to the temporary variable
-		ppu.oamLsb = data
+		ppu.oam.lsb = data
 	}
-	if ppu.oamAddr > 0x1FF {
-		ppu.oam[ppu.oamAddr] = data
-	} else if ppu.oamAddr%2 == 1 {
+	if ppu.oam.addr > 0x1FF {
+		ppu.oam.bytes[ppu.oam.addr] = data
+	} else if ppu.oam.addr%2 == 1 {
 		// Remove the Obj Priority activation bit and keep only the b aaaaaaaa part
-		ppu.oam[ppu.oamAddr-1] = ppu.oamLsb
-		ppu.oam[ppu.oamAddr] = data
+		ppu.oam.bytes[ppu.oam.addr-1] = ppu.oam.lsb
+		ppu.oam.bytes[ppu.oam.addr] = data
 	}
 	// Increment the address
-	ppu.oamAddr = (ppu.oamAddr + 1) % 544
+	ppu.oam.addr = (ppu.oam.addr + 1) % 544
 	return 0
 }
 
 // 2138 - RDOAM - OAM Data Read (R)
 func (ppu *PPU) rdoam(_ uint8) uint8 {
-	res := ppu.oam[ppu.oamAddr]
-	ppu.oamAddr = (ppu.oamAddr + 1) % 544
+	res := ppu.oam.bytes[ppu.oam.addr]
+	ppu.oam.addr = (ppu.oam.addr + 1) % 544
 	return res
 }
 
 // 2101h - OBSEL - Object Size and Object Base (W)
 func (ppu *PPU) obsel(data uint8) uint8 {
-	ppu.objectSize = (data >> 5)
-	ppu.objectTileBaseAddress = uint16(data&0x7) << 14
-	ppu.objectTileGapAddress = uint16((data>>3)&0x3) << 13
+	ppu.oam.objectSize = (data >> 5)
+	ppu.oam.objectTileBaseAddress = uint16(data&0x7) << 14
+	ppu.oam.objectTileGapAddress = uint16((data>>3)&0x3) << 13
 	return 0
 }
