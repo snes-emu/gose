@@ -6,7 +6,7 @@ import (
 
 func TestOam(t *testing.T) {
 	// Set oam addr register to 0x104
-	ppu := &PPU{}
+	ppu := New()
 	ppu.oamaddl(0x04)
 	ppu.oamaddh(0x1)
 
@@ -19,7 +19,7 @@ func TestOam(t *testing.T) {
 	// Write 1 to 0x2103
 	ppu.oamaddh(0x1)
 
-	if ppu.oamLastWrittenAddr%512 != 2*4 {
-		t.Errorf("Wrong value for internal oam address, expected 8, got: %v", ppu.oamLastWrittenAddr)
+	if ppu.oam.lastWrittenAddr%512 != 2*4 {
+		t.Errorf("Wrong value for internal oam address, expected 8, got: %v", ppu.oam.lastWrittenAddr)
 	}
 }
