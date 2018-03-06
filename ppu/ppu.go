@@ -12,4 +12,16 @@ type PPU struct {
 	registers [0x40]register // registers represents the ppu registers as methods
 }
 
+// New initializes a PPU struct and returns it
+func New() *PPU {
+	ppu := &PPU{}
+	ppu.vram = &vram{}
+	ppu.oam = &oam{}
+	ppu.cgram = &cgram{}
+	ppu.backgroundData = &backgroundData{}
+	ppu.colorMath = &colorMath{}
+	ppu.m7 = &m7{}
+	return ppu
+}
+
 type register func(uint8) uint8
