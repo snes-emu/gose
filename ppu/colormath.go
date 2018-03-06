@@ -12,6 +12,9 @@ type colorMath struct {
 	div2            bool  // Whether or not the colors should be divided by 2 (only in certain cases though)
 	backdrop        bool  // If color math should be used when the main screen = Backdrop
 	obj             bool  // If color math should be used when main screen = OBJ/Palette4..7
+	windowMask1     uint8 // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMask2     uint8 // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMaskLogic uint8 // 0=OR, 1=AND, 2=XOR, 3=XNOR)
 }
 
 // 2130 - CGWSEL - Color Math Control Register A (W)

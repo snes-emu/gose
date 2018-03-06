@@ -10,6 +10,11 @@ type oam struct {
 	objectSize            uint8  // index representing object size in pixel
 	objectTileBaseAddress uint16 // Tile used for sprites base address in VRAM
 	objectTileGapAddress  uint16 // Gap between object tile 0x0FF and 0x100 in VRAM
+	windowMask1           uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMask2           uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMaskLogic       uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
+	mainScreenWindow      bool   // Disable window area on main screen
+	subScreenWindow       bool   // Disable windows area on sub screen
 }
 
 // 2102 - oam.aDDL
