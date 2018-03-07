@@ -8,6 +8,7 @@ type PPU struct {
 	backgroundData *backgroundData // background data
 	colorMath      *colorMath      // Color math parameters
 	m7             *m7             // mode 7 parameters
+	display        *display
 
 	registers [0x40]register // registers represents the ppu registers as methods
 	window    [2]*window
@@ -22,6 +23,7 @@ func New() *PPU {
 	ppu.backgroundData = &backgroundData{}
 	ppu.colorMath = &colorMath{}
 	ppu.m7 = &m7{}
+	ppu.display = &display{}
 	return ppu
 }
 
