@@ -340,7 +340,7 @@ func (cpu *CPU) pushStackNew8(data uint8) {
 	}
 }
 
-func (cpu *CPU) pushStackNew16(dataHi, dataLo uint8) {
+func (cpu *CPU) pushStackNew16(dataLo, dataHi uint8) {
 	cpu.pushStackNew(dataHi)
 	cpu.pushStackNew(dataLo)
 	if cpu.eFlag {
@@ -348,7 +348,7 @@ func (cpu *CPU) pushStackNew16(dataHi, dataLo uint8) {
 	}
 }
 
-func (cpu *CPU) pushStackNew24(dataHi, dataMid, dataLo uint8) {
+func (cpu *CPU) pushStackNew24(dataLo, dataMid, dataHi uint8) {
 	cpu.pushStackNew(dataHi)
 	cpu.pushStackNew(dataMid)
 	cpu.pushStackNew(dataLo)
@@ -365,7 +365,7 @@ func (cpu *CPU) pullStackNew8() (data uint8) {
 	return
 }
 
-func (cpu *CPU) pullStackNew16() (dataHi, dataLo uint8) {
+func (cpu *CPU) pullStackNew16() (dataLo, dataHi uint8) {
 	dataLo = cpu.pullStackNew()
 	dataHi = cpu.pullStackNew()
 	if cpu.eFlag {
@@ -374,7 +374,7 @@ func (cpu *CPU) pullStackNew16() (dataHi, dataLo uint8) {
 	return
 }
 
-func (cpu *CPU) pullStackNew24() (dataHi, dataMid, dataLo uint8) {
+func (cpu *CPU) pullStackNew24() (dataLo, dataMid, dataHi uint8) {
 	dataLo = cpu.pullStackNew()
 	dataMid = cpu.pullStackNew()
 	dataHi = cpu.pullStackNew()
