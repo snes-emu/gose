@@ -16,6 +16,7 @@ type PPU struct {
 	m7             *m7             // mode 7 parameters
 	display        *display
 	window         [2]*window
+	status         *status
 	registers      [0x40]register // registers represents the ppu registers as methods
 
 	hCounter uint16
