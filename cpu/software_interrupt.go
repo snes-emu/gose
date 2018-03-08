@@ -12,7 +12,7 @@ const (
 )
 
 func (cpu *CPU) brk() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
+	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -42,7 +42,7 @@ func (cpu *CPU) op00() {
 }
 
 func (cpu *CPU) cop() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister() + 2)
+	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)

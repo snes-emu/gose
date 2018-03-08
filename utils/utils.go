@@ -36,7 +36,7 @@ func SplitUint16(MM uint16) (uint8, uint8) {
 	buf := new(bytes.Buffer)
 	binary.Write(buf, binary.LittleEndian, &MM)
 	ret := buf.Bytes()
-	return ret[1], ret[0]
+	return ret[0], ret[1]
 }
 
 func SplitUint32(MM uint32) (uint8, uint8, uint8) {
