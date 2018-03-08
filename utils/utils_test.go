@@ -85,7 +85,7 @@ func TestSplitUint16(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		hh, ll := SplitUint16(tc.data)
+		ll, hh := SplitUint16(tc.data)
 
 		if hh != tc.HH || ll != tc.LL {
 			t.Errorf("Test %v failed, got (%v, %v), expected (%v, %v)", i, hh, ll, tc.HH, tc.LL)
