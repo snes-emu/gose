@@ -21,7 +21,7 @@ func (cpu *CPU) brk() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, brkEmulationVector)
 		addressHi := cpu.memory.GetByteBank(0x00, brkEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressLo, addressHi)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -30,7 +30,7 @@ func (cpu *CPU) brk() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, brkNativeVector)
 		addressHi := cpu.memory.GetByteBank(0x00, brkNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressLo, addressHi)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -50,7 +50,7 @@ func (cpu *CPU) cop() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, copEmulationVector)
 		addressHi := cpu.memory.GetByteBank(0x00, copEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressLo, addressHi)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -59,7 +59,7 @@ func (cpu *CPU) cop() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, copNativeVector)
 		addressHi := cpu.memory.GetByteBank(0x00, copNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressHi, addressLo)
+		cpu.PC = utils.JoinUint16(addressLo, addressHi)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true

@@ -29,7 +29,7 @@ func (cpu *CPU) cmp(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.cmp8(dataLo)
 	} else {
-		cpu.cmp16(utils.JoinUint16(dataHi, dataLo))
+		cpu.cmp16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 
@@ -180,7 +180,7 @@ func (cpu *CPU) cpx(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.cpx8(dataLo)
 	} else {
-		cpu.cpx16(utils.JoinUint16(dataHi, dataLo))
+		cpu.cpx16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 
@@ -232,7 +232,7 @@ func (cpu *CPU) cpy(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.cpy8(dataLo)
 	} else {
-		cpu.cpy16(utils.JoinUint16(dataHi, dataLo))
+		cpu.cpy16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 
