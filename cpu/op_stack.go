@@ -18,7 +18,7 @@ func (cpu *CPU) p8(data uint8) {
 // PEA instruction
 func (cpu *CPU) opF4() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.pushStackNew16(dataHi, dataLo)
+	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 5
 	cpu.PC += 3
 }
@@ -26,7 +26,7 @@ func (cpu *CPU) opF4() {
 // PEI instruction
 func (cpu *CPU) opD4() {
 	dataHi, dataLo := cpu.admDirectNew()
-	cpu.pushStackNew16(dataHi, dataLo)
+	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
@@ -34,7 +34,7 @@ func (cpu *CPU) opD4() {
 // PER instuction
 func (cpu *CPU) op62() {
 	dataHi, dataLo := cpu.admImmediate16()
-	cpu.pushStackNew16(dataHi, dataLo)
+	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 6
 	cpu.PC += 3
 }
