@@ -50,8 +50,8 @@ func (cpu *CPU) opDC() {
 
 // jsl jumps to a subroutine long
 func (cpu *CPU) jsl(haddr uint8, laddr uint16) {
-	hiaddr, loaddr := utils.SplitUint16(cpu.getPCRegister() + 3)
-	cpu.pushStackNew24(loaddr, hiaddr, cpu.getKRegister())
+	laddr2, haddr2 := utils.SplitUint16(cpu.getPCRegister() + 3)
+	cpu.pushStackNew24(laddr2, haddr2, cpu.getKRegister())
 
 	cpu.jmpLong(haddr, laddr)
 }
@@ -65,7 +65,7 @@ func (cpu *CPU) op22() {
 
 // jsr jumps to a subroutine
 func (cpu *CPU) jsr(addr uint16) {
-	haddr, laddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
 
 	cpu.pushStack(haddr)
 	cpu.pushStack(laddr)
@@ -75,7 +75,7 @@ func (cpu *CPU) jsr(addr uint16) {
 
 // jsr jumps to a subroutine for new addressing mode
 func (cpu *CPU) jsrNew(addr uint16) {
-	haddr, laddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
 
 	cpu.pushStackNew16(laddr, haddr)
 

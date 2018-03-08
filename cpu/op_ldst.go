@@ -268,7 +268,7 @@ func (cpu *CPU) opBC() {
 // sta16 stores the accumulator in the memory
 func (cpu *CPU) sta16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.SplitUint16(cpu.getCRegister())
+	dataLo, dataHi := utils.SplitUint16(cpu.getCRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -390,7 +390,7 @@ func (cpu *CPU) op9F() {
 // stx16 stores the x register in the memory
 func (cpu *CPU) stx16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.SplitUint16(cpu.getXRegister())
+	dataLo, dataHi := utils.SplitUint16(cpu.getXRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -435,7 +435,7 @@ func (cpu *CPU) op96() {
 // sty16 stores the x register in the memory
 func (cpu *CPU) sty16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.SplitUint16(cpu.getYRegister())
+	dataLo, dataHi := utils.SplitUint16(cpu.getYRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -480,7 +480,7 @@ func (cpu *CPU) op94() {
 // stz16 stores 0 in the memory
 func (cpu *CPU) stz16(haddr, laddr uint32) {
 
-	dataHi, dataLo := utils.SplitUint16(0x0000)
+	dataLo, dataHi := utils.SplitUint16(0x0000)
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)

@@ -45,7 +45,7 @@ func (cpu *CPU) asl16data(haddress, laddress uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultHi, resultLo := utils.SplitUint16(data)
+	resultLo, resultHi := utils.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddress)
 	cpu.memory.SetByte(resultLo, laddress)
@@ -161,7 +161,7 @@ func (cpu *CPU) lsr16data(haddress, laddress uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultHi, resultLo := utils.SplitUint16(data)
+	resultLo, resultHi := utils.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddress)
 	cpu.memory.SetByte(resultLo, laddress)
@@ -289,7 +289,7 @@ func (cpu *CPU) rol16data(haddress, laddress uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultHi, resultLo := utils.SplitUint16(data)
+	resultLo, resultHi := utils.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddress)
 	cpu.memory.SetByte(resultLo, laddress)
@@ -421,7 +421,7 @@ func (cpu *CPU) ror16data(haddress, laddress uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultHi, resultLo := utils.SplitUint16(data)
+	resultLo, resultHi := utils.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddress)
 	cpu.memory.SetByte(resultLo, laddress)

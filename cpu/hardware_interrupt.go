@@ -16,7 +16,7 @@ const (
 )
 
 func (cpu *CPU) abort() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -41,7 +41,7 @@ func (cpu *CPU) abort() {
 }
 
 func (cpu *CPU) nmi() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -79,7 +79,7 @@ func (cpu *CPU) reset() {
 }
 
 func (cpu *CPU) irq() {
-	addressHi, addressLo := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
