@@ -162,7 +162,7 @@ func (cpu *CPU) pla16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataHi, dataLo)
+	result := utils.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
@@ -241,7 +241,7 @@ func (cpu *CPU) plx16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataHi, dataLo)
+	result := utils.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
@@ -278,7 +278,7 @@ func (cpu *CPU) ply16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataHi, dataLo)
+	result := utils.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0

@@ -28,7 +28,7 @@ func (cpu *CPU) lda(dataHi, dataLo uint8) {
 	if cpu.mFlag {
 		cpu.lda8(dataLo)
 	} else {
-		cpu.lda16(utils.JoinUint16(dataHi, dataLo))
+		cpu.lda16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 
@@ -162,7 +162,7 @@ func (cpu *CPU) ldx(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.ldx8(dataLo)
 	} else {
-		cpu.ldx16(utils.JoinUint16(dataHi, dataLo))
+		cpu.ldx16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 
@@ -226,7 +226,7 @@ func (cpu *CPU) ldy(dataHi, dataLo uint8) {
 	if cpu.xFlag {
 		cpu.ldy8(dataLo)
 	} else {
-		cpu.ldy16(utils.JoinUint16(dataHi, dataLo))
+		cpu.ldy16(utils.JoinUint16(dataLo, dataHi))
 	}
 }
 

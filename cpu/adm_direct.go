@@ -14,7 +14,7 @@ func (cpu CPU) admDirectP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
-		address := utils.JoinUint32(0x00, cpu.getDHRegister(), LL)
+		address := utils.JoinUint32(LL, cpu.getDHRegister(), 0x00)
 		return 0x00, address
 	}
 
@@ -44,7 +44,7 @@ func (cpu CPU) admDirectXP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
-		address := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
+		address := utils.JoinUint32(LL+cpu.getXLRegister(), cpu.getDHRegister(), 0x00)
 		return 0x00, address
 	}
 
@@ -66,7 +66,7 @@ func (cpu CPU) admDirectYP() (uint32, uint32) {
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-		address := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+cpu.getYLRegister())
+		address := utils.JoinUint32(LL+cpu.getYLRegister(), cpu.getDHRegister(), 0x00)
 		return 0x00, address
 	}
 
@@ -79,11 +79,11 @@ func (cpu CPU) admDirectYP() (uint32, uint32) {
 // (DIRECT) addressing mode when e is 1 and DL is $00
 func (cpu CPU) admPDirect8() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-	laddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL)
-	haddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+1)
+	laddress := utils.JoinUint32(LL, cpu.getDHRegister(), 0x00)
+	haddress := utils.JoinUint32(LL+1, cpu.getDHRegister(), 0x00)
 	ll := cpu.memory.GetByte(laddress)
 	hh := cpu.memory.GetByte(haddress)
-	pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll)
+	pointer := utils.JoinUint32(ll, hh, cpu.getDBRRegister())
 	return cpu.memory.GetByte(pointer + 1), cpu.memory.GetByte(pointer)
 }
 
@@ -115,7 +115,7 @@ func (cpu CPU) admBDirectP() (uint32, uint32) {
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
-	pointer := utils.JoinUint32(hh, mm, ll)
+	pointer := utils.JoinUint32(ll, mm, hh)
 	return pointer + 1, pointer
 }
 
@@ -131,11 +131,11 @@ func (cpu CPU) admPDirectXP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
-		laddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister())
-		haddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+cpu.getXLRegister()+1)
+		laddress := utils.JoinUint32(LL+cpu.getXLRegister(), cpu.getDHRegister(), 0x00)
+		haddress := utils.JoinUint32(LL+cpu.getXLRegister()+1, cpu.getDHRegister(), 0x00)
 		ll := cpu.memory.GetByte(laddress)
 		hh := cpu.memory.GetByte(haddress)
-		pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll)
+		pointer := utils.JoinUint32(ll, hh, cpu.getDBRRegister())
 		return pointer + 1, pointer
 	}
 
@@ -144,7 +144,7 @@ func (cpu CPU) admPDirectXP() (uint32, uint32) {
 	hadress := uint32(cpu.getDRegister() + l + cpu.getXRegister() + 1)
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
-	pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll)
+	pointer := utils.JoinUint32(ll, hh, cpu.getDBRRegister())
 	return pointer + 1, pointer
 
 }
@@ -161,11 +161,11 @@ func (cpu CPU) admPDirectYP() (uint32, uint32) {
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-		laddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL)
-		haddress := utils.JoinUint32(0x00, cpu.getDHRegister(), LL+1)
+		laddress := utils.JoinUint32(LL, cpu.getDHRegister(), 0x00)
+		haddress := utils.JoinUint32(LL+1, cpu.getDHRegister(), 0x00)
 		ll := cpu.memory.GetByte(laddress)
 		hh := cpu.memory.GetByte(haddress)
-		pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+		pointer := utils.JoinUint32(ll, hh, cpu.getDBRRegister()) + uint32(cpu.getYRegister())
 		return pointer + 1, pointer
 	}
 
@@ -175,7 +175,7 @@ func (cpu CPU) admPDirectYP() (uint32, uint32) {
 	hadress := uint32(cpu.getDRegister() + l + 1)
 	hh := cpu.memory.GetByte(hadress)
 	ll := cpu.memory.GetByte(laddress)
-	pointer := utils.JoinUint32(cpu.getDBRRegister(), hh, ll) + uint32(cpu.getYRegister())
+	pointer := utils.JoinUint32(ll, hh, cpu.getDBRRegister()) + uint32(cpu.getYRegister())
 	return pointer + 1, pointer
 }
 
@@ -192,6 +192,6 @@ func (cpu CPU) admBDirectYP() (uint32, uint32) {
 	ll := cpu.memory.GetByte(uint32(address))
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
-	pointer := utils.JoinUint32(hh, mm, ll) + uint32(cpu.getYRegister())
+	pointer := utils.JoinUint32(ll, mm, hh) + uint32(cpu.getYRegister())
 	return pointer + 1, pointer
 }

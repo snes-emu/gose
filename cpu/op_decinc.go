@@ -36,7 +36,7 @@ func (cpu *CPU) op3A() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.dec8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
 	}
 	cpu.cycles += 2
 	cpu.PC++
@@ -49,7 +49,7 @@ func (cpu *CPU) opC6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -64,7 +64,7 @@ func (cpu *CPU) opCE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -79,7 +79,7 @@ func (cpu *CPU) opD6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -94,7 +94,7 @@ func (cpu *CPU) opDE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -176,7 +176,7 @@ func (cpu *CPU) op1A() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
 	}
 	cpu.cycles += 2
 	cpu.PC++
@@ -189,7 +189,7 @@ func (cpu *CPU) opE6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -204,7 +204,7 @@ func (cpu *CPU) opEE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -219,7 +219,7 @@ func (cpu *CPU) opF6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}
@@ -234,7 +234,7 @@ func (cpu *CPU) opFE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
-		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataHi, dataLo)))
+		resultHi, resultLo := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, addressHi)
 		cpu.memory.SetByte(resultLo, addressLo)
 	}

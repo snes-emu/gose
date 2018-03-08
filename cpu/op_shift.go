@@ -34,7 +34,7 @@ func (cpu *CPU) asl8acc() {
 func (cpu *CPU) asl16data(haddress, laddress uint32) {
 	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 
-	data := utils.JoinUint16(dataHi, dataLo)
+	data := utils.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
@@ -150,7 +150,7 @@ func (cpu *CPU) lsr8acc() {
 func (cpu *CPU) lsr16data(haddress, laddress uint32) {
 	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 
-	data := utils.JoinUint16(dataHi, dataLo)
+	data := utils.JoinUint16(dataLo, dataHi)
 
 	result := data >> 1
 
@@ -274,7 +274,7 @@ func (cpu *CPU) rol8acc() {
 func (cpu *CPU) rol16data(haddress, laddress uint32) {
 	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 
-	data := utils.JoinUint16(dataHi, dataLo)
+	data := utils.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
@@ -406,7 +406,7 @@ func (cpu *CPU) ror8acc() {
 func (cpu *CPU) ror16data(haddress, laddress uint32) {
 	dataHi, dataLo := cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
 
-	data := utils.JoinUint16(dataHi, dataLo)
+	data := utils.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
