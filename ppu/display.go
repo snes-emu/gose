@@ -29,7 +29,7 @@ func (ppu *PPU) tm(data uint8) uint8 {
 }
 
 // 212Dh - TS - Sub Screen Designation (W)
-func (ppu *PPU) sm(data uint8) uint8 {
+func (ppu *PPU) ts(data uint8) uint8 {
 	for i := 0; i < 4; i++ {
 		ppu.backgroundData.bg[i].subScreen = data&0x01 != 0
 		data = data >> 1
