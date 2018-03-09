@@ -11,8 +11,8 @@ func (cpu CPU) admAbsoluteJ() uint16 {
 
 //ABSOLUTE addressing mode
 func (cpu CPU) admAbsolute() (uint8, uint8) {
-	haddress, laddress := cpu.admAbsoluteP()
-	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+	laddress, haddress := cpu.admAbsoluteP()
+	return cpu.memory.GetByte(laddress), cpu.memory.GetByte(haddress)
 }
 
 //ABSOLUTE addressing mode pointer
@@ -20,13 +20,13 @@ func (cpu CPU) admAbsoluteP() (uint32, uint32) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.JoinUint32(LL, HH, cpu.getDBRRegister())
-	return address + 1, address
+	return address, address + 1
 }
 
 // ABSOLUTE,X addressing mode
 func (cpu CPU) admAbsoluteX() (uint8, uint8) {
-	haddress, laddress := cpu.admAbsoluteXP()
-	return cpu.memory.GetByte(haddress), cpu.memory.GetByte(laddress)
+	laddress, haddress := cpu.admAbsoluteXP()
+	return cpu.memory.GetByte(laddress), cpu.memory.GetByte(haddress)
 }
 
 // ABSOLUTE,X addressing mode pointer
@@ -35,13 +35,13 @@ func (cpu CPU) admAbsoluteXP() (uint32, uint32) {
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.JoinUint32(LL, HH, cpu.getDBRRegister())
 	cpu.pFlag = uint16(LL)+0x00FF+cpu.getXRegister()+1 > 0xFF
-	return address + uint32(cpu.getXRegister()) + 1, address + uint32(cpu.getXRegister())
+	return address + uint32(cpu.getXRegister()), address + uint32(cpu.getXRegister()) + 1
 }
 
 // ABSOLUTE,X addressing mode
 func (cpu CPU) admAbsoluteY() (uint8, uint8) {
-	haddr, laddr := cpu.admAbsoluteYP()
-	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+	laddr, haddr := cpu.admAbsoluteYP()
+	return cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 }
 
 // ABSOLUTE,X addressing mode pointer
@@ -50,7 +50,7 @@ func (cpu CPU) admAbsoluteYP() (uint32, uint32) {
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := utils.JoinUint32(LL, HH, cpu.getDBRRegister())
 	cpu.pFlag = uint16(LL)+0x00FF+cpu.getYRegister()+1 > 0xFF
-	return address + uint32(cpu.getYRegister()) + 1, address + uint32(cpu.getYRegister())
+	return address + uint32(cpu.getYRegister()), address + uint32(cpu.getYRegister()) + 1
 }
 
 // (ABSOLUTE) addressing mode
