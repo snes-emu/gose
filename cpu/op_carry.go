@@ -49,7 +49,7 @@ func (cpu *CPU) adc8(data uint8) uint8 {
 }
 
 // sbc performs a substract with carry operation handling the 8/16 bit cases
-func (cpu *CPU) adc(dataHi, dataLo uint8) {
+func (cpu *CPU) adc(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.adc8(dataLo))
 	} else {
@@ -59,72 +59,72 @@ func (cpu *CPU) adc(dataHi, dataLo uint8) {
 
 func (cpu *CPU) op61() {
 
-	dataHi, dataLo := cpu.admPDirectX()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPDirectX()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op63() {
 
-	dataHi, dataLo := cpu.admStackS()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admStackS()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op65() {
 
-	dataHi, dataLo := cpu.admDirect()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admDirect()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op67() {
 
-	dataHi, dataLo := cpu.admBDirect()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admBDirect()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op69() {
 
-	dataHi, dataLo := cpu.admImmediateM()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admImmediateM()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3 - utils.BoolToUint16[cpu.mFlag]
 }
 
 func (cpu *CPU) op6D() {
 
-	dataHi, dataLo := cpu.admAbsolute()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admAbsolute()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op6F() {
 
-	dataHi, dataLo := cpu.admLong()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admLong()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 4
 }
 
 func (cpu *CPU) op71() {
 
-	dataHi, dataLo := cpu.admPDirectY()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPDirectY()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0] - utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op72() {
-	dataHi, dataLo := cpu.admPDirect()
+	dataLo, dataHi := cpu.admPDirect()
 
-	cpu.adc(dataHi, dataLo)
+	cpu.adc(dataLo, dataHi)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
@@ -132,16 +132,16 @@ func (cpu *CPU) op72() {
 
 func (cpu *CPU) op73() {
 
-	dataHi, dataLo := cpu.admPStackSY()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPStackSY()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 8 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op75() {
-	dataHi, dataLo := cpu.admDirectX()
+	dataLo, dataHi := cpu.admDirectX()
 
-	cpu.adc(dataHi, dataLo)
+	cpu.adc(dataLo, dataHi)
 
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
@@ -149,16 +149,16 @@ func (cpu *CPU) op75() {
 
 func (cpu *CPU) op77() {
 
-	dataHi, dataLo := cpu.admDirectX()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admDirectX()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op79() {
-	dataHi, dataLo := cpu.admAbsoluteX()
+	dataLo, dataHi := cpu.admAbsoluteX()
 
-	cpu.adc(dataHi, dataLo)
+	cpu.adc(dataLo, dataHi)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.mFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 3
@@ -166,15 +166,15 @@ func (cpu *CPU) op79() {
 
 func (cpu *CPU) op7D() {
 
-	dataHi, dataLo := cpu.admAbsoluteY()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admAbsoluteY()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0] - utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op7F() {
-	dataHi, dataLo := cpu.admLongX()
-	cpu.adc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admLongX()
+	cpu.adc(dataLo, dataHi)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 4
 }
@@ -226,7 +226,7 @@ func (cpu *CPU) sbc8(data uint8) uint8 {
 }
 
 // sbc performs a substract with carry operation handling the 8/16 bit cases
-func (cpu *CPU) sbc(dataHi, dataLo uint8) {
+func (cpu *CPU) sbc(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.sbc8(dataLo))
 	} else {
@@ -236,72 +236,72 @@ func (cpu *CPU) sbc(dataHi, dataLo uint8) {
 
 func (cpu *CPU) opE1() {
 
-	dataHi, dataLo := cpu.admPDirectX()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPDirectX()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opE3() {
 
-	dataHi, dataLo := cpu.admStackS()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admStackS()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opE5() {
 
-	dataHi, dataLo := cpu.admDirect()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admDirect()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opE7() {
 
-	dataHi, dataLo := cpu.admBDirect()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admBDirect()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opE9() {
 
-	dataHi, dataLo := cpu.admImmediateM()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admImmediateM()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3 - utils.BoolToUint16[cpu.mFlag]
 }
 
 func (cpu *CPU) opED() {
 
-	dataHi, dataLo := cpu.admAbsolute()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admAbsolute()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opEF() {
 
-	dataHi, dataLo := cpu.admLong()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admLong()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 4
 }
 
 func (cpu *CPU) opF1() {
 
-	dataHi, dataLo := cpu.admPDirectY()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPDirectY()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0] - utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opF2() {
-	dataHi, dataLo := cpu.admPDirect()
+	dataLo, dataHi := cpu.admPDirect()
 
-	cpu.sbc(dataHi, dataLo)
+	cpu.sbc(dataLo, dataHi)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
@@ -309,16 +309,16 @@ func (cpu *CPU) opF2() {
 
 func (cpu *CPU) opF3() {
 
-	dataHi, dataLo := cpu.admPStackSY()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admPStackSY()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 8 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opF5() {
-	dataHi, dataLo := cpu.admDirectX()
+	dataLo, dataHi := cpu.admDirectX()
 
-	cpu.sbc(dataHi, dataLo)
+	cpu.sbc(dataLo, dataHi)
 
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
@@ -326,16 +326,16 @@ func (cpu *CPU) opF5() {
 
 func (cpu *CPU) opF7() {
 
-	dataHi, dataLo := cpu.admDirectX()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admDirectX()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 7 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opF9() {
-	dataHi, dataLo := cpu.admAbsoluteX()
+	dataLo, dataHi := cpu.admAbsoluteX()
 
-	cpu.sbc(dataHi, dataLo)
+	cpu.sbc(dataLo, dataHi)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.mFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 3
@@ -343,16 +343,16 @@ func (cpu *CPU) opF9() {
 
 func (cpu *CPU) opFD() {
 
-	dataHi, dataLo := cpu.admAbsoluteY()
-	cpu.sbc(dataHi, dataLo)
+	dataLo, dataHi := cpu.admAbsoluteY()
+	cpu.sbc(dataLo, dataHi)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0] - utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opFF() {
-	dataHi, dataLo := cpu.admLongX()
+	dataLo, dataHi := cpu.admLongX()
 
-	cpu.sbc(dataHi, dataLo)
+	cpu.sbc(dataLo, dataHi)
 
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 4
