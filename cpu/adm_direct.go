@@ -181,8 +181,8 @@ func (cpu CPU) admPDirectYP() (uint32, uint32) {
 
 // [DIRECT],Y addressing mode
 func (cpu CPU) admBDirectY() (uint8, uint8) {
-	haddr, laddr := cpu.admBDirectYP()
-	return cpu.memory.GetByte(haddr), cpu.memory.GetByte(laddr)
+	laddr, haddr := cpu.admBDirectYP()
+	return cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 }
 
 // [DIRECT],Y addressing mode pointer
@@ -193,5 +193,5 @@ func (cpu CPU) admBDirectYP() (uint32, uint32) {
 	mm := cpu.memory.GetByte(uint32(address + 1))
 	hh := cpu.memory.GetByte(uint32(address + 2))
 	pointer := utils.JoinUint32(ll, mm, hh) + uint32(cpu.getYRegister())
-	return pointer + 1, pointer
+	return pointer, pointer + 1
 }
