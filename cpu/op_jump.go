@@ -8,7 +8,7 @@ func (cpu *CPU) jmp(addr uint16) {
 }
 
 // jmpLong jumps to the address specified by the long addressing
-func (cpu *CPU) jmpLong(haddr uint8, laddr uint16) {
+func (cpu *CPU) jmpLong(laddr uint16, haddr uint8) {
 	cpu.K = haddr
 	cpu.PC = laddr
 }
@@ -21,7 +21,7 @@ func (cpu *CPU) op4C() {
 }
 
 func (cpu *CPU) op5C() {
-	haddr, laddr := cpu.admLongJ()
+	laddr, haddr := cpu.admLongJ()
 	cpu.jmpLong(laddr, haddr)
 	cpu.cycles += 4
 	cpu.PC += 4
@@ -42,22 +42,22 @@ func (cpu *CPU) op7C() {
 }
 
 func (cpu *CPU) opDC() {
-	haddr, laddr := cpu.admBAbsoluteJ()
+	laddr, haddr := cpu.admBAbsoluteJ()
 	cpu.jmpLong(haddr, laddr)
 	cpu.cycles += 6
 	cpu.PC += 3
 }
 
 // jsl jumps to a subroutine long
-func (cpu *CPU) jsl(haddr uint8, laddr uint16) {
+func (cpu *CPU) jsl(laddr uint16, haddr uint8) {
 	laddr2, haddr2 := utils.SplitUint16(cpu.getPCRegister() + 3)
 	cpu.pushStackNew24(laddr2, haddr2, cpu.getKRegister())
 
-	cpu.jmpLong(haddr, laddr)
+	cpu.jmpLong(laddr, haddr)
 }
 
 func (cpu *CPU) op22() {
-	haddr, laddr := cpu.admLongJ()
+	laddr, haddr := cpu.admLongJ()
 	cpu.jsl(laddr, haddr)
 	cpu.cycles += 3
 	cpu.PC += 3
