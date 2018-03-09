@@ -1,17 +1,27 @@
 package ppu
 
 type status struct {
-	hCounterLatch uint16
-	vCounterLatch uint16
-	ophctFlip     bool
-	opvctFlip     bool
+	hCounterLatch  uint16
+	vCounterLatch  uint16
+	ophctFlip      bool
+	opvctFlip      bool
+	timeOver       bool
+	rangeOver      bool
+	palMode        bool
+	latchedData    bool
+	interlaceFrame bool
+}
+
+func (ppu *PPU) latchCounter() {
+	//TODO check if bit 7 of $4201 is set before latching
+	ppu.status.hCounterLatch = ppu.hCounter
+	ppu.status.vCounterLatch = ppu.vCounter
+	ppu.status.latchedData = true
 }
 
 // 2137h - SLHV - Latch H/V-Counter by Software (R)
 func (ppu *PPU) slhv(data uint8) uint8 {
-	//TODO check if bit 7 of $4201 is set before latching
-	ppu.status.hCounterLatch = ppu.hCounter
-	ppu.status.vCounterLatch = ppu.vCounter
+	ppu.latchCounter()
 	return 0
 }
 
@@ -36,5 +46,35 @@ func (ppu *PPU) opvct(data uint8) uint8 {
 		result = uint8(ppu.status.vCounterLatch)
 	}
 	ppu.status.opvctFlip = !ppu.status.opvctFlip
+	return result
+}
+
+// 213Eh - STAT77 - PPU1 Status and Version Number (R)
+func (ppu *PPU) stat77(data uint8) uint8 {
+	var result uint8 = 1 // PPU1 5C77 Version Number
+	if ppu.status.rangeOver {
+		result += 0x40
+	}
+	if ppu.status.timeOver {
+		result += 0x80
+	}
+	return result
+}
+
+// 213Fh - STAT78 - PPU2 Status and Version Number (R)
+func (ppu *PPU) stat78(data uint8) uint8 {
+	var result uint8 = 2 // PPU2 5C78 Version Number
+	if ppu.status.palMode {
+		result += 0x10
+	}
+	if ppu.status.latchedData {
+		result += 0x40
+	}
+	if ppu.status.interlaceFrame {
+		result += 0x80
+	}
+	ppu.status.latchedData = false
+	ppu.status.ophctFlip = false
+	ppu.status.opvctFlip = false
 	return result
 }
