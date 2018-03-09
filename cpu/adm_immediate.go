@@ -29,5 +29,5 @@ func (cpu CPU) admImmediate8() (uint8, uint8) {
 func (cpu CPU) admImmediate16() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	return HH, LL
+	return LL, HH
 }
