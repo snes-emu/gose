@@ -22,7 +22,7 @@ func (cpu *CPU) op4C() {
 
 func (cpu *CPU) op5C() {
 	haddr, laddr := cpu.admLongJ()
-	cpu.jmpLong(haddr, laddr)
+	cpu.jmpLong(laddr, haddr)
 	cpu.cycles += 4
 	cpu.PC += 4
 }
@@ -58,7 +58,7 @@ func (cpu *CPU) jsl(haddr uint8, laddr uint16) {
 
 func (cpu *CPU) op22() {
 	haddr, laddr := cpu.admLongJ()
-	cpu.jsl(haddr, laddr)
+	cpu.jsl(laddr, haddr)
 	cpu.cycles += 3
 	cpu.PC += 3
 }
