@@ -32,7 +32,7 @@ func (cpu *CPU) dec8(data uint8) uint8 {
 
 //op3A performs a decrement operation on the accumulator
 func (cpu *CPU) op3A() {
-	dataHi, dataLo := cpu.admAccumulator()
+	dataLo, dataHi := cpu.admAccumulator()
 	if cpu.mFlag {
 		cpu.setARegister(cpu.dec8(dataLo))
 	} else {
@@ -45,7 +45,7 @@ func (cpu *CPU) op3A() {
 //opC6 performs a decrement operation on memory through direct addressing mode
 func (cpu *CPU) opC6() {
 	addressHi, addressLo := cpu.admDirectP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
@@ -60,7 +60,7 @@ func (cpu *CPU) opC6() {
 //opCE performs a decrement operation on memory through the absolute addressing mode
 func (cpu *CPU) opCE() {
 	addressHi, addressLo := cpu.admAbsoluteP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
@@ -75,7 +75,7 @@ func (cpu *CPU) opCE() {
 //opD6 performs a decrement operation on memory through direct,X addressing mode
 func (cpu *CPU) opD6() {
 	addressHi, addressLo := cpu.admDirectXP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
@@ -90,7 +90,7 @@ func (cpu *CPU) opD6() {
 //opDE performs a decrement operation on memory through absolute,X addressing mode
 func (cpu *CPU) opDE() {
 	addressHi, addressLo := cpu.admAbsoluteXP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), addressLo)
 	} else {
@@ -172,7 +172,7 @@ func (cpu *CPU) inc8(data uint8) uint8 {
 
 //op1A performs a increment operation on the accumulator
 func (cpu *CPU) op1A() {
-	dataHi, dataLo := cpu.admAccumulator()
+	dataLo, dataHi := cpu.admAccumulator()
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
@@ -185,7 +185,7 @@ func (cpu *CPU) op1A() {
 //opE6 performs a increment operation on memory through direct addressing mode
 func (cpu *CPU) opE6() {
 	addressHi, addressLo := cpu.admDirectP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
@@ -200,7 +200,7 @@ func (cpu *CPU) opE6() {
 //opEE performs a increment operation through the absolute access mode
 func (cpu *CPU) opEE() {
 	addressHi, addressLo := cpu.admAbsoluteP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
@@ -215,7 +215,7 @@ func (cpu *CPU) opEE() {
 //opF6 performs a increment operation on memory through direct,X addressing mode
 func (cpu *CPU) opF6() {
 	addressHi, addressLo := cpu.admDirectXP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
@@ -230,7 +230,7 @@ func (cpu *CPU) opF6() {
 //opF6 performs a increment operation on memory through absolute,X addressing mode
 func (cpu *CPU) opFE() {
 	addressHi, addressLo := cpu.admAbsoluteXP()
-	dataHi, dataLo := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
+	dataLo, dataHi := cpu.memory.GetByte(addressHi), cpu.memory.GetByte(addressLo)
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), addressLo)
 	} else {
