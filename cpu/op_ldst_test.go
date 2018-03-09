@@ -19,7 +19,7 @@ func TestLda(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.lda(tc.dataHi, tc.dataLo)
+		tc.value.lda(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
