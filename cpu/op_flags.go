@@ -71,7 +71,7 @@ func (cpu *CPU) op78() {
 }
 
 func (cpu *CPU) rep() {
-	_, dataLo := cpu.admImmediate8()
+	dataLo, _ := cpu.admImmediate8()
 	cpu.cFlag = cpu.cFlag && dataLo&0x01 == 0
 	cpu.zFlag = cpu.zFlag && dataLo&0x02 == 0
 	cpu.iFlag = cpu.iFlag && dataLo&0x04 == 0
@@ -94,7 +94,7 @@ func (cpu *CPU) opC2() {
 }
 
 func (cpu *CPU) sep() {
-	_, dataLo := cpu.admImmediate8()
+	dataLo, _ := cpu.admImmediate8()
 	cpu.cFlag = cpu.cFlag || dataLo&0x01 != 0
 	cpu.zFlag = cpu.zFlag || dataLo&0x02 != 0
 	cpu.iFlag = cpu.iFlag || dataLo&0x04 != 0
