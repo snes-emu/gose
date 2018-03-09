@@ -10,6 +10,7 @@ type PPU struct {
 	m7             *m7             // mode 7 parameters
 
 	registers [0x40]register // registers represents the ppu registers as methods
+	window    [2]*window
 }
 
 // New initializes a PPU struct and returns it

@@ -18,6 +18,11 @@ type bg struct {
 	tileSetBaseAddress uint16 // base address for tile set in VRAM
 	horizontalScroll   uint16 // horizontal scroll in pixel
 	verticalScroll     uint16 // vertical scroll in pixel
+	windowMask1        uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMask2        uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMaskLogic    uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
+	mainScreenWindow   bool   // Disable window area on main screen
+	subScreenWindow    bool   // Disable windows area on sub screen
 	colorMath          bool   // Flag to control colors on the BG (False: Display RAW Main Screen as such (without math), True: Apply math on Mainscreen)
 }
 
