@@ -2,8 +2,8 @@ import sys
 
 # Opcode template
 template = '''func (cpu *CPU) op{}(){{
-    dataHi, dataLo := cpu.adm{}()
-    cpu.{}(dataHi, dataLo)
+    dataLo, dataHi := cpu.adm{}()
+    cpu.{}(dataLo, dataHi)
     cpu.cycles += {}
     cpu.PC += {}
 }}
