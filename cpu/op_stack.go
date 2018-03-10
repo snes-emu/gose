@@ -5,7 +5,7 @@ import (
 )
 
 //p16 pushes the next 16-bit value into the stack
-func (cpu *CPU) p16(dataHi, dataLo uint8) {
+func (cpu *CPU) p16(dataLo, dataHi uint8) {
 	cpu.pushStack(dataHi)
 	cpu.pushStack(dataLo)
 }
@@ -17,7 +17,7 @@ func (cpu *CPU) p8(data uint8) {
 
 // PEA instruction
 func (cpu *CPU) opF4() {
-	dataHi, dataLo := cpu.admImmediate16()
+	dataLo, dataHi := cpu.admImmediate16()
 	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 5
 	cpu.PC += 3
@@ -25,7 +25,7 @@ func (cpu *CPU) opF4() {
 
 // PEI instruction
 func (cpu *CPU) opD4() {
-	dataHi, dataLo := cpu.admDirectNew()
+	dataLo, dataHi := cpu.admDirectNew()
 	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 6 + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
@@ -33,7 +33,7 @@ func (cpu *CPU) opD4() {
 
 // PER instuction
 func (cpu *CPU) op62() {
-	dataHi, dataLo := cpu.admImmediate16()
+	dataLo, dataHi := cpu.admImmediate16()
 	cpu.pushStackNew16(dataLo, dataHi)
 	cpu.cycles += 6
 	cpu.PC += 3
@@ -42,7 +42,7 @@ func (cpu *CPU) op62() {
 // pha16 push the accumulator onto the stack
 func (cpu *CPU) pha16() {
 	dataLo, dataHi := utils.SplitUint16(cpu.getCRegister())
-	cpu.p16(dataHi, dataLo)
+	cpu.p16(dataLo, dataHi)
 }
 
 // pha8 push the lower bit of the accumulator onto the stack
@@ -110,7 +110,7 @@ func (cpu *CPU) op08() {
 // phx16 push the X register onto the stack
 func (cpu *CPU) phx16() {
 	dataLo, dataHi := utils.SplitUint16(cpu.getXRegister())
-	cpu.p16(dataHi, dataLo)
+	cpu.p16(dataLo, dataHi)
 }
 
 // phx8 push the lower bit of the X register onto the stack
@@ -135,7 +135,7 @@ func (cpu *CPU) opDA() {
 // phy16 push the Y register onto the stack
 func (cpu *CPU) phy16() {
 	dataLo, dataHi := utils.SplitUint16(cpu.getYRegister())
-	cpu.p16(dataHi, dataLo)
+	cpu.p16(dataLo, dataHi)
 }
 
 // phy8 push the lower bit of the Y register onto the stack
