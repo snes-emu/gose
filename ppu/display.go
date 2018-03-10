@@ -4,11 +4,11 @@ type display struct {
 	brightness  uint8 // Display brightness
 	forceBlank  bool  // If true, force screen to blank
 	vScanning   bool  // If true, interlace mode
-	objVDisplay bool  // \
-	bgVDisplay  bool  //  \
-	hPseudoMode bool  //    Some dank parameters
-	ExtBgMode   bool  //  /
-	ExtSynchro  bool  // /
+	objVDisplay bool  // If true, obj interlace mode, sprites will appear half-sized
+	bgVDisplay  bool  // (0=224 Lines, 1=239 Lines) (for NTSC/PAL)
+	hPseudoMode bool  // Horizontal pseudo mode
+	ExtBgMode   bool  // mode 7 extra background mode
+	ExtSynchro  bool  // usually 0, used with sfx chip
 }
 
 // 2100h - INIDISP - Display Control 1 (W)
