@@ -27,7 +27,7 @@ func TestAnd(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.and(tc.dataHi, tc.dataLo)
+		tc.value.and(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
@@ -62,7 +62,7 @@ func TestEor(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.eor(tc.dataHi, tc.dataLo)
+		tc.value.eor(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
@@ -97,7 +97,7 @@ func TestOra(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.ora(tc.dataHi, tc.dataLo)
+		tc.value.ora(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
