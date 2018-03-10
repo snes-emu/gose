@@ -15,6 +15,8 @@ type oam struct {
 	windowMaskLogic       uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
 	mainScreenWindow      bool   // Disable window area on main screen
 	subScreenWindow       bool   // Disable windows area on sub screen
+	mainScreen            bool   // Enable layer on main screen
+	subScreen             bool   // Enable layer on sub screen
 }
 
 // 2102 - oam.aDDL
