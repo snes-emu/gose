@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
 
@@ -15,6 +16,7 @@ type Memory struct {
 	sram    [sramSize]uint8
 	wram    [wramSize]uint8
 	romType uint
+	ppu     *ppu.PPU
 }
 
 // New creates a Memory struct and initialize it
@@ -62,6 +64,8 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 		if K < 0x40 || (0x7F < K && K < 0xC0) {
 			if offset < 0x2000 {
 				return memory.wram[offset]
+			} else if 0x2133 < offset && offset < 0x2181 {
+				return memory.ppu.Registers[offset-0x2100](0)
 			}
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			return memory.sram[offset]
@@ -90,6 +94,8 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 		if K < 0x40 || (0x7F < K && K < 0xC0) {
 			if offset < 0x2000 {
 				memory.wram[offset] = value
+			} else if 0x20FF < offset && offset < 0x2134 {
+				memory.ppu.Registers[offset-0x2100](value)
 			}
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			memory.sram[offset] = value
