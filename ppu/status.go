@@ -1,15 +1,15 @@
 package ppu
 
 type status struct {
-	hCounterLatch  uint16
-	vCounterLatch  uint16
-	ophctFlip      bool
-	opvctFlip      bool
-	timeOver       bool
-	rangeOver      bool
-	palMode        bool
-	latchedData    bool
-	interlaceFrame bool
+	hCounterLatch  uint16 // Stores the h counter when latched is performed
+	vCounterLatch  uint16 // Stores the v counter when latched is performed
+	ophctFlip      bool   // H counter latch read flip
+	opvctFlip      bool   // V counter latch read flip
+	timeOver       bool   // Set when more than 34 sprite tiles are rendrered on one line
+	rangeOver      bool   // Set when more than 32 sprites are rendered on one line
+	palMode        bool   // PAL mode framerate
+	latchedData    bool   // New latched data indicator
+	interlaceFrame bool   // Interlace mode current frame
 }
 
 func (ppu *PPU) latchCounter() {
