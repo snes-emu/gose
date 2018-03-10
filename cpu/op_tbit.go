@@ -18,26 +18,26 @@ func (cpu *CPU) trb8(data uint8) uint8 {
 }
 
 // trb test the bits of the data with the bits of the accumulator then reset the bits of the data that are ones in the accumulator handling the 8/16 case
-func (cpu *CPU) trb(addressHi, addressLo uint32) {
+func (cpu *CPU) trb(laddr, haddr uint32) {
 	if cpu.mFlag {
-		cpu.memory.SetByte(cpu.trb8(cpu.memory.GetByte(addressLo)), addressLo)
+		cpu.memory.SetByte(cpu.trb8(cpu.memory.GetByte(laddr)), laddr)
 	} else {
-		result := cpu.trb16(utils.JoinUint16(cpu.memory.GetByte(addressLo), cpu.memory.GetByte(addressHi)))
+		result := cpu.trb16(utils.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
 		resultLo, resultHi := utils.SplitUint16(result)
-		cpu.memory.SetByte(resultLo, addressLo)
-		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, laddr)
+		cpu.memory.SetByte(resultHi, haddr)
 	}
 }
 
 func (cpu *CPU) op14() {
-	addressHi, addressLo := cpu.admDirectP()
-	cpu.trb(addressHi, addressLo)
+	laddr, haddr := cpu.admDirectP()
+	cpu.trb(laddr, haddr)
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 func (cpu *CPU) op1C() {
-	addressHi, addressLo := cpu.admAbsoluteP()
-	cpu.trb(addressHi, addressLo)
+	laddr, haddr := cpu.admAbsoluteP()
+	cpu.trb(laddr, haddr)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3
 }
@@ -56,27 +56,27 @@ func (cpu *CPU) tsb8(data uint8) uint8 {
 }
 
 // tsb test the bits of the data with the bits of the accumulator then set the bits of the data that are ones in the accumulator handling the 8/16 case
-func (cpu *CPU) tsb(addressHi, addressLo uint32) {
+func (cpu *CPU) tsb(laddr, haddr uint32) {
 	if cpu.mFlag {
-		cpu.memory.SetByte(cpu.tsb8(cpu.memory.GetByte(addressLo)), addressLo)
+		cpu.memory.SetByte(cpu.tsb8(cpu.memory.GetByte(laddr)), laddr)
 	} else {
-		result := cpu.tsb16(utils.JoinUint16(cpu.memory.GetByte(addressLo), cpu.memory.GetByte(addressHi)))
+		result := cpu.tsb16(utils.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
 		resultLo, resultHi := utils.SplitUint16(result)
-		cpu.memory.SetByte(resultLo, addressLo)
-		cpu.memory.SetByte(resultHi, addressHi)
+		cpu.memory.SetByte(resultLo, laddr)
+		cpu.memory.SetByte(resultHi, haddr)
 	}
 }
 
 func (cpu *CPU) op04() {
-	addressHi, addressLo := cpu.admDirectP()
-	cpu.tsb(addressHi, addressLo)
+	laddr, haddr := cpu.admDirectP()
+	cpu.tsb(laddr, haddr)
 	cpu.cycles += 7 - 2*utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op0C() {
-	addressHi, addressLo := cpu.admAbsoluteP()
-	cpu.tsb(addressHi, addressLo)
+	laddr, haddr := cpu.admAbsoluteP()
+	cpu.tsb(laddr, haddr)
 	cpu.cycles += 8 - 2*utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3
 }
