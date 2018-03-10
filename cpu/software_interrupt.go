@@ -12,25 +12,25 @@ const (
 )
 
 func (cpu *CPU) brk() {
-	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
-		cpu.pushStack(addressHi)
-		cpu.pushStack(addressLo)
+		cpu.pushStack(haddr)
+		cpu.pushStack(laddr)
 		cpu.bFlag = true
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, brkEmulationVector)
-		addressHi := cpu.memory.GetByteBank(0x00, brkEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		laddr := cpu.memory.GetByteBank(0x00, brkEmulationVector)
+		haddr := cpu.memory.GetByteBank(0x00, brkEmulationVector+1)
+		cpu.PC = utils.JoinUint16(laddr, haddr)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
-		cpu.pushStack(addressHi)
-		cpu.pushStack(addressLo)
+		cpu.pushStack(haddr)
+		cpu.pushStack(laddr)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, brkNativeVector)
-		addressHi := cpu.memory.GetByteBank(0x00, brkNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		laddr := cpu.memory.GetByteBank(0x00, brkNativeVector)
+		haddr := cpu.memory.GetByteBank(0x00, brkNativeVector+1)
+		cpu.PC = utils.JoinUint16(laddr, haddr)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -42,24 +42,24 @@ func (cpu *CPU) op00() {
 }
 
 func (cpu *CPU) cop() {
-	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
-		cpu.pushStack(addressHi)
-		cpu.pushStack(addressLo)
+		cpu.pushStack(haddr)
+		cpu.pushStack(laddr)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, copEmulationVector)
-		addressHi := cpu.memory.GetByteBank(0x00, copEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		laddr := cpu.memory.GetByteBank(0x00, copEmulationVector)
+		haddr := cpu.memory.GetByteBank(0x00, copEmulationVector+1)
+		cpu.PC = utils.JoinUint16(laddr, haddr)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
-		cpu.pushStack(addressHi)
-		cpu.pushStack(addressLo)
+		cpu.pushStack(haddr)
+		cpu.pushStack(laddr)
 		cpu.php()
 		cpu.K = 0x00
-		addressLo := cpu.memory.GetByteBank(0x00, copNativeVector)
-		addressHi := cpu.memory.GetByteBank(0x00, copNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		laddr := cpu.memory.GetByteBank(0x00, copNativeVector)
+		haddr := cpu.memory.GetByteBank(0x00, copNativeVector+1)
+		cpu.PC = utils.JoinUint16(laddr, haddr)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
