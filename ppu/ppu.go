@@ -1,5 +1,11 @@
 package ppu
 
+const (
+	HMax     = 339 // max H counter value
+	VMaxNTSC = 261 // max V counter value in NTSC
+	VMaxPAL  = 311 // max V counter value in PAL
+)
+
 // PPU represents the Picture Processing Unit of the SNES
 type PPU struct {
 	vram           *vram           // vram represents the VideoRAM (64KB)
@@ -9,9 +15,12 @@ type PPU struct {
 	colorMath      *colorMath      // Color math parameters
 	m7             *m7             // mode 7 parameters
 	display        *display
+	window         [2]*window
+	status         *status
+	registers      [0x40]register // registers represents the ppu registers as methods
 
-	registers [0x40]register // registers represents the ppu registers as methods
-	window    [2]*window
+	hCounter uint16
+	vCounter uint16
 }
 
 // New initializes a PPU struct and returns it
