@@ -10,9 +10,8 @@ func TestSep(t *testing.T) {
 	memory := memory.New()
 	memory.SetByteBank(0x21, 0x00, 0x0001)
 	testCases := []struct {
-		value          *CPU
-		expected       CPU
-		dataHi, dataLo uint8
+		value    *CPU
+		expected CPU
 	}{
 		{
 			value:    &CPU{memory: memory},
@@ -33,9 +32,8 @@ func TestSep(t *testing.T) {
 
 func TestClc(t *testing.T) {
 	testCases := []struct {
-		value          *CPU
-		expected       CPU
-		dataHi, dataLo uint8
+		value    *CPU
+		expected CPU
 	}{
 		{
 			value:    &CPU{cFlag: true},
