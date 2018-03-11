@@ -85,9 +85,9 @@ func New() *PPU {
 	ppu.Registers[0x31] = ppu.cgadsub
 	ppu.Registers[0x32] = ppu.coldata
 	ppu.Registers[0x33] = ppu.setini
-	//ppu.Registers[0x34] = ppu.mpyl
-	//ppu.Registers[0x35] = ppu.mpym
-	//ppu.Registers[0x36] = ppu.mpyh
+	ppu.Registers[0x34] = ppu.mpyl
+	ppu.Registers[0x35] = ppu.mpym
+	ppu.Registers[0x36] = ppu.mpyh
 	ppu.Registers[0x37] = ppu.slhv
 	ppu.Registers[0x38] = ppu.oamdata
 	ppu.Registers[0x39] = ppu.vmdatal
