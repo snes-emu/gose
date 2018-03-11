@@ -1,5 +1,9 @@
 package ppu
 
+import (
+	"github.com/snes-emu/gose/utils"
+)
+
 type m7 struct {
 	verticalFlip                   bool   // Vertical flip flag used in mode7
 	horizontalFlip                 bool   // Horizontal flip flag used in mode7
@@ -8,6 +12,7 @@ type m7 struct {
 	aParam, bParam, cParam, dParam uint16 // Rotation/scaling parameters used in mode 7
 	hofsParam, vofsParam           uint16 // Mode 7 horizontal and vertical scroll offset parameters
 	xParam, yParam                 uint16 // Mode 7 Center Coordinate parameters
+	signedMutlResult               uint32 // 24-bit result of the product A*(B>>8)
 }
 
 // 211Ah - M7SEL - Rotation/Scaling Mode Settings (W)
@@ -20,56 +25,84 @@ func (ppu *PPU) m7sel(data uint8) uint8 {
 
 // 211B - M7A - Rotation/Scaling Parameter A (and Maths 16bit operand) (W)
 func (ppu *PPU) m7a(data uint8) uint8 {
-	ppu.m7.aParam = (ppu.m7.aParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.aParam
+	data16 := uint16(data)
+	ppu.m7.aParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
+	ppu.m7.signedMutlResult = uint32(ppu.m7.aParam) * uint32(ppu.m7.bParam>>8)
 	return 0
 }
 
 // 211C - M7B - Rotation/Scaling Parameter B (and Maths 8bit operand) (W)
 func (ppu *PPU) m7b(data uint8) uint8 {
-	ppu.m7.bParam = (ppu.m7.bParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.bParam
+	data16 := uint16(data)
+	ppu.m7.bParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
+	ppu.m7.signedMutlResult = uint32(ppu.m7.aParam) * uint32(ppu.m7.bParam>>8)
 	return 0
 }
 
 // 211D - M7C - Rotation/Scaling Parameter C (W)
 func (ppu *PPU) m7c(data uint8) uint8 {
-	ppu.m7.cParam = (ppu.m7.cParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.cParam
+	data16 := uint16(data)
+	ppu.m7.cParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211E - M7D - Rotation/Scaling Parameter D (W)
 func (ppu *PPU) m7d(data uint8) uint8 {
-	ppu.m7.dParam = (ppu.m7.dParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.dParam
+	data16 := uint16(data)
+	ppu.m7.dParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 210D - M7HOFS - Mode 7 Horizontal Scroll (X) (W)
 func (ppu *PPU) m7hofs(data uint8) uint8 {
-	ppu.m7.hofsParam = (ppu.m7.hofsParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.hofsParam
+	data16 := uint16(data)
+	ppu.m7.hofsParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 210E - M7VOFS - Mode 7 Vertical Scroll (Y) (W)
 func (ppu *PPU) m7vofs(data uint8) uint8 {
-	ppu.m7.vofsParam = (ppu.m7.vofsParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.vofsParam
+	data16 := uint16(data)
+	ppu.m7.vofsParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211F - M7X - Rotation/Scaling Center Coordinate X (W)
 func (ppu *PPU) m7x(data uint8) uint8 {
-	ppu.m7.xParam = (ppu.m7.xParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.xParam
+	data16 := uint16(data)
+	ppu.m7.xParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 2120 - M7Y - Rotation/Scaling Center Coordinate Y (W)
 func (ppu *PPU) m7y(data uint8) uint8 {
-	ppu.m7.yParam = (ppu.m7.yParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.yParam
+	data16 := uint16(data)
+	ppu.m7.yParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
+}
+
+// 2134h - MPYL - Signed Multiply Result (lower 8bit) (R)
+func (ppu *PPU) mpyl(data uint8) uint8 {
+	LL, _, _ := utils.SplitUint32(ppu.m7.signedMutlResult)
+	return LL
+}
+
+// 2135h - MPYM - Signed Multiply Result (middle 8bit) (R)
+func (ppu *PPU) mpym(data uint8) uint8 {
+	_, MM, _ := utils.SplitUint32(ppu.m7.signedMutlResult)
+	return MM
+}
+
+// 2136h - MPYH - Signed Multiply Result (upper 8bit) (R)
+func (ppu *PPU) mpyh(data uint8) uint8 {
+	_, _, HH := utils.SplitUint32(ppu.m7.signedMutlResult)
+	return HH
 }
