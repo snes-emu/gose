@@ -30,9 +30,15 @@ func New() *PPU {
 	ppu.oam = &oam{}
 	ppu.cgram = &cgram{}
 	ppu.backgroundData = &backgroundData{}
+	for i := 0; i < 4; i++ {
+		ppu.backgroundData.bg[i] = &bg{}
+	}
 	ppu.colorMath = &colorMath{}
 	ppu.m7 = &m7{}
 	ppu.display = &display{}
+	ppu.window[0] = &window{}
+	ppu.window[1] = &window{}
+	ppu.status = &status{}
 	ppu.Registers[0x00] = ppu.inidisp
 	ppu.Registers[0x01] = ppu.obsel
 	ppu.Registers[0x02] = ppu.oamaddl
