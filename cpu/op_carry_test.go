@@ -22,7 +22,7 @@ func TestAdc(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.adc(tc.dataHi, tc.dataLo)
+		tc.value.adc(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
@@ -52,7 +52,7 @@ func TestSbc(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.sbc(tc.dataHi, tc.dataLo)
+		tc.value.sbc(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 

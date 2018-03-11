@@ -26,7 +26,7 @@ func TestBit(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.bit(tc.dataHi, tc.dataLo, tc.immediate)
+		tc.value.bit(tc.dataLo, tc.dataHi, tc.immediate)
 
 		err := tc.value.compare(tc.expected)
 

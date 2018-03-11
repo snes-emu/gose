@@ -15,20 +15,20 @@ func TestAsl(t *testing.T) {
 	mem2.SetByteBank(0x1e, 0x7E, 0xabcd)
 
 	testCases := []struct {
-		value          *CPU
-		expected       CPU
-		addrHi, addrLo uint32
-		isAcc          bool
+		value        *CPU
+		expected     CPU
+		haddr, laddr uint32
+		isAcc        bool
 	}{
 		{
 			value:    &CPU{C: 0x0c, DBR: 0x7E, mFlag: true, memory: mem},
 			expected: CPU{C: 0x0c, DBR: 0x7E, cFlag: true, mFlag: true, memory: mem2},
-			addrHi:   0x0, addrLo: 0x7eabcd,
+			haddr:    0x0, laddr: 0x7eabcd,
 		},
 	}
 
 	for i, tc := range testCases {
-		tc.value.asl(tc.addrHi, tc.addrLo, tc.isAcc)
+		tc.value.asl(tc.laddr, tc.haddr, tc.isAcc)
 
 		err := tc.value.compare(tc.expected)
 

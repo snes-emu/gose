@@ -26,7 +26,7 @@ func TestJoinUint16(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		value := JoinUint16(tc.HH, tc.LL)
+		value := JoinUint16(tc.LL, tc.HH)
 
 		if value != tc.expected {
 			t.Errorf("Test %v failed, got %v, expected %v", i, value, tc.expected)
@@ -55,7 +55,7 @@ func TestJoinUint32(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		value := JoinUint32(tc.HH, tc.MM, tc.LL)
+		value := JoinUint32(tc.LL, tc.MM, tc.HH)
 		fmt.Println(value, tc.HH, tc.MM, tc.LL)
 
 		if value != tc.expected {
@@ -85,7 +85,7 @@ func TestSplitUint16(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		hh, ll := SplitUint16(tc.data)
+		ll, hh := SplitUint16(tc.data)
 
 		if hh != tc.HH || ll != tc.LL {
 			t.Errorf("Test %v failed, got (%v, %v), expected (%v, %v)", i, hh, ll, tc.HH, tc.LL)
@@ -114,7 +114,7 @@ func TestSplitUint32(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		hh, mm, ll := SplitUint32(tc.data)
+		ll, mm, hh := SplitUint32(tc.data)
 
 		if hh != tc.HH || mm != tc.MM || ll != tc.LL {
 			t.Errorf("Test %v failed, got (%v, %v, %v), expected (%v, %v, %v)", i, hh, mm, ll, tc.HH, tc.MM, tc.LL)

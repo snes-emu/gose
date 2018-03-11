@@ -33,45 +33,45 @@ func (cpu *CPU) bit8(data uint8, isImmediate bool) uint8 {
 }
 
 // bit performs a bitwise and taking care of 16/8bits cases
-func (cpu *CPU) bit(dataHi, dataLo uint8, isImmediate bool) {
+func (cpu *CPU) bit(dataLo, dataHi uint8, isImmediate bool) {
 	if cpu.mFlag {
 		cpu.bit8(dataLo, isImmediate)
 	} else {
-		cpu.bit16(utils.JoinUint16(dataHi, dataLo), isImmediate)
+		cpu.bit16(utils.JoinUint16(dataLo, dataHi), isImmediate)
 	}
 }
 
 func (cpu *CPU) op24() {
-	dataHi, dataLo := cpu.admDirect()
-	cpu.bit(dataHi, dataLo, false)
+	dataLo, dataHi := cpu.admDirect()
+	cpu.bit(dataLo, dataHi, false)
 	cpu.cycles += 4 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op2C() {
-	dataHi, dataLo := cpu.admAbsolute()
-	cpu.bit(dataHi, dataLo, false)
+	dataLo, dataHi := cpu.admAbsolute()
+	cpu.bit(dataLo, dataHi, false)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op34() {
-	dataHi, dataLo := cpu.admDirectX()
-	cpu.bit(dataHi, dataLo, false)
+	dataLo, dataHi := cpu.admDirectX()
+	cpu.bit(dataLo, dataHi, false)
 	cpu.cycles += 5 - utils.BoolToUint16[cpu.mFlag] + utils.BoolToUint16[cpu.getDLRegister() == 0]
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op3C() {
-	dataHi, dataLo := cpu.admAbsoluteX()
-	cpu.bit(dataHi, dataLo, false)
+	dataLo, dataHi := cpu.admAbsoluteX()
+	cpu.bit(dataLo, dataHi, false)
 	cpu.cycles += 6 - utils.BoolToUint16[cpu.mFlag] - utils.BoolToUint16[cpu.xFlag] + utils.BoolToUint16[cpu.xFlag]*utils.BoolToUint16[cpu.pFlag]
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op89() {
-	dataHi, dataLo := cpu.admImmediateM()
-	cpu.bit(dataHi, dataLo, true)
+	dataLo, dataHi := cpu.admImmediateM()
+	cpu.bit(dataLo, dataHi, true)
 	cpu.cycles += 3 - utils.BoolToUint16[cpu.mFlag]
 	cpu.PC += 3 - utils.BoolToUint16[cpu.mFlag]
 }

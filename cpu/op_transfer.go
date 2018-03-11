@@ -20,8 +20,8 @@ func (cpu *CPU) tcs() {
 	cpu.nFlag = cpu.C&0x8000 != 0
 	cpu.zFlag = cpu.C == 0
 	if cpu.eFlag {
-		_, dataLo := utils.SplitUint16(cpu.C)
-		cpu.S = utils.JoinUint16(0x01, dataLo)
+		dataLo, _ := utils.SplitUint16(cpu.C)
+		cpu.S = utils.JoinUint16(dataLo, 0x01)
 	} else {
 		cpu.S = cpu.C
 	}

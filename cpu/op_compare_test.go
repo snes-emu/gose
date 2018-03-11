@@ -27,7 +27,7 @@ func TestCmp(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.cmp(tc.dataHi, tc.dataLo)
+		tc.value.cmp(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
@@ -62,7 +62,7 @@ func TestCpx(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.cpx(tc.dataHi, tc.dataLo)
+		tc.value.cpx(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 
@@ -97,7 +97,7 @@ func TestCpy(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc.value.cpy(tc.dataHi, tc.dataLo)
+		tc.value.cpy(tc.dataLo, tc.dataHi)
 
 		err := tc.value.compare(tc.expected)
 

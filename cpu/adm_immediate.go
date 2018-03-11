@@ -22,12 +22,12 @@ func (cpu CPU) admImmediateX() (uint8, uint8) {
 
 // IMMEDIATE addressing mode with 8-bit data
 func (cpu CPU) admImmediate8() (uint8, uint8) {
-	return 0x00, cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
+	return cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1), 0x00
 }
 
 // IMMEDIATE addressing mode with 16-bite data
 func (cpu CPU) admImmediate16() (uint8, uint8) {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	return HH, LL
+	return LL, HH
 }

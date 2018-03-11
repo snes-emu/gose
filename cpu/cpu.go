@@ -29,6 +29,7 @@ type CPU struct {
 	X       uint16 // The X index register
 	Y       uint16 // The Y index register
 	cycles  uint16 // Number of cycles
+	waiting bool   // CPU Waiting mode (from operation wai)
 	memory  *memory.Memory
 	opcodes [256]cpuOperation
 }
@@ -242,7 +243,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xC8] = cpu.opC8
 	cpu.opcodes[0xC9] = cpu.opC9
 	cpu.opcodes[0xCA] = cpu.opCA
-	//cpu.opcodes[0xCB] = cpu.opCB
+	cpu.opcodes[0xCB] = cpu.opCB
 	cpu.opcodes[0xCC] = cpu.opCC
 	cpu.opcodes[0xCD] = cpu.opCD
 	cpu.opcodes[0xCE] = cpu.opCE
@@ -258,7 +259,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xD8] = cpu.opD8
 	cpu.opcodes[0xD9] = cpu.opD9
 	cpu.opcodes[0xDA] = cpu.opDA
-	//cpu.opcodes[0xDB] = cpu.opDB
+	cpu.opcodes[0xDB] = cpu.opDB
 	cpu.opcodes[0xDC] = cpu.opDC
 	cpu.opcodes[0xDD] = cpu.opDD
 	cpu.opcodes[0xDE] = cpu.opDE
@@ -313,7 +314,7 @@ func (cpu *CPU) Execute(cycles uint16) {
 
 func (cpu *CPU) pushStack(data uint8) {
 	if cpu.eFlag {
-		cpu.memory.SetByteBank(data, 0x00, utils.JoinUint16(0x01, cpu.getSLRegister()))
+		cpu.memory.SetByteBank(data, 0x00, utils.JoinUint16(cpu.getSLRegister(), 0x01))
 		cpu.setSLRegister(cpu.getSLRegister() - 1)
 	} else {
 		cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
@@ -324,7 +325,7 @@ func (cpu *CPU) pushStack(data uint8) {
 func (cpu *CPU) pullStack() uint8 {
 	var data uint8
 	if cpu.eFlag {
-		data = cpu.memory.GetByteBank(0x00, utils.JoinUint16(0x01, cpu.getSLRegister()+1))
+		data = cpu.memory.GetByteBank(0x00, utils.JoinUint16(cpu.getSLRegister()+1, 0x01))
 		cpu.setSLRegister(cpu.getSLRegister() + 1)
 		return data
 	}
@@ -340,7 +341,7 @@ func (cpu *CPU) pushStackNew8(data uint8) {
 	}
 }
 
-func (cpu *CPU) pushStackNew16(dataHi, dataLo uint8) {
+func (cpu *CPU) pushStackNew16(dataLo, dataHi uint8) {
 	cpu.pushStackNew(dataHi)
 	cpu.pushStackNew(dataLo)
 	if cpu.eFlag {
@@ -348,7 +349,7 @@ func (cpu *CPU) pushStackNew16(dataHi, dataLo uint8) {
 	}
 }
 
-func (cpu *CPU) pushStackNew24(dataHi, dataMid, dataLo uint8) {
+func (cpu *CPU) pushStackNew24(dataLo, dataMid, dataHi uint8) {
 	cpu.pushStackNew(dataHi)
 	cpu.pushStackNew(dataMid)
 	cpu.pushStackNew(dataLo)
@@ -365,7 +366,7 @@ func (cpu *CPU) pullStackNew8() (data uint8) {
 	return
 }
 
-func (cpu *CPU) pullStackNew16() (dataHi, dataLo uint8) {
+func (cpu *CPU) pullStackNew16() (dataLo, dataHi uint8) {
 	dataLo = cpu.pullStackNew()
 	dataHi = cpu.pullStackNew()
 	if cpu.eFlag {
@@ -374,7 +375,7 @@ func (cpu *CPU) pullStackNew16() (dataHi, dataLo uint8) {
 	return
 }
 
-func (cpu *CPU) pullStackNew24() (dataHi, dataMid, dataLo uint8) {
+func (cpu *CPU) pullStackNew24() (dataLo, dataMid, dataHi uint8) {
 	dataLo = cpu.pullStackNew()
 	dataMid = cpu.pullStackNew()
 	dataHi = cpu.pullStackNew()
