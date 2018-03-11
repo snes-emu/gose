@@ -94,6 +94,7 @@ func (ppu *PPU) bg1hofs(data uint8) uint8 {
 	ppu.backgroundData.bg[0].horizontalScroll = uint16(data)<<8 | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.backgroundData.scrollPrev2 = data
+	ppu.m7hofs(data)
 	return 0
 }
 
@@ -101,6 +102,7 @@ func (ppu *PPU) bg1hofs(data uint8) uint8 {
 func (ppu *PPU) bg1vofs(data uint8) uint8 {
 	ppu.backgroundData.bg[0].horizontalScroll = uint16(data)<<8 | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
+	ppu.m7vofs(data)
 	return 0
 }
 
