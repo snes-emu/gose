@@ -29,6 +29,7 @@ type CPU struct {
 	X       uint16 // The X index register
 	Y       uint16 // The Y index register
 	cycles  uint16 // Number of cycles
+	waiting bool   // CPU Waiting mode (from operation wai)
 	memory  *memory.Memory
 	opcodes [256]cpuOperation
 }
@@ -242,7 +243,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xC8] = cpu.opC8
 	cpu.opcodes[0xC9] = cpu.opC9
 	cpu.opcodes[0xCA] = cpu.opCA
-	//cpu.opcodes[0xCB] = cpu.opCB
+	cpu.opcodes[0xCB] = cpu.opCB
 	cpu.opcodes[0xCC] = cpu.opCC
 	cpu.opcodes[0xCD] = cpu.opCD
 	cpu.opcodes[0xCE] = cpu.opCE
@@ -258,7 +259,7 @@ func New(memory *memory.Memory) *CPU {
 	cpu.opcodes[0xD8] = cpu.opD8
 	cpu.opcodes[0xD9] = cpu.opD9
 	cpu.opcodes[0xDA] = cpu.opDA
-	//cpu.opcodes[0xDB] = cpu.opDB
+	cpu.opcodes[0xDB] = cpu.opDB
 	cpu.opcodes[0xDC] = cpu.opDC
 	cpu.opcodes[0xDD] = cpu.opDD
 	cpu.opcodes[0xDE] = cpu.opDE
