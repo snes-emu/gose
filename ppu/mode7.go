@@ -20,56 +20,64 @@ func (ppu *PPU) m7sel(data uint8) uint8 {
 
 // 211B - M7A - Rotation/Scaling Parameter A (and Maths 16bit operand) (W)
 func (ppu *PPU) m7a(data uint8) uint8 {
-	ppu.m7.aParam = (ppu.m7.aParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.aParam
+	data16 := uint16(data)
+	ppu.m7.aParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211C - M7B - Rotation/Scaling Parameter B (and Maths 8bit operand) (W)
 func (ppu *PPU) m7b(data uint8) uint8 {
-	ppu.m7.bParam = (ppu.m7.bParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.bParam
+	data16 := uint16(data)
+	ppu.m7.bParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211D - M7C - Rotation/Scaling Parameter C (W)
 func (ppu *PPU) m7c(data uint8) uint8 {
-	ppu.m7.cParam = (ppu.m7.cParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.cParam
+	data16 := uint16(data)
+	ppu.m7.cParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211E - M7D - Rotation/Scaling Parameter D (W)
 func (ppu *PPU) m7d(data uint8) uint8 {
-	ppu.m7.dParam = (ppu.m7.dParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.dParam
+	data16 := uint16(data)
+	ppu.m7.dParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 210D - M7HOFS - Mode 7 Horizontal Scroll (X) (W)
 func (ppu *PPU) m7hofs(data uint8) uint8 {
-	ppu.m7.hofsParam = (ppu.m7.hofsParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.hofsParam
+	data16 := uint16(data)
+	ppu.m7.hofsParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 210E - M7VOFS - Mode 7 Vertical Scroll (Y) (W)
 func (ppu *PPU) m7vofs(data uint8) uint8 {
-	ppu.m7.vofsParam = (ppu.m7.vofsParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.vofsParam
+	data16 := uint16(data)
+	ppu.m7.vofsParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 211F - M7X - Rotation/Scaling Center Coordinate X (W)
 func (ppu *PPU) m7x(data uint8) uint8 {
-	ppu.m7.xParam = (ppu.m7.xParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.xParam
+	data16 := uint16(data)
+	ppu.m7.xParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
 
 // 2120 - M7Y - Rotation/Scaling Center Coordinate Y (W)
 func (ppu *PPU) m7y(data uint8) uint8 {
-	ppu.m7.yParam = (ppu.m7.yParam << 8) | ppu.m7.cache
-	ppu.m7.cache = ppu.m7.yParam
+	data16 := uint16(data)
+	ppu.m7.yParam = (data16 << 8) | ppu.m7.cache
+	ppu.m7.cache = data16
 	return 0
 }
