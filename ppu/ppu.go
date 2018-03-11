@@ -2,11 +2,11 @@ package ppu
 
 const (
 	// HMax represents max H counter value
-	HMax = 339
+	HMax = 340
 	// VMaxNTSC represents max V counter value in NTSC
-	VMaxNTSC = 261
+	VMaxNTSC = 262
 	// VMaxPAL represents max V counter value in PAL
-	VMaxPAL = 311
+	VMaxPAL = 312
 )
 
 // PPU represents the Picture Processing Unit of the SNES
