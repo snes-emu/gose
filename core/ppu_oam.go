@@ -62,3 +62,22 @@ func (ppu *PPU) obsel(data uint8) {
 	ppu.oam.objectTileBaseAddress = uint16(data&0x7) << 14
 	ppu.oam.objectTileGapAddress = uint16((data>>3)&0x3) << 13
 }
+
+var spriteSizeTable = [16][2]uint8{
+	{8, 8},
+	{8, 8},
+	{8, 8},
+	{16, 16},
+	{16, 16},
+	{32, 32},
+	{16, 32},
+	{16, 32},
+	{16, 16},
+	{32, 32},
+	{64, 64},
+	{32, 32},
+	{64, 64},
+	{64, 64},
+	{32, 64},
+	{32, 32},
+}
