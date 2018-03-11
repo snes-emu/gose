@@ -64,7 +64,7 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 		if K < 0x40 || (0x7F < K && K < 0xC0) {
 			if offset < 0x2000 {
 				return memory.wram[offset]
-			} else if 0x2133 < offset && offset < 0x2181 {
+			} else if 0x2133 < offset && offset < 0x2140 {
 				return memory.ppu.Registers[offset-0x2100](0)
 			}
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
