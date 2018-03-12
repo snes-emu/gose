@@ -1,5 +1,17 @@
 package core
 
+type sprite struct {
+	x            uint16 // x coordinate of the upper left tile
+	y            uint16 // y coordinate of the upper left tile
+	tileAddress  uint16 // address of first tile in the VRAM
+	paletteIndex uint16 // index of the palette
+	priority     uint8  // priority of the sprite
+	hFlip        bool   // horizontal flip
+	vFlip        bool   // vertical flip
+	hSize        bool   // horizontal sprite size
+	vSize        bool   // vertical sprite size
+}
+
 type oam struct {
 	bytes           [0x200 + 0x20]byte // oam represents the object attribute memory (512 + 32 Bytes)
 	addr            uint16             // the OAM addr p------b aaaaaaaa  (p is the Obj Priority activation bit and the rest represents the oam addr) stored as ba aaaaaaaf where f is the flip
