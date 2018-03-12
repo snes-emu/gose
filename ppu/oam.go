@@ -8,8 +8,8 @@ type sprite struct {
 	priority     uint8  // priority of the sprite
 	hFlip        bool   // horizontal flip
 	vFlip        bool   // vertical flip
-	hSize        bool   // horizontal sprite size
-	vSize        bool   // vertical sprite size
+	hSize        uint8  // horizontal sprite size
+	vSize        uint8  // vertical sprite size
 }
 
 type oam struct {
@@ -107,5 +107,8 @@ func (ppu PPU) decodeSprite(i uint16) sprite {
 	sprite.priority = (ppu.oam.bytes[4*i+3] & 0x30) >> 4
 	sprite.hFlip = ppu.oam.bytes[4*i+3]&0x40 != 0
 	sprite.vFlip = ppu.oam.bytes[4*i+3]&0x80 != 0
+	size := spriteSizeTable[ppu.oam.objectSize|((ppu.oam.bytes[0x200+i/4]&(1<<(2*(i%4)+1)))>>(1<<(2*(i%4)+1)))<<4]
+	sprite.hSize = size[0]
+	sprite.vSize = size[1]
 	return sprite
 }
