@@ -36,7 +36,12 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 		// Y coordinate of the tile containing the line
 		// Tiles are stored in the 2D-array 0xNyx
 
-		baseTileIndex := uint16((ppu.vCounter-sprite.y)/8) << 4
+		var baseTileIndex uint16
+		if sprite.vFlip {
+			baseTileIndex = (uint16(sprite.vSize) - 1 - (ppu.vCounter - sprite.y)) / 8 << 4
+		} else {
+			baseTileIndex = (ppu.vCounter - sprite.y) / 8 << 4
+		}
 		for tile := baseTileIndex; tile < baseTileIndex+uint16(sprite.hSize)/8; tile++ {
 			if tiles == 34 {
 				ppu.status.timeOver = true
