@@ -28,12 +28,20 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 			}
 		}
 	}
-	// Go through all the selected sprites in reverse order
+	// Go through all the selected sprites in reverse order (up to 34 tiles)
+	tiles := uint16(0)
 	for i := uint16(len(sprites) - 1); i >= 0; i-- {
 		sprite := ppu.decodeSprite(i)
 		// Go through all tiles containing the line
-		baseTileIndex := uint16((ppu.vCounter-sprite.y)/8) << 4 // Y coordinate of the tile containing the line
+		// Y coordinate of the tile containing the line
+		// Tiles are stored in the 2D-array 0xNyx
+
+		baseTileIndex := uint16((ppu.vCounter-sprite.y)/8) << 4
 		for tile := baseTileIndex; tile < baseTileIndex+uint16(sprite.hSize)/8; tile++ {
+			if tiles == 34 {
+				ppu.status.timeOver = true
+				break
+			}
 			// Go through all pixel in the line
 			for pix := uint8(0); pix < 8; pix++ {
 				yPixel := uint16(ppu.vCounter-sprite.y) % 8                // Y coordinate of the line in the tile
@@ -54,7 +62,7 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 					}
 				}
 			}
-
+			tiles++
 		}
 	}
 	return pixels
