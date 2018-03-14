@@ -19,7 +19,8 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	// Choose the first 32 sprites to appear on screen
 	for i := firstSprite; i < firstSprite+128; i++ {
 		// Check if line intersects sprite
-		if ppu.vCounter >= uint16(ppu.oam.bytes[4*i+1]) && ppu.vCounter < uint16(ppu.oam.bytes[4*i+1])+uint16(spriteSizeTable[ppu.oam.objectSize|((ppu.oam.bytes[0x200+i/4]&(1<<(2*(i%4)+1)))>>(1<<(2*(i%4)+1)))<<4][1]) {
+		spriteIndex := i % 128
+		if ppu.vCounter >= uint16(ppu.oam.bytes[4*spriteIndex+1]) && ppu.vCounter < uint16(ppu.oam.bytes[4*spriteIndex+1])+uint16(spriteSizeTable[ppu.oam.objectSize|((ppu.oam.bytes[0x200+i/4]&(1<<(2*(spriteIndex%4)+1)))>>(1<<(2*(spriteIndex%4)+1)))<<4][1]) {
 			if len(sprites) == 32 {
 				ppu.status.rangeOver = true
 				break
