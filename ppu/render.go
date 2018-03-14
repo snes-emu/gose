@@ -55,14 +55,14 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 					lineBaseAddress := sprite.tileAddress + tile<<5 + 2*yPixel // Base address of the color planes of the pixel line in VRAM
 					// Get the color index of the pixel
 					colorIndex := uint8(0)
-					colorIndex += ppu.vram.bytes[lineBaseAddress] & (1 << pix) >> pix
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x01] & (1 << pix) >> pix << 1
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x10] & (1 << pix) >> pix << 2
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x11] & (1 << pix) >> pix << 3
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> pix & 1) << 0
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> pix & 1) << 1
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> pix & 1) << 2
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> pix & 1) << 3
 					// If color is not tansparent, write color value in the pixel
 					if colorIndex != 0 {
 						colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
-						pixels[sprite.x+8*tile+uint16(pix)] = pixel{
+						pixels[(sprite.x+8*tile+uint16(pix))%HMax] = pixel{
 							bgr:      utils.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
 							visible:  true,
 							priority: sprite.priority,
@@ -83,14 +83,14 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 					lineBaseAddress := sprite.tileAddress + tile<<5 + 2*yPixel // Base address of the color planes of the pixel line in VRAM
 					// Get the color index of the pixel
 					colorIndex := uint8(0)
-					colorIndex += ppu.vram.bytes[lineBaseAddress] & (1 << pix) >> pix
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x01] & (1 << pix) >> pix << 1
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x10] & (1 << pix) >> pix << 2
-					colorIndex += ppu.vram.bytes[lineBaseAddress+0x11] & (1 << pix) >> pix << 3
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> pix & 1) << 0
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> pix & 1) << 1
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> pix & 1) << 2
+					colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> pix & 1) << 3
 					// If color is not tansparent, write color value in the pixel
 					if colorIndex != 0 {
 						colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
-						pixels[sprite.x+8*tile+uint16(pix)] = pixel{
+						pixels[(sprite.x+8*tile+uint16(pix))%HMax] = pixel{
 							bgr:      utils.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
 							visible:  true,
 							priority: sprite.priority,
