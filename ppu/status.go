@@ -14,8 +14,8 @@ type status struct {
 
 func (ppu *PPU) latchCounter() {
 	//TODO check if bit 7 of $4201 is set before latching
-	ppu.status.hCounterLatch = ppu.hCounter
-	ppu.status.vCounterLatch = ppu.vCounter
+	ppu.status.hCounterLatch = ppu.HCounter
+	ppu.status.vCounterLatch = ppu.VCounter
 	ppu.status.latchedData = true
 }
 

@@ -22,8 +22,8 @@ type PPU struct {
 	status         *status         // store ppu status
 	Registers      [0x40]register  // Registers represents the ppu registers as methods
 
-	hCounter uint16
-	vCounter uint16
+	HCounter uint16
+	VCounter uint16
 }
 
 // New initializes a PPU struct and returns it

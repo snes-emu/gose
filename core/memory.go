@@ -22,11 +22,12 @@ type Memory struct {
 }
 
 // New creates a Memory struct and initialize it
-func NewMemory() *Memory {
+func NewMemory(ppu *ppu.PPU) *Memory {
 	memory := &Memory{}
 	for bank := 0; bank < bankNumber; bank++ {
 		memory.main[bank] = make([]byte, 0x10000)
 	}
+	memory.ppu = ppu
 	return memory
 }
 
