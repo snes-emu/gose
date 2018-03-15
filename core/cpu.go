@@ -1,8 +1,6 @@
 package core
 
 import (
-	"fmt"
-
 	"github.com/snes-emu/gose/utils"
 )
 
@@ -306,9 +304,10 @@ func (cpu *CPU) Init() {
 func (cpu *CPU) Execute(cycles uint16) {
 	for cpu.cycles < cycles {
 		opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
-		fmt.Printf("%x\n", opcode)
+		// fmt.Printf("%x %x %x %x\n", opcode, cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1), cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2), cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+3))
 		cpu.opcodes[opcode]()
 	}
+	cpu.cycles = 0
 }
 
 func (cpu *CPU) pushStack(data uint8) {

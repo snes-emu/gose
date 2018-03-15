@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
@@ -65,8 +67,14 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 			if offset < 0x2000 {
 				return memory.wram[offset]
 			} else if 0x2133 < offset && offset < 0x2140 {
-				return memory.ppu.Registers[offset-0x2100](0)
+				res := memory.ppu.Registers[offset-0x2100](0)
+				fmt.Printf("register read: %x -> %x\n", offset, res)
+				return res
 			}
+			// } else if 0x41FF < offset && offset < 0x4400 {
+			// 	fmt.Printf("register read: %x -> %x\n", offset, 0)
+			// 	return 0
+			// }
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			return memory.sram[offset]
 		} else if K > 0x7D && K < 0x80 {
@@ -95,8 +103,12 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 			if offset < 0x2000 {
 				memory.wram[offset] = value
 			} else if 0x20FF < offset && offset < 0x2134 {
+				fmt.Printf("register write: %x -> %x\n", offset, value)
 				memory.ppu.Registers[offset-0x2100](value)
 			}
+			// } else if 0x41FF < offset && offset < 0x4400 {
+			// 	fmt.Printf("register read: %x -> %x\n", offset, value)
+			// }
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			memory.sram[offset] = value
 		} else if K > 0x7D && K < 0x80 {
