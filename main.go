@@ -20,6 +20,8 @@ func Flags() {
 }
 
 func main() {
+	// pprof.StartCPUProfile(os.Stdout)
+	// defer pprof.StopCPUProfile()
 	Flags()
 	ROM, err := ioutil.ReadFile(filename)
 	if err != nil {
