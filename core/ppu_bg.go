@@ -12,6 +12,14 @@ type backgroundData struct {
 	mosaicSize  uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 }
 
+type tile struct {
+	hFlip          bool
+	vFlip          bool
+	priority       bool
+	paletteIndex   uint16
+	characterIndex uint16
+}
+
 // BG stores data about a background
 type bg struct {
 	tileSize           bool   // false 8x8 tiles, true 16x16 tiles
@@ -139,4 +147,24 @@ func (ppu *PPU) bg4hofs(data uint8) {
 func (ppu *PPU) bg4vofs(data uint8) {
 	ppu.backgroundData.bg[3].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
+}
+
+func (ppu PPU) decodeTile(BG uint8, x uint16, y uint16) tile {
+	bg := ppu.backgroundData.bg[BG]
+	var mapIndex uint16
+	if bg.screenSize&0x1 != 0 {
+		mapIndex += x / 32
+	}
+	if bg.screenSize&0x2 != 0 {
+		mapIndex += y / 32
+	}
+	tileAddress := (bg.tileMapBaseAddress+mapIndex)<<11 + (y%32)<<6 + (x%32)<<1
+	LL, HH := uint16(ppu.vram.bytes[tileAddress]), uint16(ppu.vram.bytes[tileAddress+1])
+	return tile{
+		characterIndex: LL + (HH&0x3)<<8,
+		paletteIndex:   HH & 0x1C,
+		priority:       HH&0x20 != 0,
+		hFlip:          HH&0x40 != 0,
+		vFlip:          HH&0x80 != 0,
+	}
 }
