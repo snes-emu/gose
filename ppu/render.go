@@ -8,6 +8,24 @@ type pixel struct {
 	priority uint8
 }
 
+func (ppu PPU) decodeTilePixel(tileAddress, colorDepth, x, y uint16) uint8 {
+	var colorIndex uint8
+	lineBaseAddress := tileAddress + 2*y
+	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> x & 1) << 0
+	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> x & 1) << 1
+	if colorDepth >= 4 {
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> x & 1) << 2
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> x & 1) << 3
+	}
+	if colorDepth >= 256 {
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x20] >> x & 1) << 4
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x21] >> x & 1) << 5
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x30] >> x & 1) << 6
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x31] >> x & 1) << 7
+	}
+	return colorIndex
+}
+
 func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	// Initialize pixel line
 	var pixels [HMax]pixel
@@ -39,13 +57,13 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 		// Y coordinate of the tile containing the line
 		var baseTileIndex uint16
 		// Y coordinate of the line in the tile
-		var yPixel uint16
+		var y uint16
 		if sprite.vFlip {
 			baseTileIndex = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) / 8 << 4
-			yPixel = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) % 8
+			y = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) % 8
 		} else {
 			baseTileIndex = (ppu.vCounter - sprite.y) / 8 << 4
-			yPixel = (ppu.vCounter - sprite.y) % 8
+			y = (ppu.vCounter - sprite.y) % 8
 		}
 		// Go through pixels in reverse order if hFlip is true
 		for tile := baseTileIndex; tile < baseTileIndex+sprite.hSize/8; tile++ {
@@ -61,23 +79,20 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 			}
 			// Go through all pixel in the line
 			for pix := uint16(0); pix < 8; pix++ {
-				var effectivePix uint16
+				var x uint16
 				if sprite.hFlip {
-					effectivePix = 7 - pix
+					x = 7 - pix
 				} else {
-					effectivePix = pix
+					x = pix
 				}
-				lineBaseAddress := sprite.tileAddress + effectiveTile<<5 + 2*yPixel // Base address of the color planes of the pixel line in VRAM
+				//Address of the current tile in VRAM
+				tileAddress := sprite.tileAddress + effectiveTile<<5
 				// Get the color index of the pixel
-				colorIndex := uint8(0)
-				colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> effectivePix & 1) << 0
-				colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> effectivePix & 1) << 1
-				colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> effectivePix & 1) << 2
-				colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> effectivePix & 1) << 3
+				colorIndex := ppu.decodeTilePixel(tileAddress, 16, x, y)
 				// If color is not tansparent, write color value in the pixel
 				if colorIndex != 0 {
 					colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
-					pixels[(sprite.x+8*effectiveTile+effectivePix)%HMax] = pixel{
+					pixels[(sprite.x+8*effectiveTile+x)%HMax] = pixel{
 						bgr:      utils.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
 						visible:  true,
 						priority: sprite.priority,
