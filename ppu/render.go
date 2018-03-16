@@ -55,27 +55,28 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 		// Tiles are stored in the 2D-array 0xNyx
 
 		// Y coordinate of the tile containing the line
-		var baseTileIndex uint16
+		var yTile uint16
 		// Y coordinate of the line in the tile
 		var y uint16
 		if sprite.vFlip {
-			baseTileIndex = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) / 8 << 4
+			yTile = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) / 8
 			y = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) % 8
 		} else {
-			baseTileIndex = (ppu.vCounter - sprite.y) / 8 << 4
+			yTile = (ppu.vCounter - sprite.y) / 8
 			y = (ppu.vCounter - sprite.y) % 8
 		}
 		// Go through pixels in reverse order if hFlip is true
-		for tile := baseTileIndex; tile < baseTileIndex+sprite.hSize/8; tile++ {
+		for baseTileCoor := yTile << 4; baseTileCoor < yTile<<4+sprite.hSize/8; baseTileCoor++ {
 			if tiles == 34 {
 				ppu.status.timeOver = true
 				break
 			}
-			var effectiveTile uint16
+			// Tile coordinate in the form 0xYX
+			var tileCoor uint16
 			if sprite.hFlip {
-				effectiveTile = 2*baseTileIndex + sprite.hSize/8 - 1 - tile
+				tileCoor = 2*(yTile<<4) + sprite.hSize/8 - 1 - baseTileCoor
 			} else {
-				effectiveTile = tile
+				tileCoor = baseTileCoor
 			}
 			// Go through all pixel in the line
 			for pix := uint16(0); pix < 8; pix++ {
@@ -86,13 +87,13 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 					x = pix
 				}
 				//Address of the current tile in VRAM
-				tileAddress := sprite.tileAddress + effectiveTile<<5
+				tileAddress := sprite.tileAddress + tileCoor<<5
 				// Get the color index of the pixel
 				colorIndex := ppu.decodeTilePixel(tileAddress, 16, x, y)
 				// If color is not tansparent, write color value in the pixel
 				if colorIndex != 0 {
 					colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
-					pixels[(sprite.x+8*effectiveTile+x)%HMax] = pixel{
+					pixels[(sprite.x+8*(tileCoor&0xF)+x)%HMax] = pixel{
 						bgr:      utils.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
 						visible:  true,
 						priority: sprite.priority,
