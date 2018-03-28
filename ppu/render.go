@@ -10,6 +10,7 @@ type pixel struct {
 
 func (ppu PPU) decodeTilePixel(tileAddress, colorDepth, x, y uint16) uint8 {
 	var colorIndex uint8
+	
 	lineBaseAddress := tileAddress + 2*y
 	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> x & 1) << 0
 	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> x & 1) << 1
@@ -17,7 +18,7 @@ func (ppu PPU) decodeTilePixel(tileAddress, colorDepth, x, y uint16) uint8 {
 		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> x & 1) << 2
 		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> x & 1) << 3
 	}
-	if colorDepth >= 256 {
+	if colorDepth >= 8 {
 		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x20] >> x & 1) << 4
 		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x21] >> x & 1) << 5
 		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x30] >> x & 1) << 6
@@ -102,6 +103,49 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 			}
 			tiles++
 		}
+	}
+	return pixels
+}
+
+func (ppu PPU) renderBgLine(BG uint8, colorDepth uint16) [HMax]pixel {
+	var pixels [HMax]pixel
+	bg := ppu.backgroundData.bg[BG]
+	y := ppu.vCounter
+	var size uint16
+	if bg.tileSize {
+		size = 16
+	} else {
+		size = 8
+	}
+	x := uint16(0)
+	for x < HMax {
+		tile := ppu.decodeTile(BG, (x+bg.horizontalScroll)/size, (y+bg.verticalScroll)/size)
+		tileAddress := bg.tileSetBaseAddress<<13 + tile.characterIndex*8*colorDepth
+		var yTile uint16
+		if tile.vFlip {
+			yTile = size - 1 - (y+bg.verticalScroll)%size
+		} else {
+			yTile = (y + bg.verticalScroll) % size
+		}
+		for xTile := (x + bg.horizontalScroll) % size; xTile < size; xTile++ {
+			colorIndex := ppu.decodeTilePixel(tileAddress, colorDepth, xTile, yTile)
+			var colorAddress uint16
+			if ppu.backgroundData.screenMode == 0 {
+				colorAddress = (uint16(BG)<<5 + tile.paletteIndex<<colorDepth + uint16(colorIndex)) << 1
+			} else {
+				colorAddress = (tile.paletteIndex<<colorDepth + uint16(colorIndex)) << 1
+			}
+			if colorIndex != 0 {
+				if tile.vFlip {
+					pixels[x+(size-1-xTile)] = pixel{
+						bgr:      utils.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
+						visible:  true,
+						priority: utils.BoolToUint8[tile.priority],
+					}
+				}
+			}
+		}
+		x += size - (x+bg.horizontalScroll)%size
 	}
 	return pixels
 }
