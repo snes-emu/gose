@@ -1,4 +1,4 @@
-package cpu
+package core
 
 // lowerBits returns the lower bits of a uint16 number
 func lowerBits(x uint16) uint8 {

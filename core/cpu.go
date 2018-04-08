@@ -1,9 +1,8 @@
-package cpu
+package core
 
 import (
 	"fmt"
 
-	"github.com/snes-emu/gose/memory"
 	"github.com/snes-emu/gose/utils"
 )
 
@@ -30,7 +29,7 @@ type CPU struct {
 	Y       uint16 // The Y index register
 	cycles  uint16 // Number of cycles
 	waiting bool   // CPU Waiting mode (from operation wai)
-	memory  *memory.Memory
+	memory  *Memory
 	opcodes [256]cpuOperation
 }
 
@@ -38,7 +37,7 @@ type cpuOperation func()
 
 var opcodes []cpuOperation
 
-func New(memory *memory.Memory) *CPU {
+func NewCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
 	cpu.opcodes[0x0] = cpu.op00
 	cpu.opcodes[0x1] = cpu.op01

@@ -1,4 +1,4 @@
-package memory
+package core
 
 import (
 	"github.com/snes-emu/gose/ppu"
@@ -20,7 +20,7 @@ type Memory struct {
 }
 
 // New creates a Memory struct and initialize it
-func New() *Memory {
+func NewMemory() *Memory {
 	memory := &Memory{}
 	for bank := 0; bank < bankNumber; bank++ {
 		memory.main[bank] = make([]byte, 0x10000)
