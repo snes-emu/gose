@@ -274,7 +274,7 @@ func TestXce(t *testing.T) {
 }
 
 func TestSep(t *testing.T) {
-	memory := NewMemory()
+	memory := newMemory()
 	memory.SetByteBank(0x21, 0x00, 0x0001)
 	testCases := []struct {
 		value    *CPU
@@ -320,8 +320,8 @@ func TestClc(t *testing.T) {
 }
 
 func TestJsr(t *testing.T) {
-	mem := NewMemory()
-	mem2 := NewMemory()
+	mem := newMemory()
+	mem2 := newMemory()
 	mem2.SetByteBank(0x34, 0x00, 0x01ff)
 	mem2.SetByteBank(0x58, 0x00, 0x01fe)
 	testCases := []struct {
@@ -478,7 +478,7 @@ func TestOra(t *testing.T) {
 }
 
 func TestRts(t *testing.T) {
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0x56, 0x00, 0x01fe)
 	mem.SetByteBank(0x34, 0x00, 0x01ff)
 	testCases := []struct {
@@ -503,7 +503,7 @@ func TestRts(t *testing.T) {
 }
 
 func TestRti(t *testing.T) {
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0x08, 0x00, 0x01fc)
 	mem.SetByteBank(0x12, 0x00, 0x01fd)
 	mem.SetByteBank(0x34, 0x00, 0x01fe)
@@ -531,10 +531,10 @@ func TestRti(t *testing.T) {
 
 func TestAsl(t *testing.T) {
 
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0x8f, 0x7E, 0xabcd)
 
-	mem2 := NewMemory()
+	mem2 := newMemory()
 	mem2.SetByteBank(0x1e, 0x7E, 0xabcd)
 
 	testCases := []struct {
@@ -563,10 +563,10 @@ func TestAsl(t *testing.T) {
 
 func TestTrb(t *testing.T) {
 
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0x9c, 0x7e, 0xabcd)
 
-	mem2 := NewMemory()
+	mem2 := newMemory()
 	mem2.SetByteBank(0x90, 0x7e, 0xabcd)
 
 	testCases := []struct {
@@ -594,10 +594,10 @@ func TestTrb(t *testing.T) {
 
 func TestTsb(t *testing.T) {
 
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0x9c, 0x12, 0xabcd)
 
-	mem2 := NewMemory()
+	mem2 := newMemory()
 	mem2.SetByteBank(0xdf, 0x12, 0xabcd)
 
 	testCases := []struct {
@@ -646,11 +646,11 @@ func TestTdc(t *testing.T) {
 }
 
 func TestBrk(t *testing.T) {
-	mem := NewMemory()
+	mem := newMemory()
 	mem.SetByteBank(0xab, 0x00, 0xffe6)
 	mem.SetByteBank(0xcd, 0x00, 0xffe7)
 
-	mem2 := NewMemory()
+	mem2 := newMemory()
 	mem2.SetByteBank(0xab, 0x00, 0xffe6)
 	mem2.SetByteBank(0xcd, 0x00, 0xffe7)
 	mem2.SetByteBank(0x12, 0x00, 0x01ff)

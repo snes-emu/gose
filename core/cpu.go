@@ -37,7 +37,7 @@ type cpuOperation func()
 
 var opcodes []cpuOperation
 
-func NewCPU(memory *Memory) *CPU {
+func newCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
 	cpu.registerOpcodes()
 	return cpu
