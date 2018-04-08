@@ -17,10 +17,11 @@ type Memory struct {
 	wram    [wramSize]uint8
 	romType uint
 	ppu     *ppu.PPU
+	cpu     *CPU
 }
 
 // New creates a Memory struct and initialize it
-func NewMemory() *Memory {
+func newMemory() *Memory {
 	memory := &Memory{}
 	for bank := 0; bank < bankNumber; bank++ {
 		memory.main[bank] = make([]byte, 0x10000)
