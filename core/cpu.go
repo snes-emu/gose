@@ -39,6 +39,11 @@ var opcodes []cpuOperation
 
 func NewCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
+	cpu.registerOpcodes()
+	return cpu
+}
+
+func (cpu *CPU) registerOpcodes() {
 	cpu.opcodes[0x0] = cpu.op00
 	cpu.opcodes[0x1] = cpu.op01
 	cpu.opcodes[0x2] = cpu.op02
@@ -295,8 +300,6 @@ func NewCPU(memory *Memory) *CPU {
 	cpu.opcodes[0xFD] = cpu.opFD
 	cpu.opcodes[0xFE] = cpu.opFE
 	cpu.opcodes[0xFF] = cpu.opFF
-
-	return cpu
 }
 
 func (cpu *CPU) Init() {
