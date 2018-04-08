@@ -34,6 +34,10 @@ type CPU struct {
 	waiting bool   // CPU Waiting mode (from operation wai)
 	memory  *Memory
 	opcodes [256]cpuOperation
+	// CPU registers
+	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
+	Registers   []func(uint8) uint8
+	dmaChannels [8]*dmaChannel
 }
 
 type cpuOperation func()
@@ -43,11 +47,33 @@ var opcodes []cpuOperation
 func newCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
 	cpu.registerOpcodes()
+	cpu.initDma()
 	return cpu
 }
 
 func (cpu *CPU) step(cycles uint16) {
 	cpu.cycles += cycles
+}
+
+func (cpu *CPU) initDma() {
+	for i := 0; i < 8; i++ {
+		cpu.dmaChannels[i] = &dmaChannel{
+			dmaEnabled:        false,
+			hdmaEnabled:       false,
+			transferDirection: true,
+			indirectMode:      true,
+			addressDecrement:  true,
+			fixedTransfer:     true,
+			transferMode:      7,
+			srcAddr:           0xffff,
+			srcBank:           0xff,
+			destAddr:          0xff,
+			transferSize:      0xffff,
+			indirectAddrBank:  0xff,
+			hdmaAddr:          0xffff,
+			hdmaLineCounter:   0xff,
+		}
+	}
 }
 
 func (cpu *CPU) registerOpcodes() {
