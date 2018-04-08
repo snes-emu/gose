@@ -46,7 +46,7 @@ func (cpu *CPU) initDma() {
 
 }
 
-func (cpu *CPU) setDma(addr uint16, data uint8) {
+func (cpu *CPU) SetDma(addr uint16, data uint8) {
 	c := cpu.dmaChannels[addr>>4&0x1]
 	switch addr & 0xf0f {
 	// 0x420B - MDMAEN - Select General Purpose DMA Channel(s) and Start Transfer (W)
