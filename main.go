@@ -6,8 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/snes-emu/gose/cpu"
-	"github.com/snes-emu/gose/memory"
+	"github.com/snes-emu/gose/core"
 	"github.com/snes-emu/gose/rom"
 )
 
@@ -32,9 +31,9 @@ func main() {
 		log.Fatalf("There were a problem while importing the ROM: %v", err)
 	}
 
-	mem := memory.New()
+	mem := core.NewMemory()
 	mem.LoadROM(*rom)
-	cpu := cpu.New(mem)
+	cpu := core.NewCPU(mem)
 	cpu.Init()
 	cpu.Execute(100)
 }
