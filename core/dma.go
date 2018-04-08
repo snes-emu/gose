@@ -1,7 +1,5 @@
 package core
 
-import "fmt"
-
 type dmaChannel struct {
 	dmaEnabled  bool
 	hdmaEnabled bool
@@ -22,6 +20,8 @@ type dmaChannel struct {
 
 	hdmaAddr        uint16
 	hdmaLineCounter uint8
+
+	unused uint8
 }
 
 func (cpu *CPU) initDma() {
@@ -41,6 +41,7 @@ func (cpu *CPU) initDma() {
 			indirectAddrBank:  0xff,
 			hdmaAddr:          0xffff,
 			hdmaLineCounter:   0xff,
+			unused:            0xff,
 		}
 	}
 
@@ -109,9 +110,10 @@ func (cpu *CPU) SetDma(addr uint16, data uint8) {
 	case 0x30a:
 		c.hdmaLineCounter = data
 
-	default:
-		// If this triggers try implementing the unused and unknown registers
-		panic(fmt.Sprintf("Unknown register: %v", addr&0xf0f))
+	// 0x43xB - UNUSEDx - Unused Byte (R/W)
+	// 0x43xF - MIRRx - Read/Write-able mirror of 43xBh (R/W)
+	case 0x30b, 0x30f:
+		c.unused = data
 	}
 }
 
@@ -177,8 +179,10 @@ func (cpu *CPU) GetDma(addr uint16) uint8 {
 	case 0x30a:
 		return c.hdmaLineCounter
 
-	default:
-		// If this triggers try implementing the unused and unknown registers
-		panic(fmt.Sprintf("Unknown register: %v", addr&0xf0f))
+	// 0x43xB - UNUSEDx - Unused Byte (R/W)
+	// 0x43xF - MIRRx - Read/Write-able mirror of 43xBh (R/W)
+	case 0x30b, 0x30f:
+		return c.unused
 	}
+	return 0
 }
