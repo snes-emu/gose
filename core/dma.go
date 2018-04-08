@@ -114,3 +114,71 @@ func (cpu *CPU) SetDma(addr uint16, data uint8) {
 		panic(fmt.Sprintf("Unknown register: %v", addr&0xf0f))
 	}
 }
+
+func (cpu *CPU) GetDma(addr uint16) uint8 {
+	c := cpu.dmaChannels[addr>>4&0x1]
+	switch addr & 0xf0f {
+	// 0x43x0 - DMAPx - DMA/HDMA Parameters (R/W)
+	case 0x300:
+		var res uint8
+		if c.transferDirection {
+			res |= 0x80
+		}
+		if c.indirectMode {
+			res |= 0x40
+		}
+		if c.addressDecrement {
+			res |= 0x10
+		}
+		if c.fixedTransfer {
+			res |= 0x8
+		}
+		// Not mandatory but in case transferMode has incorrect bits
+		res |= (c.transferMode & 0x7)
+		return res
+
+	// 0x43x1 - BBADx - DMA/HDMA I/O-Bus Address (PPU-Bus aka B-Bus) (R/W)
+	case 0x301:
+		return c.destAddr
+
+	// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
+	case 0x302:
+		return lowerBits(c.srcAddr)
+
+	// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
+	case 0x303:
+		return upperBits(c.srcAddr)
+
+	// 0x43x4 - A1Bx - HDMA Table Start Address (bank) / DMA Current Addr (bank) (R/W)
+	case 0x304:
+		return c.srcBank
+
+	// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
+	case 0x305:
+		return lowerBits(c.transferSize)
+
+	// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
+	case 0x306:
+		return upperBits(c.transferSize)
+
+	// 0x43x7 - DASBx - Indirect HDMA Address (bank) (R/W)
+	case 0x307:
+		return c.indirectAddrBank
+
+	// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
+	case 0x308:
+		return lowerBits(c.hdmaAddr)
+
+	// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
+	case 0x309:
+		return upperBits(c.hdmaAddr)
+
+	// 0x43xA - NTRLx - HDMA Line-Counter (from current Table entry) (R/W)
+	case 0x30a:
+		return c.hdmaLineCounter
+
+	default:
+		// If this triggers try implementing the unused and unknown registers
+		panic(fmt.Sprintf("Unknown register: %v", addr&0xf0f))
+	}
+}
