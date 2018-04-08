@@ -36,8 +36,9 @@ type CPU struct {
 	opcodes [256]cpuOperation
 	// CPU registers
 	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
-	Registers   []func(uint8) uint8
+	Registers   [0x37f]func(uint8) uint8
 	dmaChannels [8]*dmaChannel
+	dmaState    *dmaState
 }
 
 type cpuOperation func()
@@ -53,27 +54,6 @@ func newCPU(memory *Memory) *CPU {
 
 func (cpu *CPU) step(cycles uint16) {
 	cpu.cycles += cycles
-}
-
-func (cpu *CPU) initDma() {
-	for i := 0; i < 8; i++ {
-		cpu.dmaChannels[i] = &dmaChannel{
-			dmaEnabled:        false,
-			hdmaEnabled:       false,
-			transferDirection: true,
-			indirectMode:      true,
-			addressDecrement:  true,
-			fixedTransfer:     true,
-			transferMode:      7,
-			srcAddr:           0xffff,
-			srcBank:           0xff,
-			destAddr:          0xff,
-			transferSize:      0xffff,
-			indirectAddrBank:  0xff,
-			hdmaAddr:          0xffff,
-			hdmaLineCounter:   0xff,
-		}
-	}
 }
 
 func (cpu *CPU) registerOpcodes() {
