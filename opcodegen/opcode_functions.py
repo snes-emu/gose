@@ -4,7 +4,7 @@ import sys
 template = '''func (cpu *CPU) op{}(){{
     dataLo, dataHi := cpu.adm{}()
     cpu.{}(dataLo, dataHi)
-    cpu.cycles += {}
+    cpu.step({})
     cpu.PC += {}
 }}
 
