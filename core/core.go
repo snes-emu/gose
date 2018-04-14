@@ -21,6 +21,7 @@ func New() *Emulator {
 	cpu := newCPU(mem)
 
 	mem.cpu = cpu
+	mem.ppu = ppu
 
 	return &Emulator{cpu, mem, ppu}
 }
@@ -37,4 +38,6 @@ func (e *Emulator) ReadROM(filename string) {
 	if err != nil {
 		log.Fatalf("There were a problem while importing the ROM: %v", err)
 	}
+
+	e.Memory.LoadROM(*rom)
 }

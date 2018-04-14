@@ -2,6 +2,9 @@ package core
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/snes-emu/gose/utils"
 )
@@ -41,6 +44,10 @@ func newCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
 	cpu.registerOpcodes()
 	return cpu
+}
+
+func (cpu *CPU) step(cycles uint16) {
+	cpu.cycles += cycles
 }
 
 func (cpu *CPU) registerOpcodes() {
@@ -306,11 +313,20 @@ func (cpu *CPU) Init() {
 	cpu.reset()
 }
 
-func (cpu *CPU) Execute(cycles uint16) {
-	for cpu.cycles < cycles {
-		opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
-		fmt.Printf("%x\n", opcode)
-		cpu.opcodes[opcode]()
+func (cpu *CPU) Start() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	for {
+		select {
+		case <-sigs:
+			fmt.Printf("Emulator exited")
+			os.Exit(0)
+		default:
+			opcode := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister())
+			fmt.Printf("opcode: %x\n", opcode)
+			cpu.opcodes[opcode]()
+		}
 	}
 }
 

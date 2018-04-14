@@ -16,6 +16,7 @@ func Flags() {
 func main() {
 	Flags()
 
-	mem := core.NewMemory()
-	mem.LoadROM(*rom)
+	emu := core.New()
+	emu.ReadROM(filename)
+	emu.CPU.Start()
 }
