@@ -70,7 +70,7 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			return memory.sram[offset]
 		} else if K > 0x7D && K < 0x80 {
-			return memory.wram[offset+uint16(K)-0x7E]
+			return memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)]
 		} else if 0xFD < K && offset < 0x8000 {
 			return memory.sram[offset]
 		}
@@ -100,7 +100,7 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
 			memory.sram[offset] = value
 		} else if K > 0x7D && K < 0x80 {
-			memory.wram[offset+uint16(K)-0x7E] = value
+			memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
 		} else if 0xFD < K && offset < 0x8000 {
 			memory.sram[offset] = value
 		}
