@@ -1,5 +1,9 @@
 package core
 
+import (
+	"fmt"
+)
+
 type dmaChannel struct {
 	dmaEnabled  bool
 	hdmaEnabled bool
@@ -48,6 +52,7 @@ func (cpu *CPU) initDma() {
 }
 
 func (cpu *CPU) startDma() {
+	fmt.Println("dma started")
 	for _, channel := range cpu.dmaChannels {
 		if !channel.dmaEnabled {
 			continue
@@ -112,6 +117,7 @@ func (cpu *CPU) SetDma(addr uint16, data uint8) {
 		for i := uint8(0); i < 8; i++ {
 			cpu.dmaChannels[i].dmaEnabled = data&(1<<i) != 0
 		}
+		cpu.startDma()
 
 	// 0x420C - HDMAEN - Select H-Blank DMA (H-DMA) Channel(s) (W)
 	case 0x20c:
