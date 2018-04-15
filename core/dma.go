@@ -47,6 +47,63 @@ func (cpu *CPU) initDma() {
 
 }
 
+func (cpu *CPU) startDma() {
+	for _, channel := range cpu.dmaChannels {
+		if !channel.dmaEnabled {
+			continue
+		}
+		transferCount := uint8(0)
+		for ok := true; ok; ok = channel.transferSize != 0 {
+			cpuBank, cpuOffset := channel.cpuAddress()
+			ppuBank, ppuOffset := channel.ppuAddress(transferCount)
+			if channel.transferDirection {
+				data := cpu.memory.GetByteBank(cpuBank, cpuOffset)
+				cpu.memory.SetByteBank(data, ppuBank, ppuOffset)
+			} else {
+				data := cpu.memory.GetByteBank(ppuBank, ppuOffset)
+				cpu.memory.SetByteBank(data, cpuBank, cpuOffset)
+			}
+			transferCount++
+			channel.transferSize--
+		}
+	}
+}
+
+func (dma *dmaChannel) cpuAddress() (uint8, uint16) {
+	bank, offset := dma.srcBank, dma.srcAddr
+	if !dma.fixedTransfer {
+		if dma.addressDecrement {
+			dma.srcAddr--
+		} else {
+			dma.srcAddr++
+		}
+	}
+	return bank, offset
+}
+
+func (dma *dmaChannel) ppuAddress(count uint8) (uint8, uint16) {
+	bank, offset := uint8(0), uint16(0x2100)
+	switch dma.transferMode {
+	case 0:
+		offset = offset | uint16(dma.destAddr)
+	case 1:
+		offset = offset | uint16(dma.destAddr+(count&1))
+	case 2:
+		offset = offset | uint16(dma.destAddr)
+	case 3:
+		offset = offset | uint16(dma.destAddr+((count>>1)&1))
+	case 4:
+		offset = offset | uint16(dma.destAddr+(count&3))
+	case 5:
+		offset = offset | uint16(dma.destAddr+(count&1))
+	case 6:
+		offset = offset | uint16(dma.destAddr)
+	case 7:
+		offset = offset | uint16(dma.destAddr+((count>>1)&1))
+	}
+	return bank, offset
+}
+
 func (cpu *CPU) SetDma(addr uint16, data uint8) {
 	c := cpu.dmaChannels[addr>>4&0x1]
 	switch addr & 0xf0f {
