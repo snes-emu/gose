@@ -40,4 +40,5 @@ func (e *Emulator) ReadROM(filename string) {
 	}
 
 	e.Memory.LoadROM(*rom)
+	e.CPU.Init()
 }
