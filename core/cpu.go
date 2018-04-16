@@ -326,6 +326,24 @@ func (cpu *CPU) Start() {
 			K := cpu.getKRegister()
 			PC := cpu.getPCRegister()
 			opcode := cpu.memory.GetByteBank(K, PC)
+			cpu.opcodes[opcode]()
+		}
+	}
+}
+
+func (cpu *CPU) StartDebug() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	for {
+		select {
+		case <-sigs:
+			fmt.Printf("Emulator exited")
+			os.Exit(0)
+		default:
+			K := cpu.getKRegister()
+			PC := cpu.getPCRegister()
+			opcode := cpu.memory.GetByteBank(K, PC)
 			fmt.Printf("%02X/%04X:	%02X opcode\n", K, PC, opcode)
 			cpu.opcodes[opcode]()
 		}
