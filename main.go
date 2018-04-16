@@ -23,6 +23,7 @@ func main() {
 	emu := core.New()
 	emu.ReadROM(filename)
 	if debug {
+		go debugServer()
 		emu.CPU.StartDebug()
 	} else {
 		emu.CPU.Start()
