@@ -1,20 +1,23 @@
 package core
 
 import (
+	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
 
-const bankNumber = 256
+const bankNumber = 0x100
 const offsetMask = 0xFFFF
 const sramSize = 0x8000
 const wramSize = 0x20000
+const ioSize = 0x8000
 
 // Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
 	main    [bankNumber][]uint8
 	sram    [sramSize]uint8
 	wram    [wramSize]uint8
+	io      [ioSize]io.Register
 	romType uint
 	ppu     *ppu.PPU
 	cpu     *CPU
@@ -48,6 +51,15 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 		for bank := 0x80; bank < 0x100; bank++ {
 			memory.main[bank] = memory.main[bank-0x80]
 		}
+	}
+}
+
+func (memory *Memory) Init() {
+	for i := 0; i < ioSize; i++ {
+		memory.io[i] = io.UnusedRegister
+	}
+	for i := 0; i < 0x40; i++ {
+		memory.io[0x2100+i] = memory.ppu.Registers[i]
 	}
 }
 
