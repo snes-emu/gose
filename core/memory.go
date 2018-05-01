@@ -6,6 +6,7 @@ import (
 	"github.com/snes-emu/gose/rom"
 )
 
+const regionNumber = 0x1000
 const bankNumber = 0x100
 const offsetMask = 0xFFFF
 const sramSize = 0x8000
@@ -22,6 +23,7 @@ const (
 
 // Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
+	mmap    [regionNumber]uint
 	main    [bankNumber][]uint8
 	sram    [sramSize]uint8
 	wram    [wramSize]uint8
@@ -60,14 +62,61 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 			memory.main[bank] = memory.main[bank-0x80]
 		}
 	}
+	memory.initMmap()
 }
 
-func (memory *Memory) Init() {
+func (memory *Memory) initIo() {
 	for i := 0; i < ioSize; i++ {
 		memory.io[i] = io.UnusedRegister
 	}
 	for i := 0; i < 0x40; i++ {
 		memory.io[0x2100+i] = memory.ppu.Registers[i]
+	}
+}
+
+func (memory *Memory) initMmap() {
+	for bankIndex := 0x0; bankIndex < 0x40; bankIndex++ {
+		for offset := 0x0; offset < 0x2; offset++ {
+			memory.mmap[bankIndex<<4|offset] = lowWramRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = lowWramRegion
+		}
+		for offset := 0x2; offset < 0x8; offset++ {
+			memory.mmap[bankIndex<<4|offset] = ioRegisterRegion
+			memory.mmap[bankIndex<<4|offset] = ioRegisterRegion
+		}
+		for offset := 0x8; offset < 0x10; offset++ {
+			memory.mmap[bankIndex<<4|offset] = romRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
+		}
+	}
+	for bankIndex := 0x40; bankIndex < 0x70; bankIndex++ {
+		for offset := 0; offset < 0x10; offset++ {
+			memory.mmap[bankIndex<<4|offset] = romRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
+		}
+	}
+	for bankIndex := 0x70; bankIndex < 0x7E; bankIndex++ {
+		for offset := 0; offset < 0x8; offset++ {
+			memory.mmap[bankIndex<<4|offset] = sramRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+		}
+		for offset := 0x8; offset < 0x10; offset++ {
+			memory.mmap[bankIndex<<4|offset] = romRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
+		}
+	}
+	for bankIndex := 0x7E; bankIndex < 0x80; bankIndex++ {
+		for offset := 0; offset < 0x10; offset++ {
+			memory.mmap[bankIndex<<4|offset] = wramRegion
+		}
+	}
+	for bankIndex := 0xFE; bankIndex < 0x100; bankIndex++ {
+		for offset := 0; offset < 0x8; offset++ {
+			memory.mmap[bankIndex<<4|offset] = sramRegion
+		}
+		for offset := 0x8; offset < 0x10; offset++ {
+			memory.mmap[bankIndex<<4|offset] = romRegion
+		}
 	}
 }
 
@@ -80,22 +129,17 @@ func (memory Memory) GetByte(index uint32) uint8 {
 
 //GetByteBank gets a byte by memory bank and offset
 func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
-	switch memory.romType {
-	case rom.LoROM:
-		if K < 0x40 || (0x7F < K && K < 0xC0) {
-			if offset < 0x2000 {
-				return memory.wram[offset]
-			} else if 0x2133 < offset && offset < 0x2140 {
-				return memory.ppu.Registers[offset-0x2100](0)
-			}
-		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
-			return memory.sram[offset]
-		} else if K > 0x7D && K < 0x80 {
-			return memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)]
-		} else if 0xFD < K && offset < 0x8000 {
-			return memory.sram[offset]
-		}
+	switch memory.mmap[uint16(K)<<4|offset>>12] {
+	case lowWramRegion:
+		return memory.wram[offset]
+	case ioRegisterRegion:
+		return memory.io[offset](0)
+	case romRegion:
 		return memory.main[K][offset]
+	case wramRegion:
+		return memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)]
+	case sramRegion:
+		return memory.sram[offset]
 	default:
 		return 0x00
 	}
@@ -110,20 +154,14 @@ func (memory *Memory) SetByte(value uint8, index uint32) {
 
 //SetByteBank sets a byte by memory bank and offset
 func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
-	switch memory.romType {
-	case rom.LoROM:
-		if K < 0x40 || (0x7F < K && K < 0xC0) {
-			if offset < 0x2000 {
-				memory.wram[offset] = value
-			} else if 0x20FF < offset && offset < 0x2134 {
-				memory.ppu.Registers[offset-0x2100](value)
-			}
-		} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
-			memory.sram[offset] = value
-		} else if K > 0x7D && K < 0x80 {
-			memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
-		} else if 0xFD < K && offset < 0x8000 {
-			memory.sram[offset] = value
-		}
+	switch memory.mmap[uint16(K)<<4|offset>>12] {
+	case lowWramRegion:
+		memory.wram[offset] = value
+	case ioRegisterRegion:
+		memory.io[offset](value)
+	case wramRegion:
+		memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
+	case sramRegion:
+		memory.sram[offset] = value
 	}
 }

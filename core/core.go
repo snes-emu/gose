@@ -22,6 +22,7 @@ func New() *Emulator {
 
 	mem.cpu = cpu
 	mem.ppu = ppu
+	mem.initIo()
 
 	return &Emulator{cpu, mem, ppu}
 }
