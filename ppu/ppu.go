@@ -1,5 +1,7 @@
 package ppu
 
+import "github.com/snes-emu/gose/io"
+
 const (
 	// HMax represents max H counter value
 	HMax = 339
@@ -11,16 +13,16 @@ const (
 
 // PPU represents the Picture Processing Unit of the SNES
 type PPU struct {
-	vram           *vram           // vram represents the VideoRAM (64KB)
-	oam            *oam            // oam represents the object attribute memory (512 + 32 Bytes)
-	cgram          *cgram          // cgram represents the color graphics ram and stores the color palette with 256 color entries
-	backgroundData *backgroundData // background data
-	colorMath      *colorMath      // Color math parameters
-	m7             *m7             // mode 7 parameters
-	display        *display        // display parameters
-	window         [2]*window      // window parameters
-	status         *status         // store ppu status
-	Registers      [0x40]register  // Registers represents the ppu registers as methods
+	vram           *vram             // vram represents the VideoRAM (64KB)
+	oam            *oam              // oam represents the object attribute memory (512 + 32 Bytes)
+	cgram          *cgram            // cgram represents the color graphics ram and stores the color palette with 256 color entries
+	backgroundData *backgroundData   // background data
+	colorMath      *colorMath        // Color math parameters
+	m7             *m7               // mode 7 parameters
+	display        *display          // display parameters
+	window         [2]*window        // window parameters
+	status         *status           // store ppu status
+	Registers      [0x40]io.Register // Registers represents the ppu registers as methods
 
 	hCounter uint16
 	vCounter uint16
@@ -108,5 +110,3 @@ func New() *PPU {
 	ppu.Registers[0x3F] = ppu.stat78
 	return ppu
 }
-
-type register func(uint8) uint8
