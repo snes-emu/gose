@@ -647,10 +647,12 @@ func TestTdc(t *testing.T) {
 
 func TestBrk(t *testing.T) {
 	mem := newMemory()
+	mem.initMmap()
 	mem.SetByteBank(0xab, 0x00, 0xffe6)
 	mem.SetByteBank(0xcd, 0x00, 0xffe7)
 
 	mem2 := newMemory()
+	mem2.initMmap()
 	mem2.SetByteBank(0xab, 0x00, 0xffe6)
 	mem2.SetByteBank(0xcd, 0x00, 0xffe7)
 	mem2.SetByteBank(0x12, 0x00, 0x01ff)
