@@ -356,7 +356,6 @@ func (cpu *CPU) initUnusedx() {
 	}
 
 	for i := 0; i < 8; i++ {
-		c := cpu.dmaChannels[i]
 		// 0x43xF - MIRRx - Read/Write-able mirror of 43xBh (R/W)
 		cpu.dmaRegisters[0x30f+16*(i+1)] = cpu.dmaRegisters[0x30b+16*(i+1)]
 	}
