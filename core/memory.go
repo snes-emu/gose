@@ -27,7 +27,7 @@ type Memory struct {
 	main    [bankNumber][]uint8
 	sram    [sramSize]uint8
 	wram    [wramSize]uint8
-	io      [ioSize]io.Register
+	io      [ioSize]*io.Register
 	romType uint
 	ppu     *ppu.PPU
 	cpu     *CPU
@@ -67,7 +67,7 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 
 func (memory *Memory) initIo() {
 	for i := 0; i < ioSize; i++ {
-		memory.io[i] = io.UnusedRegister
+		memory.io[i] = io.NewRegister(nil, nil)
 	}
 	for i := 0; i < 0x40; i++ {
 		memory.io[0x2100+i] = memory.ppu.Registers[i]
@@ -133,7 +133,7 @@ func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	case lowWramRegion:
 		return memory.wram[offset]
 	case ioRegisterRegion:
-		return memory.io[offset](0)
+		return memory.io[offset].Read()
 	case romRegion:
 		return memory.main[K][offset]
 	case wramRegion:
@@ -158,7 +158,7 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	case lowWramRegion:
 		memory.wram[offset] = value
 	case ioRegisterRegion:
-		memory.io[offset](value)
+		memory.io[offset].Write(value)
 	case wramRegion:
 		memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
 	case sramRegion:
