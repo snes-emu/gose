@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
@@ -29,6 +30,7 @@ type Memory struct {
 	wram    [wramSize]uint8
 	io      [ioSize]*io.Register
 	romType uint
+	apu     *apu.APU
 	ppu     *ppu.PPU
 	cpu     *CPU
 }
@@ -71,6 +73,7 @@ func (memory *Memory) initIo() {
 	}
 	for i := 0; i < 0x40; i++ {
 		memory.io[0x2100+i] = memory.ppu.Registers[i]
+		memory.io[0x2140+i] = memory.apu.Registers[i%4]
 	}
 }
 
