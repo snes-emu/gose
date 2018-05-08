@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
@@ -16,12 +17,14 @@ type Emulator struct {
 }
 
 func New() *Emulator {
+	apu := apu.New()
 	ppu := ppu.New()
 	mem := newMemory()
 	cpu := newCPU(mem)
 
 	mem.cpu = cpu
 	mem.ppu = ppu
+	mem.apu = apu
 	mem.initIo()
 
 	return &Emulator{cpu, mem, ppu}
