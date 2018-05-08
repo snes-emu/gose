@@ -35,10 +35,10 @@ type CPU struct {
 	waiting bool   // CPU Waiting mode (from operation wai)
 	memory  *Memory
 	opcodes [256]cpuOperation
-	// CPU registers
+	// CPU io registers
 	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
-	dmaRegisters [0x380]*io.Register
-	dmaChannels  [8]*dmaChannel
+	ioRegisters [0x380]*io.Register
+	dmaChannels [8]*dmaChannel // DMA Related channels
 }
 
 type cpuOperation func()
@@ -49,6 +49,7 @@ func newCPU(memory *Memory) *CPU {
 	cpu := &CPU{memory: memory}
 	cpu.registerOpcodes()
 	cpu.initDma()
+	cpu.initIORegisters()
 	return cpu
 }
 
