@@ -18,16 +18,15 @@ type colorMath struct {
 }
 
 // 2130 - CGWSEL - Color Math Control Register A (W)
-func (ppu *PPU) cgwsel(data uint8) uint8 {
+func (ppu *PPU) cgwsel(data uint8) {
 	ppu.colorMath.mainScreenBlack = (data & 0xc0) >> 6
 	ppu.colorMath.enable = (data & 0x30) >> 4
 	ppu.colorMath.enableSubscreen = (data & 0x2) != 0
 	ppu.colorMath.directColor = (data & 0x1) != 0
-	return 0
 }
 
 // 2131 - CGADSUB - Color Math Control Register B (W)
-func (ppu *PPU) cgadsub(data uint8) uint8 {
+func (ppu *PPU) cgadsub(data uint8) {
 	if (data & 0x80) != 0 {
 		ppu.colorMath.opSign = -1
 	} else {
@@ -43,12 +42,10 @@ func (ppu *PPU) cgadsub(data uint8) uint8 {
 
 	ppu.colorMath.backdrop = (data & 0x20) != 0
 	ppu.colorMath.obj = (data & 0x10) != 0
-
-	return 0
 }
 
 // 2132 - COLDATA - Color Math Sub Screen Backdrop Color (W)
-func (ppu *PPU) coldata(data uint8) uint8 {
+func (ppu *PPU) coldata(data uint8) {
 	intensity := data & 0x1f
 
 	if (data & 0x80) != 0 {
@@ -60,5 +57,4 @@ func (ppu *PPU) coldata(data uint8) uint8 {
 	if (data & 0x20) != 0 {
 		ppu.colorMath.red = intensity
 	}
-	return 0
 }

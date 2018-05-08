@@ -20,22 +20,20 @@ type oam struct {
 }
 
 // 2102 - oam.aDDL
-func (ppu *PPU) oamaddl(data uint8) uint8 {
+func (ppu *PPU) oamaddl(data uint8) {
 	ppu.oam.addr = (ppu.oam.lastWrittenAddr & 0x0200) | (uint16(data) << 1)
 	ppu.oam.lastWrittenAddr = ppu.oam.addr
-	return 0
 }
 
 // 2103 - oam.aDDH
-func (ppu *PPU) oamaddh(data uint8) uint8 {
+func (ppu *PPU) oamaddh(data uint8) {
 	ppu.oam.priorityBit = data&0x80 != 0
 	ppu.oam.addr = (uint16(data) << 9) | (ppu.oam.lastWrittenAddr & 0x01fe)
 	ppu.oam.lastWrittenAddr = ppu.oam.addr
-	return 0
 }
 
 // 2104 - OAMDATA - OAM Data Write (W)
-func (ppu *PPU) oamdata(data uint8) uint8 {
+func (ppu *PPU) oamdata(data uint8) {
 	if ppu.oam.addr%2 == 0 {
 		// Write to the temporary variable
 		ppu.oam.lsb = data
@@ -49,20 +47,18 @@ func (ppu *PPU) oamdata(data uint8) uint8 {
 	}
 	// Increment the address
 	ppu.oam.addr = (ppu.oam.addr + 1) % 544
-	return 0
 }
 
 // 2138 - RDOAM - OAM Data Read (R)
-func (ppu *PPU) rdoam(_ uint8) uint8 {
+func (ppu *PPU) rdoam() uint8 {
 	res := ppu.oam.bytes[ppu.oam.addr]
 	ppu.oam.addr = (ppu.oam.addr + 1) % 544
 	return res
 }
 
 // 2101h - OBSEL - Object Size and Object Base (W)
-func (ppu *PPU) obsel(data uint8) uint8 {
+func (ppu *PPU) obsel(data uint8) {
 	ppu.oam.objectSize = (data >> 5)
 	ppu.oam.objectTileBaseAddress = uint16(data&0x7) << 14
 	ppu.oam.objectTileGapAddress = uint16((data>>3)&0x3) << 13
-	return 0
 }

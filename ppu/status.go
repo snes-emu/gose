@@ -20,13 +20,13 @@ func (ppu *PPU) latchCounter() {
 }
 
 // 2137h - SLHV - Latch H/V-Counter by Software (R)
-func (ppu *PPU) slhv(data uint8) uint8 {
+func (ppu *PPU) slhv() uint8 {
 	ppu.latchCounter()
 	return 0
 }
 
 // 213Ch - OPHCT - Horizontal Counter Latch (R)
-func (ppu *PPU) ophct(data uint8) uint8 {
+func (ppu *PPU) ophct() uint8 {
 	var result uint8
 	if ppu.status.ophctFlip {
 		result = uint8(ppu.status.hCounterLatch >> 8)
@@ -38,7 +38,7 @@ func (ppu *PPU) ophct(data uint8) uint8 {
 }
 
 // 213Dh - OPVCT - Vertical Counter Latch (R)
-func (ppu *PPU) opvct(data uint8) uint8 {
+func (ppu *PPU) opvct() uint8 {
 	var result uint8
 	if ppu.status.opvctFlip {
 		result = uint8(ppu.status.vCounterLatch >> 8)
@@ -50,7 +50,7 @@ func (ppu *PPU) opvct(data uint8) uint8 {
 }
 
 // 213Eh - STAT77 - PPU1 Status and Version Number (R)
-func (ppu *PPU) stat77(data uint8) uint8 {
+func (ppu *PPU) stat77() uint8 {
 	var result uint8 = 1 // PPU1 5C77 Version Number
 	if ppu.status.rangeOver {
 		result += 0x40
@@ -62,7 +62,7 @@ func (ppu *PPU) stat77(data uint8) uint8 {
 }
 
 // 213Fh - STAT78 - PPU2 Status and Version Number (R)
-func (ppu *PPU) stat78(data uint8) uint8 {
+func (ppu *PPU) stat78() uint8 {
 	var result uint8 = 2 // PPU2 5C78 Version Number
 	if ppu.status.palMode {
 		result += 0x10
