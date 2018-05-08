@@ -2,8 +2,8 @@ package io
 
 // Register represents an read/write io register
 type Register struct {
-	read  func() uint8
-	write func(uint8)
+	Read  func() uint8
+	Write func(uint8)
 }
 
 func NewRegister(read func() uint8, write func(uint8)) *Register {
