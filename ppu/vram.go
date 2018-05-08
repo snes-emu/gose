@@ -37,7 +37,7 @@ func (ppu PPU) getvramAddr() uint16 {
 }
 
 // 2115 - VMAIN - VRAM Address Increment Mode (W)
-func (ppu *PPU) vmain(data uint8) uint8 {
+func (ppu *PPU) vmain(data uint8) {
 	ppu.vram.incrementMode = data&0x80 != 0
 
 	incrementValues := map[uint8]uint16{
@@ -46,51 +46,43 @@ func (ppu *PPU) vmain(data uint8) uint8 {
 
 	ppu.vram.incrementAmount = incrementValues[data&0x3]
 	ppu.vram.addrMapping = data & 0xc >> 2
-
-	return 0
 }
 
 // 2116 - VMADDL - VRAM Address (lower 8bit) (W)
-func (ppu *PPU) vmaddl(data uint8) uint8 {
+func (ppu *PPU) vmaddl(data uint8) {
 	ppu.vram.addr = (ppu.vram.addr & 0xff00) | uint16(data)
 	newAddr := ppu.getvramAddr()
 	ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
-	return 0
 }
 
 // 2117 - VMADDH - VRAM Address (upper 8bit) (W)
-func (ppu *PPU) vmaddh(data uint8) uint8 {
+func (ppu *PPU) vmaddh(data uint8) {
 	ppu.vram.addr = uint16(data)<<8 | (ppu.vram.addr & 0x0ff)
 	newAddr := ppu.getvramAddr()
 	ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
-	return 0
 }
 
 // 2118 - VMDATAL - VRAM Data Write (lower 8bit) (W)
-func (ppu *PPU) vmdatal(data uint8) uint8 {
+func (ppu *PPU) vmdatal(data uint8) {
 
 	ppu.vram.bytes[2*ppu.getvramAddr()] = data
 
 	if ppu.vram.incrementMode {
 		ppu.vram.addr += ppu.vram.incrementAmount
 	}
-
-	return 0
 }
 
 // 2119 - VMDATAH - VRAM Data Write (upper 8bit) (W)
-func (ppu *PPU) vmdatah(data uint8) uint8 {
+func (ppu *PPU) vmdatah(data uint8) {
 	ppu.vram.bytes[2*ppu.getvramAddr()+1] = data
 
 	if !ppu.vram.incrementMode {
 		ppu.vram.addr += ppu.vram.incrementAmount
 	}
-
-	return 0
 }
 
 // 2139 - RDVRAML - VRAM Data Read (lower 8bit) (R)
-func (ppu *PPU) rdvraml(_ uint8) uint8 {
+func (ppu *PPU) rdvraml() uint8 {
 	res := ppu.vram.bytes[2*ppu.getvramAddr()]
 
 	if ppu.vram.incrementMode {
@@ -103,7 +95,7 @@ func (ppu *PPU) rdvraml(_ uint8) uint8 {
 }
 
 // 213A - RDVRAMH - VRAM Data Read (upper 8bit) (R)
-func (ppu *PPU) rdvramh(_ uint8) uint8 {
+func (ppu *PPU) rdvramh() uint8 {
 	res := ppu.vram.bytes[2*ppu.getvramAddr()+1]
 
 	if !ppu.vram.incrementMode {
