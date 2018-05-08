@@ -1,9 +1,27 @@
 package io
 
 // Register represents an read/write io register
-type Register func(uint8) uint8
+type Register struct {
+	read  func() uint8
+	write func(uint8)
+}
 
-// UnusedRegister represents an unused register in the memory map
-func UnusedRegister(_ uint8) uint8 {
+func NewRegister(read func() uint8, write func(uint8)) *Register {
+	if read == nil {
+		read = unusedRead
+	}
+	if write == nil {
+		write = unusedWrite
+	}
+	r := &Register{
+		read,
+		write,
+	}
+	return r
+}
+func unusedRead() uint8 {
 	return 0
+}
+
+func unusedWrite(_ uint8) {
 }
