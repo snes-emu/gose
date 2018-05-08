@@ -1,15 +1,21 @@
 package utils
 
 // BoolToUint16 provides a conversion from bool to uint16
-var BoolToUint16 = map[bool]uint16{
-	true:  1,
-	false: 0,
+func BoolToUint16(f bool) uint16 {
+	if f {
+		return 1
+	}
+
+	return 0
 }
 
 // BoolToUint8 provides a conversion from bool to uint8
-var BoolToUint8 = map[bool]uint8{
-	true:  1,
-	false: 0,
+func BoolToUint8(f bool) uint8 {
+	if f {
+		return 1
+	}
+
+	return 0
 }
 
 func JoinUint32(LL uint8, MM uint8, HH uint8) uint32 {
