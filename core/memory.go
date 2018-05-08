@@ -143,26 +143,6 @@ func (memory *Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	default:
 		return 0x00
 	}
-
-	// switch memory.romType {
-	// case rom.LoROM:
-	// 	if K < 0x40 || (0x7F < K && K < 0xC0) {
-	// 		if offset < 0x2000 {
-	// 			return memory.wram[offset]
-	// 		} else if 0x2133 < offset && offset < 0x2140 {
-	// 			return memory.ppu.Registers[offset-0x2100](0)
-	// 		}
-	// 	} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
-	// 		return memory.sram[offset]
-	// 	} else if K > 0x7D && K < 0x80 {
-	// 		return memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)]
-	// 	} else if 0xFD < K && offset < 0x8000 {
-	// 		return memory.sram[offset]
-	// 	}
-	// 	return memory.main[K][offset]
-	// default:
-	// 	return 0x00
-	// }
 }
 
 //SetByte sets a byte by its complete address
@@ -184,21 +164,4 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	case sramRegion:
 		memory.sram[offset] = value
 	}
-
-	// switch memory.romType {
-	// case rom.LoROM:
-	// 	if K < 0x40 || (0x7F < K && K < 0xC0) {
-	// 		if offset < 0x2000 {
-	// 			memory.wram[offset] = value
-	// 		} else if 0x20FF < offset && offset < 0x2134 {
-	// 			memory.ppu.Registers[offset-0x2100](value)
-	// 		}
-	// 	} else if offset < 0x8000 && ((0x6F < K && K < 0x7E) || (0xEF < K && K < 0xFE)) {
-	// 		memory.sram[offset] = value
-	// 	} else if K > 0x7D && K < 0x80 {
-	// 		memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
-	// 	} else if 0xFD < K && offset < 0x8000 {
-	// 		memory.sram[offset] = value
-	// 	}
-	// }
 }
