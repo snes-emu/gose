@@ -11,7 +11,7 @@ func upperBits(x uint16) uint8 {
 }
 
 // getARegister returns the lower 8 bits of the accumulator
-func (cpu CPU) getARegister() uint8 {
+func (cpu *CPU) getARegister() uint8 {
 	return lowerBits(cpu.C)
 }
 
@@ -21,7 +21,7 @@ func (cpu *CPU) setARegister(a uint8) {
 }
 
 // getBRegister returns the upper 8 bits of the accumulator
-func (cpu CPU) getBRegister() uint8 {
+func (cpu *CPU) getBRegister() uint8 {
 	return upperBits(cpu.C)
 }
 
@@ -31,7 +31,7 @@ func (cpu *CPU) setBRegister(b uint8) {
 }
 
 // getCRegister returns the 16 bits accumulator
-func (cpu CPU) getCRegister() uint16 {
+func (cpu *CPU) getCRegister() uint16 {
 	return cpu.C
 }
 
@@ -41,17 +41,17 @@ func (cpu *CPU) setCRegister(c uint16) {
 }
 
 // getDBRRegister returns the data bank register
-func (cpu CPU) getDBRRegister() uint8 {
+func (cpu *CPU) getDBRRegister() uint8 {
 	return cpu.DBR
 }
 
 // getDRegister returns the D register
-func (cpu CPU) getDRegister() uint16 {
+func (cpu *CPU) getDRegister() uint16 {
 	return cpu.D
 }
 
 // getDLRegister returns the lower 8 bits of the direct register
-func (cpu CPU) getDLRegister() uint8 {
+func (cpu *CPU) getDLRegister() uint8 {
 	return lowerBits(cpu.D)
 }
 
@@ -61,7 +61,7 @@ func (cpu *CPU) setDLRegister(d uint8) {
 }
 
 // getDHRegister returns the upper 8 bits of the direct register
-func (cpu CPU) getDHRegister() uint8 {
+func (cpu *CPU) getDHRegister() uint8 {
 	return upperBits(cpu.D)
 }
 
@@ -71,27 +71,27 @@ func (cpu *CPU) setDHRegister(d uint8) {
 }
 
 // getKRegister returns the program bank register
-func (cpu CPU) getKRegister() uint8 {
+func (cpu *CPU) getKRegister() uint8 {
 	return cpu.K
 }
 
 // getPCRegister returns the program counter
-func (cpu CPU) getPCRegister() uint16 {
+func (cpu *CPU) getPCRegister() uint16 {
 	return cpu.PC
 }
 
 // getPCLRegister returns the lower 8 bits of the program counter
-func (cpu CPU) getPCLRegister() uint8 {
+func (cpu *CPU) getPCLRegister() uint8 {
 	return lowerBits(cpu.PC)
 }
 
 // getPCHRegister returns the lower 8 bits of the program counter
-func (cpu CPU) getPCHRegister() uint8 {
+func (cpu *CPU) getPCHRegister() uint8 {
 	return upperBits(cpu.PC)
 }
 
 // getSRegister returns the stack pointer
-func (cpu CPU) getSRegister() uint16 {
+func (cpu *CPU) getSRegister() uint16 {
 	return cpu.S
 }
 
@@ -101,7 +101,7 @@ func (cpu *CPU) setSRegister(s uint16) {
 }
 
 // getSLRegister returns the lower 8 bits of the stack pointer
-func (cpu CPU) getSLRegister() uint8 {
+func (cpu *CPU) getSLRegister() uint8 {
 	return lowerBits(cpu.S)
 }
 
@@ -111,7 +111,7 @@ func (cpu *CPU) setSLRegister(s uint8) {
 }
 
 // getSHRegister returns the upper 8 bits of the stack pointer
-func (cpu CPU) getSHRegister() uint8 {
+func (cpu *CPU) getSHRegister() uint8 {
 	return upperBits(cpu.S)
 }
 
@@ -121,7 +121,7 @@ func (cpu *CPU) setSHRegister(s uint8) {
 }
 
 // getXRegister returns the X index register
-func (cpu CPU) getXRegister() uint16 {
+func (cpu *CPU) getXRegister() uint16 {
 	return cpu.X
 }
 
@@ -131,7 +131,7 @@ func (cpu *CPU) setXRegister(x uint16) {
 }
 
 // getXLRegister returns the lower 8 bits of the X index register
-func (cpu CPU) getXLRegister() uint8 {
+func (cpu *CPU) getXLRegister() uint8 {
 	return lowerBits(cpu.X)
 }
 
@@ -141,7 +141,7 @@ func (cpu *CPU) setXLRegister(x uint8) {
 }
 
 // getXHRegister returns the upper 8 bits of the X index register
-func (cpu CPU) getXHRegister() uint8 {
+func (cpu *CPU) getXHRegister() uint8 {
 	return upperBits(cpu.X)
 }
 
@@ -151,7 +151,7 @@ func (cpu *CPU) setXHRegister(x uint8) {
 }
 
 // getYRegister returns the Y index register
-func (cpu CPU) getYRegister() uint16 {
+func (cpu *CPU) getYRegister() uint16 {
 	return cpu.Y
 }
 
@@ -161,7 +161,7 @@ func (cpu *CPU) setYRegister(y uint16) {
 }
 
 // getYLRegister returns the lower 8 bits of the Y indey register
-func (cpu CPU) getYLRegister() uint8 {
+func (cpu *CPU) getYLRegister() uint8 {
 	return lowerBits(cpu.Y)
 }
 
@@ -171,7 +171,7 @@ func (cpu *CPU) setYLRegister(y uint8) {
 }
 
 // getYHRegister returns the upper 8 bits of the Y indey register
-func (cpu CPU) getYHRegister() uint8 {
+func (cpu *CPU) getYHRegister() uint8 {
 	return upperBits(cpu.Y)
 }
 
