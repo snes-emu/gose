@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/utils"
 )
 
@@ -36,8 +37,8 @@ type CPU struct {
 	opcodes [256]cpuOperation
 	// CPU registers
 	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
-	Registers   [0x37f]func(uint8) uint8
-	dmaChannels [8]*dmaChannel
+	dmaRegisters [0x37f]*io.Register
+	dmaChannels  [8]*dmaChannel
 }
 
 type cpuOperation func()
