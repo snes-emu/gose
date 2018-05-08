@@ -121,14 +121,14 @@ func (memory *Memory) initMmap() {
 }
 
 //GetByte gets a byte by its complete address
-func (memory Memory) GetByte(index uint32) uint8 {
+func (memory *Memory) GetByte(index uint32) uint8 {
 	K := index >> 16
 	offset := index & offsetMask
 	return memory.GetByteBank(uint8(K), uint16(offset))
 }
 
 //GetByteBank gets a byte by memory bank and offset
-func (memory Memory) GetByteBank(K uint8, offset uint16) uint8 {
+func (memory *Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	switch memory.mmap[uint16(K)<<4|offset>>12] {
 	case lowWramRegion:
 		return memory.wram[offset]
