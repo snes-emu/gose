@@ -57,7 +57,7 @@ func ParseROM(data []byte) (*ROM, error) {
 }
 
 // isLo checks if the ROM is of type LoROM
-func (rom ROM) isLo() bool {
+func (rom *ROM) isLo() bool {
 	for _, c := range rom.Data[0x7fc0:0x7fd4] {
 		// check if all chars are ascii characters
 		if c > 0x7f || c < 0x1f {
