@@ -16,7 +16,7 @@ type vram struct {
 }
 
 // getvram.addr returns the vram addr performing the address translation
-func (ppu PPU) getvramAddr() uint16 {
+func (ppu *PPU) getvramAddr() uint16 {
 	switch ppu.vram.addrMapping {
 	case 0x0:
 		// No remapping
