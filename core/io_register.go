@@ -168,26 +168,22 @@ func (cpu *CPU) rdio() uint8 {
 
 // 0x4214 - RDDIVL  - Unsigned Division Result (Quotient) (lower 8bit)  (R)
 func (cpu *CPU) rddivl() uint8 {
-	// TODO
-	return 0
+	return cpu.ioMemory[0x214]
 }
 
 // 0x4215 - RDDIVH  - Unsigned Division Result (Quotient) (upper 8bit) (R)
 func (cpu *CPU) rddivh() uint8 {
-	// TODO
-	return 0
+	return cpu.ioMemory[0x215]
 }
 
 // 0x4216 - RDMPYL  - Unsigned Division Remainder / Multiply Product (lower 8bit) (R)
 func (cpu *CPU) rdmpyl() uint8 {
-	// TODO
-	return 0
+	return cpu.ioMemory[0x216]
 }
 
 // 0x4217 - RDMPYH  - Unsigned Division Remainder / Multiply Product (upper 8bit) (R)
 func (cpu *CPU) rdmpyh() uint8 {
-	// TODO
-	return 0
+	return cpu.ioMemory[0x217]
 }
 
 // 0x4218 - JOY1L   - Joypad 1 (gameport 1, pin 4) (lower 8bit) (R)
