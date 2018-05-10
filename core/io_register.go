@@ -1,6 +1,9 @@
 package core
 
-import "github.com/snes-emu/gose/io"
+import (
+	"github.com/snes-emu/gose/io"
+	"github.com/snes-emu/gose/utils"
+)
 
 func (cpu *CPU) initIORegisters() {
 	cpu.registerIORegisters()
@@ -67,27 +70,51 @@ func (cpu *CPU) wrio(data uint8) {
 
 // 0x4202 - WRMPYA  - Set unsigned 8bit Multiplicand (W)
 func (cpu *CPU) wrmpya(data uint8) {
-	// TODO
+	cpu.ioMemory[0x202] = data
 }
 
 // 0x4203 - WRMPYB  - Set unsigned 8bit Multiplier and Start Multiplication (W)
 func (cpu *CPU) wrmpyb(data uint8) {
-	// TODO
+	mult := uint(cpu.ioMemory[0x202]) * uint(data)
+	ll, hh := utils.SplitUint16(uint16(mult))
+	cpu.ioMemory[0x216] = ll
+	cpu.ioMemory[0x217] = hh
+
+	// also mutates rddivl and rddivh
+	cpu.ioMemory[0x214] = data
+	cpu.ioMemory[0x215] = 0x00
 }
 
 // 0x4204 - WRDIVL  - Set unsigned 16bit Dividend (lower 8bit) (W)
 func (cpu *CPU) wrdivl(data uint8) {
-	// TODO
+	cpu.ioMemory[0x204] = data
 }
 
 // 0x4205 - WRDIVH - Set unsigned 16bit Dividend (upper 8bit) (W)
 func (cpu *CPU) wrdivh(data uint8) {
-	// TODO
+	cpu.ioMemory[0x205] = data
 }
 
 // 0x4206 - WRDIVB  - Set unsigned 8bit Divisor and Start Division (W)
 func (cpu *CPU) wrdivb(data uint8) {
-	// TODO
+	divisor := uint16(data)
+	dividend := utils.JoinUint16(cpu.ioMemory[0x204], cpu.ioMemory[0x205])
+
+	quotient := uint16(0xffff)
+	remainder := dividend
+
+	if data != 0 {
+		quotient = uint16(dividend / divisor)
+		remainder = dividend % divisor
+	}
+
+	llq, hhq := utils.SplitUint16(quotient)
+	cpu.ioMemory[0x214] = llq
+	cpu.ioMemory[0x215] = hhq
+
+	llr, hhr := utils.SplitUint16(remainder)
+	cpu.ioMemory[0x216] = llr
+	cpu.ioMemory[0x217] = hhr
 }
 
 // 0x4207 - HTIMEL  - H-Count Timer Setting (lower 8bits) (W)
