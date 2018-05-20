@@ -5,6 +5,10 @@ import (
 	"github.com/snes-emu/gose/utils"
 )
 
+type ioMemory struct {
+	bytes [0x380]uint8 // Raw bytes
+}
+
 func (cpu *CPU) initIORegisters() {
 	cpu.registerIORegisters()
 }
@@ -70,35 +74,35 @@ func (cpu *CPU) wrio(data uint8) {
 
 // 0x4202 - WRMPYA  - Set unsigned 8bit Multiplicand (W)
 func (cpu *CPU) wrmpya(data uint8) {
-	cpu.ioMemory[0x202] = data
+	cpu.ioMemory.bytes[0x202] = data
 }
 
 // 0x4203 - WRMPYB  - Set unsigned 8bit Multiplier and Start Multiplication (W)
 func (cpu *CPU) wrmpyb(data uint8) {
-	mult := uint(cpu.ioMemory[0x202]) * uint(data)
+	mult := uint(cpu.ioMemory.bytes[0x202]) * uint(data)
 	ll, hh := utils.SplitUint16(uint16(mult))
-	cpu.ioMemory[0x216] = ll
-	cpu.ioMemory[0x217] = hh
+	cpu.ioMemory.bytes[0x216] = ll
+	cpu.ioMemory.bytes[0x217] = hh
 
 	// also mutates rddivl and rddivh
-	cpu.ioMemory[0x214] = data
-	cpu.ioMemory[0x215] = 0x00
+	cpu.ioMemory.bytes[0x214] = data
+	cpu.ioMemory.bytes[0x215] = 0x00
 }
 
 // 0x4204 - WRDIVL  - Set unsigned 16bit Dividend (lower 8bit) (W)
 func (cpu *CPU) wrdivl(data uint8) {
-	cpu.ioMemory[0x204] = data
+	cpu.ioMemory.bytes[0x204] = data
 }
 
 // 0x4205 - WRDIVH - Set unsigned 16bit Dividend (upper 8bit) (W)
 func (cpu *CPU) wrdivh(data uint8) {
-	cpu.ioMemory[0x205] = data
+	cpu.ioMemory.bytes[0x205] = data
 }
 
 // 0x4206 - WRDIVB  - Set unsigned 8bit Divisor and Start Division (W)
 func (cpu *CPU) wrdivb(data uint8) {
 	divisor := uint16(data)
-	dividend := utils.JoinUint16(cpu.ioMemory[0x204], cpu.ioMemory[0x205])
+	dividend := utils.JoinUint16(cpu.ioMemory.bytes[0x204], cpu.ioMemory.bytes[0x205])
 
 	quotient := uint16(0xffff)
 	remainder := dividend
@@ -109,12 +113,12 @@ func (cpu *CPU) wrdivb(data uint8) {
 	}
 
 	llq, hhq := utils.SplitUint16(quotient)
-	cpu.ioMemory[0x214] = llq
-	cpu.ioMemory[0x215] = hhq
+	cpu.ioMemory.bytes[0x214] = llq
+	cpu.ioMemory.bytes[0x215] = hhq
 
 	llr, hhr := utils.SplitUint16(remainder)
-	cpu.ioMemory[0x216] = llr
-	cpu.ioMemory[0x217] = hhr
+	cpu.ioMemory.bytes[0x216] = llr
+	cpu.ioMemory.bytes[0x217] = hhr
 }
 
 // 0x4207 - HTIMEL  - H-Count Timer Setting (lower 8bits) (W)
@@ -168,22 +172,22 @@ func (cpu *CPU) rdio() uint8 {
 
 // 0x4214 - RDDIVL  - Unsigned Division Result (Quotient) (lower 8bit)  (R)
 func (cpu *CPU) rddivl() uint8 {
-	return cpu.ioMemory[0x214]
+	return cpu.ioMemory.bytes[0x214]
 }
 
 // 0x4215 - RDDIVH  - Unsigned Division Result (Quotient) (upper 8bit) (R)
 func (cpu *CPU) rddivh() uint8 {
-	return cpu.ioMemory[0x215]
+	return cpu.ioMemory.bytes[0x215]
 }
 
 // 0x4216 - RDMPYL  - Unsigned Division Remainder / Multiply Product (lower 8bit) (R)
 func (cpu *CPU) rdmpyl() uint8 {
-	return cpu.ioMemory[0x216]
+	return cpu.ioMemory.bytes[0x216]
 }
 
 // 0x4217 - RDMPYH  - Unsigned Division Remainder / Multiply Product (upper 8bit) (R)
 func (cpu *CPU) rdmpyh() uint8 {
-	return cpu.ioMemory[0x217]
+	return cpu.ioMemory.bytes[0x217]
 }
 
 // 0x4218 - JOY1L   - Joypad 1 (gameport 1, pin 4) (lower 8bit) (R)
