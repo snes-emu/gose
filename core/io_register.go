@@ -6,7 +6,10 @@ import (
 )
 
 type ioMemory struct {
-	bytes [0x380]uint8 // Raw bytes
+	bytes   [0x380]uint8 // Raw bytes
+	hirqPos uint16       // Horizontal IRQ position
+	virqPos uint16       // Vertical IRQ position
+	irqFlag bool         // IRQ Flag used in TIMEUP
 }
 
 func (cpu *CPU) initIORegisters() {
@@ -123,22 +126,22 @@ func (cpu *CPU) wrdivb(data uint8) {
 
 // 0x4207 - HTIMEL  - H-Count Timer Setting (lower 8bits) (W)
 func (cpu *CPU) htimel(data uint8) {
-	// TODO
+	cpu.ioMemory.hirqPos = (cpu.ioMemory.hirqPos & 0xff00) | uint16(data)
 }
 
 // 0x4208 - H0xTIME  - H-Count Timer Setting (upper 1bit) (W)
 func (cpu *CPU) h0xtime(data uint8) {
-	// TODO
+	cpu.ioMemory.hirqPos = (cpu.ioMemory.hirqPos & 0xff00) | ((uint16(data) << 8) & 0x100)
 }
 
 // 0x4209 - VTIMEL  - V-Count Timer Setting (lower 8bits) (W)
 func (cpu *CPU) vtimel(data uint8) {
-	// TODO
+	cpu.ioMemory.virqPos = (cpu.ioMemory.virqPos & 0xff00) | uint16(data)
 }
 
 // 0x420A - V0xTIME  - V-Count Timer Setting (upper 1bit) (W)
 func (cpu *CPU) v0xtime(data uint8) {
-	// TODO
+	cpu.ioMemory.virqPos = (cpu.ioMemory.virqPos & 0xff00) | ((uint16(data) << 8) & 0x100)
 }
 
 // 0x420D - MEMSEL  - Memory-2 Waitstate Control (W)
@@ -148,20 +151,41 @@ func (cpu *CPU) memsel(data uint8) {
 
 // 0x4210 - RDNMI   - V-Blank NMI Flag and CPU Version Number (Read/Ack) (R)
 func (cpu *CPU) rdnmi() uint8 {
-	// TODO
-	return 0
+	// TODO: maybe the version is not correct there
+	version := uint8(2)
+	return (cpu.ioMemory.bytes[0x210]&0x80 | version)
 }
 
 // 0x4211 - TIMEUP  - H/V-Timer IRQ Flag (Read/Ack)  (R)
 func (cpu *CPU) timeup() uint8 {
-	// TODO
-	return 0
+	var res uint8
+
+	if cpu.ioMemory.irqFlag {
+		res = 0x80
+		cpu.ioMemory.irqFlag = false
+	}
+
+	return res
 }
 
 // 0x4212 - HVBJOY  - H/V-Blank flag and Joypad Busy flag (R) (R)
 func (cpu *CPU) hvbjoy() uint8 {
-	// TODO
-	return 0
+	// TODO: bit 0 of res should be used there !!! see documentation for further information
+	var res uint8
+
+	// HBlank
+	hc := cpu.ppu.HCounter()
+
+	if hc < HBLANKEND || hc > HBLANKSTART {
+		res |= 0x40
+	}
+
+	// VBlank
+	if cpu.ppu.VCounter() > cpu.ppu.VDisplay() {
+		res |= 0x80
+	}
+
+	return res
 }
 
 // 0x4213 - RDIO    - Joypad Programmable I/O Port (Input)  (R)

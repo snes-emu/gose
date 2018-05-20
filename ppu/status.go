@@ -16,6 +16,14 @@ type status struct {
 	interlaceFrame bool   // Interlace mode current frame
 }
 
+func (ppu *PPU) HCounter() uint16 {
+	return ppu.hCounter
+}
+
+func (ppu *PPU) VCounter() uint16 {
+	return ppu.vCounter
+}
+
 func (ppu *PPU) latchCounter() {
 	//TODO check if bit 7 of $4201 is set before latching
 	ppu.status.hCounterLatch = ppu.hCounter

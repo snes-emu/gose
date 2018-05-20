@@ -11,6 +11,13 @@ type display struct {
 	ExtSynchro  bool  // usually 0, used with sfx chip
 }
 
+func (ppu *PPU) VDisplay() uint16 {
+	if ppu.display.bgVDisplay {
+		return 239
+	}
+	return 224
+}
+
 // 2100h - INIDISP - Display Control 1 (W)
 func (ppu *PPU) inidisp(data uint8) {
 	ppu.display.brightness = data & 0x0F
