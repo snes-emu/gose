@@ -7,6 +7,8 @@ import (
 	"syscall"
 
 	"github.com/snes-emu/gose/bit"
+	"github.com/snes-emu/gose/ppu"
+
 	"github.com/snes-emu/gose/io"
 )
 
@@ -34,6 +36,7 @@ type CPU struct {
 	cycles  uint16 // Number of cycles
 	waiting bool   // CPU Waiting mode (from operation wai)
 	memory  *Memory
+	ppu     *ppu.PPU
 	opcodes [256]cpuOperation
 	// CPU io registers
 	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
