@@ -22,6 +22,8 @@ func New() *Emulator {
 	mem := newMemory()
 	cpu := newCPU(mem)
 
+	cpu.ppu = ppu
+
 	mem.cpu = cpu
 	mem.ppu = ppu
 	mem.apu = apu
