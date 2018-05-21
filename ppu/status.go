@@ -1,5 +1,9 @@
 package ppu
 
+import (
+	"github.com/snes-emu/gose/utils"
+)
+
 type status struct {
 	hCounterLatch  uint16 // Stores the h counter when latched is performed
 	vCounterLatch  uint16 // Stores the v counter when latched is performed
@@ -29,7 +33,7 @@ func (ppu *PPU) slhv() uint8 {
 func (ppu *PPU) ophct() uint8 {
 	var result uint8
 	if ppu.status.ophctFlip {
-		result = uint8(ppu.status.hCounterLatch >> 8)
+		result = utils.HighByte(ppu.status.hCounterLatch)
 	} else {
 		result = uint8(ppu.status.hCounterLatch)
 	}
@@ -41,7 +45,7 @@ func (ppu *PPU) ophct() uint8 {
 func (ppu *PPU) opvct() uint8 {
 	var result uint8
 	if ppu.status.opvctFlip {
-		result = uint8(ppu.status.vCounterLatch >> 8)
+		result = utils.HighByte(ppu.status.vCounterLatch)
 	} else {
 		result = uint8(ppu.status.vCounterLatch)
 	}

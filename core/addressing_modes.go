@@ -360,7 +360,7 @@ func (cpu *CPU) admRelative8() uint16 {
 func (cpu *CPU) admRelative16() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
-	return uint16(LL) + uint16(HH)<<8
+	return utils.JoinUint16(LL, HH)
 }
 
 // SOURCE,DESTINATION addressing mode
