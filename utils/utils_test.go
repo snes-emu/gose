@@ -121,3 +121,121 @@ func TestSplitUint32(t *testing.T) {
 		}
 	}
 }
+
+func TestLowByte(t *testing.T) {
+
+	testCases := []struct {
+		data   uint16
+		result uint8
+	}{
+		{
+			0xabcd, 0xcd,
+		},
+		{
+			0x0001, 0x01,
+		},
+		{
+			0x0000, 0x00,
+		},
+		{
+			0xffaf, 0xaf,
+		},
+	}
+
+	for i, tc := range testCases {
+		res := LowByte(tc.data)
+
+		if res != tc.result {
+			t.Errorf("Test n°%v failed, got (%v), expected (%v)", i, res, tc.result)
+		}
+	}
+}
+
+func TestHighByte(t *testing.T) {
+
+	testCases := []struct {
+		data   uint16
+		result uint8
+	}{
+		{
+			0xabcd, 0xab,
+		},
+		{
+			0x0001, 0x00,
+		},
+		{
+			0x0000, 0x00,
+		},
+		{
+			0xffaf, 0xff,
+		},
+	}
+
+	for i, tc := range testCases {
+		res := HighByte(tc.data)
+
+		if res != tc.result {
+			t.Errorf("Test n°%v failed, got (%v), expected (%v)", i, res, tc.result)
+		}
+	}
+}
+
+func TestSetHighByte(t *testing.T) {
+
+	testCases := []struct {
+		data   uint16
+		hh     uint8
+		result uint16
+	}{
+		{
+			0xabcd, 0x00, 0x00cd,
+		},
+		{
+			0x0001, 0xff, 0xff01,
+		},
+		{
+			0x0000, 0x1a, 0x1a00,
+		},
+		{
+			0xffaf, 0xff, 0xffaf,
+		},
+	}
+
+	for i, tc := range testCases {
+		res := SetHighByte(tc.data, tc.hh)
+
+		if res != tc.result {
+			t.Errorf("Test n°%v failed, got (%v), expected (%v)", i, res, tc.result)
+		}
+	}
+}
+
+func TestSetLowByte(t *testing.T) {
+
+	testCases := []struct {
+		data   uint16
+		ll     uint8
+		result uint16
+	}{
+		{
+			0xabcd, 0x00, 0xab00,
+		},
+		{
+			0x0001, 0xff, 0x00ff,
+		},
+		{
+			0x0000, 0x1a, 0x001a,
+		},
+		{
+			0xffaf, 0xaf, 0xffaf,
+		},
+	}
+
+	for i, tc := range testCases {
+		res := SetLowByte(tc.data, tc.ll)
+
+		if res != tc.result {
+			t.Errorf("Test n°%v failed, got (%v), expected (%v)", i, res, tc.result)
+		}
+	}
+}
