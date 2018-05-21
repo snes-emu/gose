@@ -1,25 +1,25 @@
 package core
 
-import "github.com/snes-emu/gose/utils"
+import "github.com/snes-emu/gose/bit"
 
 // getARegister returns the lower 8 bits of the accumulator
 func (cpu *CPU) getARegister() uint8 {
-	return utils.LowByte(cpu.C)
+	return bit.LowByte(cpu.C)
 }
 
 // setARegister sets the lower 8 bits of the accumulator
 func (cpu *CPU) setARegister(a uint8) {
-	cpu.C = utils.SetLowByte(cpu.C, a)
+	cpu.C = bit.SetLowByte(cpu.C, a)
 }
 
 // getBRegister returns the upper 8 bits of the accumulator
 func (cpu *CPU) getBRegister() uint8 {
-	return utils.HighByte(cpu.C)
+	return bit.HighByte(cpu.C)
 }
 
 // setBRegister sets the upper 8 bits of the accumulator
 func (cpu *CPU) setBRegister(b uint8) {
-	cpu.C = utils.SetHighByte(cpu.C, b)
+	cpu.C = bit.SetHighByte(cpu.C, b)
 }
 
 // getCRegister returns the 16 bits accumulator
@@ -44,22 +44,22 @@ func (cpu *CPU) getDRegister() uint16 {
 
 // getDLRegister returns the lower 8 bits of the direct register
 func (cpu *CPU) getDLRegister() uint8 {
-	return utils.LowByte(cpu.D)
+	return bit.LowByte(cpu.D)
 }
 
 // setDLRegister sets the lower 8 bits of the direct register
 func (cpu *CPU) setDLRegister(d uint8) {
-	cpu.D = utils.SetLowByte(cpu.D, d)
+	cpu.D = bit.SetLowByte(cpu.D, d)
 }
 
 // getDHRegister returns the upper 8 bits of the direct register
 func (cpu *CPU) getDHRegister() uint8 {
-	return utils.HighByte(cpu.D)
+	return bit.HighByte(cpu.D)
 }
 
 // setDHRegister sets the upper 8 bits of the direct register
 func (cpu *CPU) setDHRegister(d uint8) {
-	cpu.D = utils.SetHighByte(cpu.D, d)
+	cpu.D = bit.SetHighByte(cpu.D, d)
 }
 
 // getKRegister returns the program bank register
@@ -74,12 +74,12 @@ func (cpu *CPU) getPCRegister() uint16 {
 
 // getPCLRegister returns the lower 8 bits of the program counter
 func (cpu *CPU) getPCLRegister() uint8 {
-	return utils.LowByte(cpu.PC)
+	return bit.LowByte(cpu.PC)
 }
 
 // getPCHRegister returns the lower 8 bits of the program counter
 func (cpu *CPU) getPCHRegister() uint8 {
-	return utils.HighByte(cpu.PC)
+	return bit.HighByte(cpu.PC)
 }
 
 // getSRegister returns the stack pointer
@@ -94,22 +94,22 @@ func (cpu *CPU) setSRegister(s uint16) {
 
 // getSLRegister returns the lower 8 bits of the stack pointer
 func (cpu *CPU) getSLRegister() uint8 {
-	return utils.LowByte(cpu.S)
+	return bit.LowByte(cpu.S)
 }
 
 // setSLRegister sets the lower 8 bits of the stack pointer
 func (cpu *CPU) setSLRegister(s uint8) {
-	cpu.S = utils.SetLowByte(cpu.S, s)
+	cpu.S = bit.SetLowByte(cpu.S, s)
 }
 
 // getSHRegister returns the upper 8 bits of the stack pointer
 func (cpu *CPU) getSHRegister() uint8 {
-	return utils.HighByte(cpu.S)
+	return bit.HighByte(cpu.S)
 }
 
 // setSHRegister sets the upper 8 bits of the stack pointer
 func (cpu *CPU) setSHRegister(s uint8) {
-	cpu.S = utils.SetHighByte(cpu.S, s)
+	cpu.S = bit.SetHighByte(cpu.S, s)
 }
 
 // getXRegister returns the X index register
@@ -124,7 +124,7 @@ func (cpu *CPU) setXRegister(x uint16) {
 
 // getXLRegister returns the lower 8 bits of the X index register
 func (cpu *CPU) getXLRegister() uint8 {
-	return utils.LowByte(cpu.X)
+	return bit.LowByte(cpu.X)
 }
 
 // setXLRegister sets the lower 8 bits of the X register
@@ -134,12 +134,12 @@ func (cpu *CPU) setXLRegister(x uint8) {
 
 // getXHRegister returns the upper 8 bits of the X index register
 func (cpu *CPU) getXHRegister() uint8 {
-	return utils.HighByte(cpu.X)
+	return bit.HighByte(cpu.X)
 }
 
 // setXHRegister sets the upper 8 bits of the X register
 func (cpu *CPU) setXHRegister(x uint8) {
-	cpu.X = utils.SetHighByte(cpu.X, x)
+	cpu.X = bit.SetHighByte(cpu.X, x)
 }
 
 // getYRegister returns the Y index register
@@ -154,7 +154,7 @@ func (cpu *CPU) setYRegister(y uint16) {
 
 // getYLRegister returns the lower 8 bits of the Y indey register
 func (cpu *CPU) getYLRegister() uint8 {
-	return utils.LowByte(cpu.Y)
+	return bit.LowByte(cpu.Y)
 }
 
 // setYLRegister sets the lower 8 bits of the Y register
@@ -164,12 +164,12 @@ func (cpu *CPU) setYLRegister(y uint8) {
 
 // getYHRegister returns the upper 8 bits of the Y indey register
 func (cpu *CPU) getYHRegister() uint8 {
-	return utils.HighByte(cpu.Y)
+	return bit.HighByte(cpu.Y)
 }
 
 // setYHRegister sets the upper 8 bits of the Y register
 func (cpu *CPU) setYHRegister(y uint8) {
-	cpu.Y = utils.SetHighByte(cpu.Y, y)
+	cpu.Y = bit.SetHighByte(cpu.Y, y)
 }
 
 // setXFlag sets the x flag and take care of the reset of X and Y higher bits

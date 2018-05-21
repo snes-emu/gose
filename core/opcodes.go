@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/snes-emu/gose/utils"
+	"github.com/snes-emu/gose/bit"
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 )
 
 func (cpu *CPU) abort() {
-	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := bit.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -27,7 +27,7 @@ func (cpu *CPU) abort() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, abortEmulationVector)
 		addressHi := cpu.memory.GetByteBank(0x00, abortEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -36,7 +36,7 @@ func (cpu *CPU) abort() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, abortNativeVector)
 		addressHi := cpu.memory.GetByteBank(0x00, abortNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -44,7 +44,7 @@ func (cpu *CPU) abort() {
 }
 
 func (cpu *CPU) nmi() {
-	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := bit.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -52,7 +52,7 @@ func (cpu *CPU) nmi() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, nmiEmulationVector)
 		addressHi := cpu.memory.GetByteBank(0x00, nmiEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -61,7 +61,7 @@ func (cpu *CPU) nmi() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, nmiNativeVector)
 		addressHi := cpu.memory.GetByteBank(0x00, nmiNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -75,14 +75,14 @@ func (cpu *CPU) reset() {
 	cpu.K = 0x00
 	addressLo := cpu.memory.GetByteBank(0x00, resetEmulationVector)
 	addressHi := cpu.memory.GetByteBank(0x00, resetEmulationVector+1)
-	cpu.PC = utils.JoinUint16(addressLo, addressHi)
+	cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	cpu.dFlag = false
 	cpu.iFlag = true
 
 }
 
 func (cpu *CPU) irq() {
-	addressLo, addressHi := utils.SplitUint16(cpu.getPCRegister())
+	addressLo, addressHi := bit.SplitUint16(cpu.getPCRegister())
 	if cpu.eFlag {
 		cpu.pushStack(addressHi)
 		cpu.pushStack(addressLo)
@@ -90,7 +90,7 @@ func (cpu *CPU) irq() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, irqEmulationVector)
 		addressHi := cpu.memory.GetByteBank(0x00, irqEmulationVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(addressHi)
@@ -99,7 +99,7 @@ func (cpu *CPU) irq() {
 		cpu.K = 0x00
 		addressLo := cpu.memory.GetByteBank(0x00, irqNativeVector)
 		addressHi := cpu.memory.GetByteBank(0x00, irqNativeVector+1)
-		cpu.PC = utils.JoinUint16(addressLo, addressHi)
+		cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
@@ -141,48 +141,48 @@ func (cpu *CPU) bit(dataLo, dataHi uint8, isImmediate bool) {
 	if cpu.mFlag {
 		cpu.bit8(dataLo, isImmediate)
 	} else {
-		cpu.bit16(utils.JoinUint16(dataLo, dataHi), isImmediate)
+		cpu.bit16(bit.JoinUint16(dataLo, dataHi), isImmediate)
 	}
 }
 
 func (cpu *CPU) op24() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.bit(dataLo, dataHi, false)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op2C() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.bit(dataLo, dataHi, false)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op34() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.bit(dataLo, dataHi, false)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op3C() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.bit(dataLo, dataHi, false)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op89() {
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.bit(dataLo, dataHi, true)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) branch(cond bool, offset uint16) {
-	cpu.step(2 + utils.BoolToUint16(cond) + utils.BoolToUint16(cond)*utils.BoolToUint16(cpu.eFlag)*utils.BoolToUint16(cpu.pFlag))
-	cpu.PC += offset*utils.BoolToUint16(cond) + 2
+	cpu.step(2 + bit.BoolToUint16(cond) + bit.BoolToUint16(cond)*bit.BoolToUint16(cpu.eFlag)*bit.BoolToUint16(cpu.pFlag))
+	cpu.PC += offset*bit.BoolToUint16(cond) + 2
 }
 
 func (cpu *CPU) bcc(offset uint16) {
@@ -234,7 +234,7 @@ func (cpu *CPU) op10() {
 }
 
 func (cpu *CPU) bra(offset uint16) {
-	cpu.step(3 + utils.BoolToUint16(cpu.eFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(3 + bit.BoolToUint16(cpu.eFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += offset + 2
 }
 
@@ -273,11 +273,11 @@ func (cpu *CPU) adc16(data uint16) uint16 {
 	if cpu.dFlag {
 		// Decimal mode on -> BCD arithmetic used
 		panic("TODO, d flag in adc needs to be implemented")
-		//result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + utils.BoolToUint16(cpu.cFlag) + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
+		//result = (cpu.getCRegister() & 0x000f) + (data & 0x000f) + bit.BoolToUint16(cpu.cFlag) + (cpu.getCRegister() & 0x00f0) + (data & 0x00f0) + (cpu.C & 0x0f00) + (data & 0x0f00) + (cpu.getCRegister() & 0xf000) + (data & 0xf000)
 
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getCRegister() + data + utils.BoolToUint16(cpu.cFlag)
+		result = cpu.getCRegister() + data + bit.BoolToUint16(cpu.cFlag)
 		// Last bit value
 		cpu.nFlag = result&0x8000 != 0
 		// Signed artihmetic overflow
@@ -299,7 +299,7 @@ func (cpu *CPU) adc8(data uint8) uint8 {
 		panic("TODO, d flag in adc needs to be implemented")
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getARegister() + data + utils.BoolToUint8(cpu.cFlag)
+		result = cpu.getARegister() + data + bit.BoolToUint8(cpu.cFlag)
 		// Last bit value
 		cpu.nFlag = result&0x80 != 0
 		// Signed artihmetic overflow
@@ -318,7 +318,7 @@ func (cpu *CPU) adc(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.adc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.adc16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.adc16(bit.JoinUint16(dataLo, dataHi)))
 	}
 }
 
@@ -326,7 +326,7 @@ func (cpu *CPU) op61() {
 
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -334,7 +334,7 @@ func (cpu *CPU) op63() {
 
 	dataLo, dataHi := cpu.admStackS()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -342,7 +342,7 @@ func (cpu *CPU) op65() {
 
 	dataLo, dataHi := cpu.admDirect()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -350,7 +350,7 @@ func (cpu *CPU) op67() {
 
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -358,15 +358,15 @@ func (cpu *CPU) op69() {
 
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) op6D() {
 
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -374,7 +374,7 @@ func (cpu *CPU) op6F() {
 
 	dataLo, dataHi := cpu.admLong()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -382,7 +382,7 @@ func (cpu *CPU) op71() {
 
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
@@ -391,7 +391,7 @@ func (cpu *CPU) op72() {
 
 	cpu.adc(dataLo, dataHi)
 
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -399,7 +399,7 @@ func (cpu *CPU) op73() {
 
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -408,7 +408,7 @@ func (cpu *CPU) op75() {
 
 	cpu.adc(dataLo, dataHi)
 
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -416,7 +416,7 @@ func (cpu *CPU) op77() {
 
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -425,7 +425,7 @@ func (cpu *CPU) op79() {
 
 	cpu.adc(dataLo, dataHi)
 
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.mFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.mFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
@@ -433,14 +433,14 @@ func (cpu *CPU) op7D() {
 
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op7F() {
 	dataLo, dataHi := cpu.admLongX()
 	cpu.adc(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -453,7 +453,7 @@ func (cpu *CPU) sbc16(data uint16) uint16 {
 
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getCRegister() - data - 1 + utils.BoolToUint16(cpu.cFlag)
+		result = cpu.getCRegister() - data - 1 + bit.BoolToUint16(cpu.cFlag)
 		// Last bit value
 		cpu.nFlag = result&0x8000 != 0
 		// Signed artihmetic overflow
@@ -476,7 +476,7 @@ func (cpu *CPU) sbc8(data uint8) uint8 {
 
 	} else {
 		// Decimal mode off -> binary arithmetic used
-		result = cpu.getARegister() - data - 1 + utils.BoolToUint8(cpu.cFlag)
+		result = cpu.getARegister() - data - 1 + bit.BoolToUint8(cpu.cFlag)
 		// Last bit value
 		cpu.nFlag = result&0x80 != 0
 		// Signed artihmetic overflow
@@ -495,7 +495,7 @@ func (cpu *CPU) sbc(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.sbc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.sbc16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.sbc16(bit.JoinUint16(dataLo, dataHi)))
 	}
 }
 
@@ -503,7 +503,7 @@ func (cpu *CPU) opE1() {
 
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -511,7 +511,7 @@ func (cpu *CPU) opE3() {
 
 	dataLo, dataHi := cpu.admStackS()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -519,7 +519,7 @@ func (cpu *CPU) opE5() {
 
 	dataLo, dataHi := cpu.admDirect()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -527,7 +527,7 @@ func (cpu *CPU) opE7() {
 
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -535,15 +535,15 @@ func (cpu *CPU) opE9() {
 
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) opED() {
 
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -551,7 +551,7 @@ func (cpu *CPU) opEF() {
 
 	dataLo, dataHi := cpu.admLong()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -559,7 +559,7 @@ func (cpu *CPU) opF1() {
 
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
@@ -568,7 +568,7 @@ func (cpu *CPU) opF2() {
 
 	cpu.sbc(dataLo, dataHi)
 
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -576,7 +576,7 @@ func (cpu *CPU) opF3() {
 
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -585,7 +585,7 @@ func (cpu *CPU) opF5() {
 
 	cpu.sbc(dataLo, dataHi)
 
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -593,7 +593,7 @@ func (cpu *CPU) opF7() {
 
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -602,7 +602,7 @@ func (cpu *CPU) opF9() {
 
 	cpu.sbc(dataLo, dataHi)
 
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.mFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.mFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
@@ -610,7 +610,7 @@ func (cpu *CPU) opFD() {
 
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.sbc(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
@@ -619,7 +619,7 @@ func (cpu *CPU) opFF() {
 
 	cpu.sbc(dataLo, dataHi)
 
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -650,7 +650,7 @@ func (cpu *CPU) cmp(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.cmp8(dataLo)
 	} else {
-		cpu.cmp16(utils.JoinUint16(dataLo, dataHi))
+		cpu.cmp16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
@@ -658,7 +658,7 @@ func (cpu *CPU) opC1() {
 
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -666,7 +666,7 @@ func (cpu *CPU) opC3() {
 
 	dataLo, dataHi := cpu.admStackS()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -674,7 +674,7 @@ func (cpu *CPU) opC5() {
 
 	dataLo, dataHi := cpu.admDirect()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -682,7 +682,7 @@ func (cpu *CPU) opC7() {
 
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -690,15 +690,15 @@ func (cpu *CPU) opC9() {
 
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) opCD() {
 
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -706,7 +706,7 @@ func (cpu *CPU) opCF() {
 
 	dataLo, dataHi := cpu.admLong()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -714,7 +714,7 @@ func (cpu *CPU) opD1() {
 
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) + utils.BoolToUint16(cpu.xFlag)*(utils.BoolToUint16(cpu.pFlag)-1))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) + bit.BoolToUint16(cpu.xFlag)*(bit.BoolToUint16(cpu.pFlag)-1))
 	cpu.PC += 2
 }
 
@@ -722,7 +722,7 @@ func (cpu *CPU) opD2() {
 
 	dataLo, dataHi := cpu.admPDirect()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -730,7 +730,7 @@ func (cpu *CPU) opD3() {
 
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
@@ -738,7 +738,7 @@ func (cpu *CPU) opD5() {
 
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -746,7 +746,7 @@ func (cpu *CPU) opD7() {
 
 	dataLo, dataHi := cpu.admBDirectY()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -754,7 +754,7 @@ func (cpu *CPU) opD9() {
 
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.xFlag)*(utils.BoolToUint16(cpu.pFlag)-1))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.xFlag)*(bit.BoolToUint16(cpu.pFlag)-1))
 	cpu.PC += 3
 }
 
@@ -762,7 +762,7 @@ func (cpu *CPU) opDD() {
 
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.xFlag)*(utils.BoolToUint16(cpu.pFlag)-1))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.xFlag)*(bit.BoolToUint16(cpu.pFlag)-1))
 	cpu.PC += 3
 }
 
@@ -770,7 +770,7 @@ func (cpu *CPU) opDF() {
 
 	dataLo, dataHi := cpu.admLongX()
 	cpu.cmp(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -801,28 +801,28 @@ func (cpu *CPU) cpx(dataLo, dataHi uint8) {
 	if cpu.xFlag {
 		cpu.cpx8(dataLo)
 	} else {
-		cpu.cpx16(utils.JoinUint16(dataLo, dataHi))
+		cpu.cpx16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
 func (cpu *CPU) opE0() {
 	dataLo, dataHi := cpu.admImmediateX()
 	cpu.cpx(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.xFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.xFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.xFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.xFlag)
 }
 
 func (cpu *CPU) opE4() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.cpx(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opEC() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.cpx(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
@@ -853,28 +853,28 @@ func (cpu *CPU) cpy(dataLo, dataHi uint8) {
 	if cpu.xFlag {
 		cpu.cpy8(dataLo)
 	} else {
-		cpu.cpy16(utils.JoinUint16(dataLo, dataHi))
+		cpu.cpy16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
 func (cpu *CPU) opC0() {
 	dataLo, dataHi := cpu.admImmediateX()
 	cpu.cpy(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.xFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.xFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.xFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.xFlag)
 }
 
 func (cpu *CPU) opC4() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.cpy(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opCC() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.cpy(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
@@ -912,7 +912,7 @@ func (cpu *CPU) op3A() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.dec8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.dec16(bit.JoinUint16(dataLo, dataHi)))
 	}
 	cpu.step(2)
 	cpu.PC++
@@ -925,11 +925,11 @@ func (cpu *CPU) opC6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.dec16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -940,11 +940,11 @@ func (cpu *CPU) opCE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.dec16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -955,11 +955,11 @@ func (cpu *CPU) opD6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.dec16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -970,11 +970,11 @@ func (cpu *CPU) opDE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.dec8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.dec16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.dec16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -1052,7 +1052,7 @@ func (cpu *CPU) op1A() {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.inc8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.inc16(bit.JoinUint16(dataLo, dataHi)))
 	}
 	cpu.step(2)
 	cpu.PC++
@@ -1065,11 +1065,11 @@ func (cpu *CPU) opE6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.inc16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -1080,11 +1080,11 @@ func (cpu *CPU) opEE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.inc16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -1095,11 +1095,11 @@ func (cpu *CPU) opF6() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.inc16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -1110,11 +1110,11 @@ func (cpu *CPU) opFE() {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.inc8(dataLo), laddr)
 	} else {
-		resultLo, resultHi := utils.SplitUint16(cpu.inc16(utils.JoinUint16(dataLo, dataHi)))
+		resultLo, resultHi := bit.SplitUint16(cpu.inc16(bit.JoinUint16(dataLo, dataHi)))
 		cpu.memory.SetByte(resultHi, haddr)
 		cpu.memory.SetByte(resultLo, laddr)
 	}
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -1362,7 +1362,7 @@ func (cpu *CPU) opDC() {
 
 // jsl jumps to a subroutine long
 func (cpu *CPU) jsl(laddr uint16, haddr uint8) {
-	laddr2, haddr2 := utils.SplitUint16(cpu.getPCRegister() + 3)
+	laddr2, haddr2 := bit.SplitUint16(cpu.getPCRegister() + 3)
 	cpu.pushStackNew24(laddr2, haddr2, cpu.getKRegister())
 
 	cpu.jmpLong(laddr, haddr)
@@ -1376,7 +1376,7 @@ func (cpu *CPU) op22() {
 
 // jsr jumps to a subroutine
 func (cpu *CPU) jsr(addr uint16) {
-	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := bit.SplitUint16(cpu.getPCRegister() + 2)
 
 	cpu.pushStack(haddr)
 	cpu.pushStack(laddr)
@@ -1386,7 +1386,7 @@ func (cpu *CPU) jsr(addr uint16) {
 
 // jsr jumps to a subroutine for new addressing mode
 func (cpu *CPU) jsrNew(addr uint16) {
-	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := bit.SplitUint16(cpu.getPCRegister() + 2)
 
 	cpu.pushStackNew16(laddr, haddr)
 
@@ -1429,112 +1429,112 @@ func (cpu *CPU) lda(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.lda8(dataLo)
 	} else {
-		cpu.lda16(utils.JoinUint16(dataLo, dataHi))
+		cpu.lda16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
 func (cpu *CPU) opA1() {
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opA3() {
 	dataLo, dataHi := cpu.admStackS()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opA5() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opA7() {
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opA9() {
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) opAD() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opAF() {
 	dataLo, dataHi := cpu.admLong()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 func (cpu *CPU) opB1() {
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opB2() {
 	dataLo, dataHi := cpu.admPDirect()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opB3() {
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opB5() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opB7() {
 	dataLo, dataHi := cpu.admBDirectY()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opB9() {
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opBD() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opBF() {
 	dataLo, dataHi := cpu.admLongX()
 	cpu.lda(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -1563,42 +1563,42 @@ func (cpu *CPU) ldx(dataLo, dataHi uint8) {
 	if cpu.xFlag {
 		cpu.ldx8(dataLo)
 	} else {
-		cpu.ldx16(utils.JoinUint16(dataLo, dataHi))
+		cpu.ldx16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
 func (cpu *CPU) opA2() {
 	dataLo, dataHi := cpu.admImmediateX()
 	cpu.ldx(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.xFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.xFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.xFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.xFlag)
 }
 
 func (cpu *CPU) opA6() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.ldx(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opAE() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.ldx(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opB6() {
 	dataLo, dataHi := cpu.admDirectY()
 	cpu.ldx(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opBE() {
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.ldx(dataLo, dataHi)
-	cpu.step(6 - 2*utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - 2*bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
@@ -1627,49 +1627,49 @@ func (cpu *CPU) ldy(dataLo, dataHi uint8) {
 	if cpu.xFlag {
 		cpu.ldy8(dataLo)
 	} else {
-		cpu.ldy16(utils.JoinUint16(dataLo, dataHi))
+		cpu.ldy16(bit.JoinUint16(dataLo, dataHi))
 	}
 }
 
 func (cpu *CPU) opA0() {
 	dataLo, dataHi := cpu.admImmediateX()
 	cpu.ldy(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.xFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.xFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.xFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.xFlag)
 }
 
 func (cpu *CPU) opA4() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.ldy(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opAC() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.ldy(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) opB4() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.ldy(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) opBC() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.ldy(dataLo, dataHi)
-	cpu.step(6 - 2*utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - 2*bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 // sta16 stores the accumulator in the memory
 func (cpu *CPU) sta16(laddr, haddr uint32) {
 
-	dataLo, dataHi := utils.SplitUint16(cpu.getCRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getCRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -1693,105 +1693,105 @@ func (cpu *CPU) sta(laddr, haddr uint32) {
 func (cpu *CPU) op81() {
 	laddr, haddr := cpu.admPDirectXP()
 	cpu.sta(laddr, haddr)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op83() {
 	laddr, haddr := cpu.admStackSP()
 	cpu.sta(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op85() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.sta(laddr, haddr)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op87() {
 	laddr, haddr := cpu.admBDirectP()
 	cpu.sta(laddr, haddr)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op8D() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.sta(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op8F() {
 	laddr, haddr := cpu.admLongP()
 	cpu.sta(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 func (cpu *CPU) op91() {
 	laddr, haddr := cpu.admPDirectYP()
 	cpu.sta(laddr, haddr)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op92() {
 	laddr, haddr := cpu.admPDirectP()
 	cpu.sta(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op93() {
 	laddr, haddr := cpu.admPStackSYP()
 	cpu.sta(laddr, haddr)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op95() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.sta(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op97() {
 	laddr, haddr := cpu.admBDirectYP()
 	cpu.sta(laddr, haddr)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op99() {
 	laddr, haddr := cpu.admAbsoluteYP()
 	cpu.sta(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op9D() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.sta(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op9F() {
 	laddr, haddr := cpu.admLongXP()
 	cpu.sta(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 // stx16 stores the x register in the memory
 func (cpu *CPU) stx16(laddr, haddr uint32) {
 
-	dataLo, dataHi := utils.SplitUint16(cpu.getXRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getXRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -1815,28 +1815,28 @@ func (cpu *CPU) stx(laddr, haddr uint32) {
 func (cpu *CPU) op86() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.stx(laddr, haddr)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op8E() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.stx(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op96() {
 	laddr, haddr := cpu.admDirectYP()
 	cpu.stx(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 // sty16 stores the x register in the memory
 func (cpu *CPU) sty16(laddr, haddr uint32) {
 
-	dataLo, dataHi := utils.SplitUint16(cpu.getYRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getYRegister())
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -1860,28 +1860,28 @@ func (cpu *CPU) sty(laddr, haddr uint32) {
 func (cpu *CPU) op84() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.sty(laddr, haddr)
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op8C() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.sty(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op94() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.sty(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 // stz16 stores 0 in the memory
 func (cpu *CPU) stz16(laddr, haddr uint32) {
 
-	dataLo, dataHi := utils.SplitUint16(0x0000)
+	dataLo, dataHi := bit.SplitUint16(0x0000)
 
 	cpu.memory.SetByte(dataHi, haddr)
 	cpu.memory.SetByte(dataLo, laddr)
@@ -1905,28 +1905,28 @@ func (cpu *CPU) stz(laddr, haddr uint32) {
 func (cpu *CPU) op64() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.stz(laddr, haddr)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op74() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.stz(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op9C() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.stz(laddr, haddr)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op9E() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.stz(laddr, haddr)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -1957,112 +1957,112 @@ func (cpu *CPU) and(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.and8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.and16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.and16(bit.JoinUint16(dataLo, dataHi)))
 	}
 }
 
 func (cpu *CPU) op21() {
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.and(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op23() {
 	dataLo, dataHi := cpu.admStackS()
 	cpu.and(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op25() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.and(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op27() {
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.and(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op29() {
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.and(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) op2D() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.and(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op2F() {
 	dataLo, dataHi := cpu.admLong()
 	cpu.and(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 func (cpu *CPU) op31() {
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.and(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op32() {
 	dataLo, dataHi := cpu.admPDirect()
 	cpu.and(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op33() {
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.and(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op35() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.and(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op37() {
 	dataLo, dataHi := cpu.admBDirectY()
 	cpu.and(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op39() {
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.and(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op3D() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.and(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op3F() {
 	dataLo, dataHi := cpu.admLongX()
 	cpu.and(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -2093,112 +2093,112 @@ func (cpu *CPU) eor(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.eor8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.eor16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.eor16(bit.JoinUint16(dataLo, dataHi)))
 	}
 }
 
 func (cpu *CPU) op41() {
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op43() {
 	dataLo, dataHi := cpu.admStackS()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op45() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op47() {
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op49() {
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) op4D() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op4F() {
 	dataLo, dataHi := cpu.admLong()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 func (cpu *CPU) op51() {
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op52() {
 	dataLo, dataHi := cpu.admPDirect()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op53() {
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op55() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op57() {
 	dataLo, dataHi := cpu.admBDirectY()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op59() {
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op5D() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op5F() {
 	dataLo, dataHi := cpu.admLongX()
 	cpu.eor(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -2229,112 +2229,112 @@ func (cpu *CPU) ora(dataLo, dataHi uint8) {
 	if cpu.mFlag {
 		cpu.setARegister(cpu.ora8(dataLo))
 	} else {
-		cpu.setCRegister(cpu.ora16(utils.JoinUint16(dataLo, dataHi)))
+		cpu.setCRegister(cpu.ora16(bit.JoinUint16(dataLo, dataHi)))
 	}
 }
 
 func (cpu *CPU) op01() {
 	dataLo, dataHi := cpu.admPDirectX()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op03() {
 	dataLo, dataHi := cpu.admStackS()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op05() {
 	dataLo, dataHi := cpu.admDirect()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op07() {
 	dataLo, dataHi := cpu.admBDirect()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op09() {
 	dataLo, dataHi := cpu.admImmediateM()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(3 - utils.BoolToUint16(cpu.mFlag))
-	cpu.PC += 3 - utils.BoolToUint16(cpu.mFlag)
+	cpu.step(3 - bit.BoolToUint16(cpu.mFlag))
+	cpu.PC += 3 - bit.BoolToUint16(cpu.mFlag)
 }
 
 func (cpu *CPU) op0D() {
 	dataLo, dataHi := cpu.admAbsolute()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op0F() {
 	dataLo, dataHi := cpu.admLong()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
 func (cpu *CPU) op11() {
 	dataLo, dataHi := cpu.admPDirectY()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op12() {
 	dataLo, dataHi := cpu.admPDirect()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op13() {
 	dataLo, dataHi := cpu.admPStackSY()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(8 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op15() {
 	dataLo, dataHi := cpu.admDirectX()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op17() {
 	dataLo, dataHi := cpu.admBDirectY()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(7 - utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op19() {
 	dataLo, dataHi := cpu.admAbsoluteY()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op1D() {
 	dataLo, dataHi := cpu.admAbsoluteX()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag) - utils.BoolToUint16(cpu.xFlag) + utils.BoolToUint16(cpu.xFlag)*utils.BoolToUint16(cpu.pFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag) - bit.BoolToUint16(cpu.xFlag) + bit.BoolToUint16(cpu.xFlag)*bit.BoolToUint16(cpu.pFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op1F() {
 	dataLo, dataHi := cpu.admLongX()
 	cpu.ora(dataLo, dataHi)
-	cpu.step(6 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(6 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 4
 }
 
@@ -2404,11 +2404,11 @@ func (cpu *CPU) rti() {
 	cpu.plp()
 	addressLo := cpu.pullStack()
 	addressHi := cpu.pullStack()
-	cpu.PC = utils.JoinUint16(addressLo, addressHi)
+	cpu.PC = bit.JoinUint16(addressLo, addressHi)
 	if !cpu.eFlag {
 		cpu.K = cpu.pullStack()
 	}
-	cpu.step(7 - utils.BoolToUint16(cpu.eFlag))
+	cpu.step(7 - bit.BoolToUint16(cpu.eFlag))
 
 }
 
@@ -2420,7 +2420,7 @@ func (cpu *CPU) rtl() {
 	PCLo, PCHi, K := cpu.pullStackNew24()
 	cpu.step(6)
 	cpu.K = K
-	cpu.PC = utils.JoinUint16(PCLo, PCHi) + 1
+	cpu.PC = bit.JoinUint16(PCLo, PCHi) + 1
 }
 
 func (cpu *CPU) op6B() {
@@ -2431,7 +2431,7 @@ func (cpu *CPU) rts() {
 	PCLo := cpu.pullStack()
 	PCHi := cpu.pullStack()
 	cpu.step(6)
-	cpu.PC = utils.JoinUint16(PCLo, PCHi) + 1
+	cpu.PC = bit.JoinUint16(PCLo, PCHi) + 1
 }
 
 func (cpu *CPU) op60() {
@@ -2470,7 +2470,7 @@ func (cpu *CPU) asl8acc() {
 func (cpu *CPU) asl16data(laddr, haddr uint32) {
 	dataLo, dataHi := cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 
-	data := utils.JoinUint16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
@@ -2481,7 +2481,7 @@ func (cpu *CPU) asl16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := utils.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2523,7 +2523,7 @@ func (cpu *CPU) asl(laddr, haddr uint32, isAcc bool) {
 func (cpu *CPU) op06() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.asl(laddr, haddr, false)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -2536,21 +2536,21 @@ func (cpu *CPU) op0A() {
 func (cpu *CPU) op0E() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.asl(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op16() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.asl(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op1E() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.asl(laddr, haddr, false)
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -2586,7 +2586,7 @@ func (cpu *CPU) lsr8acc() {
 func (cpu *CPU) lsr16data(haddr, laddr uint32) {
 	dataLo, dataHi := cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 
-	data := utils.JoinUint16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
 
 	result := data >> 1
 
@@ -2597,7 +2597,7 @@ func (cpu *CPU) lsr16data(haddr, laddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := utils.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2639,7 +2639,7 @@ func (cpu *CPU) lsr(laddr, haddr uint32, isAcc bool) {
 func (cpu *CPU) op46() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.lsr(laddr, haddr, false)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -2652,21 +2652,21 @@ func (cpu *CPU) op4A() {
 func (cpu *CPU) op4E() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.lsr(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op56() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.lsr(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op5E() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.lsr(laddr, haddr, false)
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -2710,7 +2710,7 @@ func (cpu *CPU) rol8acc() {
 func (cpu *CPU) rol16data(laddr, haddr uint32) {
 	dataLo, dataHi := cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 
-	data := utils.JoinUint16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
@@ -2725,7 +2725,7 @@ func (cpu *CPU) rol16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := utils.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2771,7 +2771,7 @@ func (cpu *CPU) rol(laddr, haddr uint32, isAcc bool) {
 func (cpu *CPU) op26() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.rol(laddr, haddr, false)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -2784,21 +2784,21 @@ func (cpu *CPU) op2A() {
 func (cpu *CPU) op2E() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.rol(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op36() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.rol(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op3E() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.rol(laddr, haddr, false)
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -2842,7 +2842,7 @@ func (cpu *CPU) ror8acc() {
 func (cpu *CPU) ror16data(laddr, haddr uint32) {
 	dataLo, dataHi := cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 
-	data := utils.JoinUint16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
 
 	result := data << 1
 
@@ -2857,7 +2857,7 @@ func (cpu *CPU) ror16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := utils.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(data)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2903,7 +2903,7 @@ func (cpu *CPU) ror(laddr, haddr uint32, isAcc bool) {
 func (cpu *CPU) op66() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.ror(laddr, haddr, false)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -2916,21 +2916,21 @@ func (cpu *CPU) op6A() {
 func (cpu *CPU) op6E() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.ror(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
 func (cpu *CPU) op76() {
 	laddr, haddr := cpu.admDirectXP()
 	cpu.ror(laddr, haddr, false)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op7E() {
 	laddr, haddr := cpu.admAbsoluteXP()
 	cpu.ror(laddr, haddr, false)
-	cpu.step(9 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(9 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -2957,7 +2957,7 @@ func (cpu *CPU) opF4() {
 func (cpu *CPU) opD4() {
 	dataLo, dataHi := cpu.admDirectNew()
 	cpu.pushStackNew16(dataLo, dataHi)
-	cpu.step(6 + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(6 + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
@@ -2971,7 +2971,7 @@ func (cpu *CPU) op62() {
 
 // pha16 push the accumulator onto the stack
 func (cpu *CPU) pha16() {
-	dataLo, dataHi := utils.SplitUint16(cpu.getCRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getCRegister())
 	cpu.p16(dataLo, dataHi)
 }
 
@@ -2990,7 +2990,7 @@ func (cpu *CPU) pha() {
 
 func (cpu *CPU) op48() {
 	cpu.pha()
-	cpu.step(4 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(4 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC++
 }
 
@@ -3003,7 +3003,7 @@ func (cpu *CPU) op8B() {
 
 // PHD instruction
 func (cpu *CPU) op0B() {
-	cpu.pushStackNew16(utils.SplitUint16(cpu.getDRegister()))
+	cpu.pushStackNew16(bit.SplitUint16(cpu.getDRegister()))
 	cpu.step(4)
 	cpu.PC++
 }
@@ -3016,17 +3016,17 @@ func (cpu *CPU) op4B() {
 }
 
 func (cpu *CPU) php() {
-	P := utils.BoolToUint8(cpu.cFlag)*0x01 +
-		utils.BoolToUint8(cpu.zFlag)*0x02 +
-		utils.BoolToUint8(cpu.iFlag)*0x04 +
-		utils.BoolToUint8(cpu.dFlag)*0x08 +
-		utils.BoolToUint8(cpu.mFlag)*0x20 +
-		utils.BoolToUint8(cpu.vFlag)*0x40 +
-		utils.BoolToUint8(cpu.nFlag)*0x80
+	P := bit.BoolToUint8(cpu.cFlag)*0x01 +
+		bit.BoolToUint8(cpu.zFlag)*0x02 +
+		bit.BoolToUint8(cpu.iFlag)*0x04 +
+		bit.BoolToUint8(cpu.dFlag)*0x08 +
+		bit.BoolToUint8(cpu.mFlag)*0x20 +
+		bit.BoolToUint8(cpu.vFlag)*0x40 +
+		bit.BoolToUint8(cpu.nFlag)*0x80
 	if cpu.eFlag {
-		P += utils.BoolToUint8(cpu.bFlag) * 0x10
+		P += bit.BoolToUint8(cpu.bFlag) * 0x10
 	} else {
-		P += utils.BoolToUint8(cpu.xFlag) * 0x10
+		P += bit.BoolToUint8(cpu.xFlag) * 0x10
 	}
 	cpu.pushStack(P)
 }
@@ -3039,7 +3039,7 @@ func (cpu *CPU) op08() {
 
 // phx16 push the X register onto the stack
 func (cpu *CPU) phx16() {
-	dataLo, dataHi := utils.SplitUint16(cpu.getXRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getXRegister())
 	cpu.p16(dataLo, dataHi)
 }
 
@@ -3058,13 +3058,13 @@ func (cpu *CPU) phx() {
 
 func (cpu *CPU) opDA() {
 	cpu.phx()
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC++
 }
 
 // phy16 push the Y register onto the stack
 func (cpu *CPU) phy16() {
-	dataLo, dataHi := utils.SplitUint16(cpu.getYRegister())
+	dataLo, dataHi := bit.SplitUint16(cpu.getYRegister())
 	cpu.p16(dataLo, dataHi)
 }
 
@@ -3083,7 +3083,7 @@ func (cpu *CPU) phy() {
 
 func (cpu *CPU) op5A() {
 	cpu.phy()
-	cpu.step(4 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(4 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC++
 }
 
@@ -3092,7 +3092,7 @@ func (cpu *CPU) pla16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataLo, dataHi)
+	result := bit.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
@@ -3120,7 +3120,7 @@ func (cpu *CPU) pla() {
 
 func (cpu *CPU) op68() {
 	cpu.pla()
-	cpu.step(5 - utils.BoolToUint16(cpu.mFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.mFlag))
 	cpu.PC++
 }
 
@@ -3135,7 +3135,7 @@ func (cpu *CPU) opAB() {
 
 // PLD instruction
 func (cpu *CPU) op2B() {
-	cpu.D = utils.JoinUint16(cpu.pullStackNew16())
+	cpu.D = bit.JoinUint16(cpu.pullStackNew16())
 	cpu.nFlag = cpu.getDRegister()&0x80 != 0
 	cpu.zFlag = cpu.getDRegister() == 0
 	cpu.step(4)
@@ -3171,7 +3171,7 @@ func (cpu *CPU) plx16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataLo, dataHi)
+	result := bit.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
@@ -3199,7 +3199,7 @@ func (cpu *CPU) plx() {
 
 func (cpu *CPU) opFA() {
 	cpu.plx()
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC++
 }
 
@@ -3208,7 +3208,7 @@ func (cpu *CPU) ply16() {
 	dataLo := cpu.pullStack()
 	dataHi := cpu.pullStack()
 
-	result := utils.JoinUint16(dataLo, dataHi)
+	result := bit.JoinUint16(dataLo, dataHi)
 
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
@@ -3236,7 +3236,7 @@ func (cpu *CPU) ply() {
 
 func (cpu *CPU) op7A() {
 	cpu.ply()
-	cpu.step(5 - utils.BoolToUint16(cpu.xFlag))
+	cpu.step(5 - bit.BoolToUint16(cpu.xFlag))
 	cpu.PC++
 }
 
@@ -3258,8 +3258,8 @@ func (cpu *CPU) trb(laddr, haddr uint32) {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.trb8(cpu.memory.GetByte(laddr)), laddr)
 	} else {
-		result := cpu.trb16(utils.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
-		resultLo, resultHi := utils.SplitUint16(result)
+		result := cpu.trb16(bit.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
+		resultLo, resultHi := bit.SplitUint16(result)
 		cpu.memory.SetByte(resultLo, laddr)
 		cpu.memory.SetByte(resultHi, haddr)
 	}
@@ -3268,13 +3268,13 @@ func (cpu *CPU) trb(laddr, haddr uint32) {
 func (cpu *CPU) op14() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.trb(laddr, haddr)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 func (cpu *CPU) op1C() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.trb(laddr, haddr)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -3296,8 +3296,8 @@ func (cpu *CPU) tsb(laddr, haddr uint32) {
 	if cpu.mFlag {
 		cpu.memory.SetByte(cpu.tsb8(cpu.memory.GetByte(laddr)), laddr)
 	} else {
-		result := cpu.tsb16(utils.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
-		resultLo, resultHi := utils.SplitUint16(result)
+		result := cpu.tsb16(bit.JoinUint16(cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)))
+		resultLo, resultHi := bit.SplitUint16(result)
 		cpu.memory.SetByte(resultLo, laddr)
 		cpu.memory.SetByte(resultHi, haddr)
 	}
@@ -3306,14 +3306,14 @@ func (cpu *CPU) tsb(laddr, haddr uint32) {
 func (cpu *CPU) op04() {
 	laddr, haddr := cpu.admDirectP()
 	cpu.tsb(laddr, haddr)
-	cpu.step(7 - 2*utils.BoolToUint16(cpu.mFlag) + utils.BoolToUint16(cpu.getDLRegister() == 0))
+	cpu.step(7 - 2*bit.BoolToUint16(cpu.mFlag) + bit.BoolToUint16(cpu.getDLRegister() == 0))
 	cpu.PC += 2
 }
 
 func (cpu *CPU) op0C() {
 	laddr, haddr := cpu.admAbsoluteP()
 	cpu.tsb(laddr, haddr)
-	cpu.step(8 - 2*utils.BoolToUint16(cpu.mFlag))
+	cpu.step(8 - 2*bit.BoolToUint16(cpu.mFlag))
 	cpu.PC += 3
 }
 
@@ -3335,8 +3335,8 @@ func (cpu *CPU) tcs() {
 	cpu.nFlag = cpu.C&0x8000 != 0
 	cpu.zFlag = cpu.C == 0
 	if cpu.eFlag {
-		dataLo, _ := utils.SplitUint16(cpu.C)
-		cpu.S = utils.JoinUint16(dataLo, 0x01)
+		dataLo, _ := bit.SplitUint16(cpu.C)
+		cpu.S = bit.JoinUint16(dataLo, 0x01)
 	} else {
 		cpu.S = cpu.C
 	}
@@ -3534,7 +3534,7 @@ const (
 )
 
 func (cpu *CPU) brk() {
-	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := bit.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(haddr)
 		cpu.pushStack(laddr)
@@ -3543,7 +3543,7 @@ func (cpu *CPU) brk() {
 		cpu.K = 0x00
 		laddr := cpu.memory.GetByteBank(0x00, brkEmulationVector)
 		haddr := cpu.memory.GetByteBank(0x00, brkEmulationVector+1)
-		cpu.PC = utils.JoinUint16(laddr, haddr)
+		cpu.PC = bit.JoinUint16(laddr, haddr)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(haddr)
@@ -3552,11 +3552,11 @@ func (cpu *CPU) brk() {
 		cpu.K = 0x00
 		laddr := cpu.memory.GetByteBank(0x00, brkNativeVector)
 		haddr := cpu.memory.GetByteBank(0x00, brkNativeVector+1)
-		cpu.PC = utils.JoinUint16(laddr, haddr)
+		cpu.PC = bit.JoinUint16(laddr, haddr)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
-	cpu.step(8 - utils.BoolToUint16(cpu.eFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.eFlag))
 }
 
 func (cpu *CPU) op00() {
@@ -3564,7 +3564,7 @@ func (cpu *CPU) op00() {
 }
 
 func (cpu *CPU) cop() {
-	laddr, haddr := utils.SplitUint16(cpu.getPCRegister() + 2)
+	laddr, haddr := bit.SplitUint16(cpu.getPCRegister() + 2)
 	if cpu.eFlag {
 		cpu.pushStack(haddr)
 		cpu.pushStack(laddr)
@@ -3572,7 +3572,7 @@ func (cpu *CPU) cop() {
 		cpu.K = 0x00
 		laddr := cpu.memory.GetByteBank(0x00, copEmulationVector)
 		haddr := cpu.memory.GetByteBank(0x00, copEmulationVector+1)
-		cpu.PC = utils.JoinUint16(laddr, haddr)
+		cpu.PC = bit.JoinUint16(laddr, haddr)
 	} else {
 		cpu.pushStack(cpu.getKRegister())
 		cpu.pushStack(haddr)
@@ -3581,11 +3581,11 @@ func (cpu *CPU) cop() {
 		cpu.K = 0x00
 		laddr := cpu.memory.GetByteBank(0x00, copNativeVector)
 		haddr := cpu.memory.GetByteBank(0x00, copNativeVector+1)
-		cpu.PC = utils.JoinUint16(laddr, haddr)
+		cpu.PC = bit.JoinUint16(laddr, haddr)
 	}
 	cpu.dFlag = false
 	cpu.iFlag = true
-	cpu.step(8 - utils.BoolToUint16(cpu.eFlag))
+	cpu.step(8 - bit.BoolToUint16(cpu.eFlag))
 
 }
 

@@ -3,7 +3,7 @@ package ppu
 import (
 	"fmt"
 
-	"github.com/snes-emu/gose/utils"
+	"github.com/snes-emu/gose/bit"
 )
 
 type vram struct {
@@ -52,14 +52,14 @@ func (ppu *PPU) vmain(data uint8) {
 func (ppu *PPU) vmaddl(data uint8) {
 	ppu.vram.addr = (ppu.vram.addr & 0xff00) | uint16(data)
 	newAddr := ppu.getvramAddr()
-	ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
+	ppu.vram.cache = bit.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
 }
 
 // 2117 - VMADDH - VRAM Address (upper 8bit) (W)
 func (ppu *PPU) vmaddh(data uint8) {
-	ppu.vram.addr = utils.JoinUint16(0x00, data) | (ppu.vram.addr & 0x0ff)
+	ppu.vram.addr = bit.JoinUint16(0x00, data) | (ppu.vram.addr & 0x0ff)
 	newAddr := ppu.getvramAddr()
-	ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
+	ppu.vram.cache = bit.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
 }
 
 // 2118 - VMDATAL - VRAM Data Write (lower 8bit) (W)
@@ -88,7 +88,7 @@ func (ppu *PPU) rdvraml() uint8 {
 	if ppu.vram.incrementMode {
 		ppu.vram.addr += ppu.vram.incrementAmount
 		newAddr := ppu.getvramAddr()
-		ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
+		ppu.vram.cache = bit.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
 	}
 
 	return res
@@ -101,7 +101,7 @@ func (ppu *PPU) rdvramh() uint8 {
 	if !ppu.vram.incrementMode {
 		ppu.vram.addr += ppu.vram.incrementAmount
 		newAddr := ppu.getvramAddr()
-		ppu.vram.cache = utils.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
+		ppu.vram.cache = bit.JoinUint16(ppu.vram.bytes[2*newAddr+1], ppu.vram.bytes[2*newAddr])
 	}
 
 	return res

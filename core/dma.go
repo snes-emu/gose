@@ -3,8 +3,8 @@ package core
 import (
 	"fmt"
 
+	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/io"
-	"github.com/snes-emu/gose/utils"
 )
 
 type dmaChannel struct {
@@ -204,11 +204,11 @@ func (cpu *CPU) initA1txl() {
 		cpu.dmaRegisters[0x302+16*i] = io.NewRegister(
 			// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
 			func() uint8 {
-				return utils.LowByte(c.srcAddr)
+				return bit.LowByte(c.srcAddr)
 			},
 			// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
 			func(data uint8) {
-				c.srcAddr = utils.SetLowByte(c.srcAddr, data)
+				c.srcAddr = bit.SetLowByte(c.srcAddr, data)
 			},
 		)
 	}
@@ -220,11 +220,11 @@ func (cpu *CPU) initA1txh() {
 		cpu.dmaRegisters[0x303+16*i] = io.NewRegister(
 			// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
 			func() uint8 {
-				return utils.HighByte(c.srcAddr)
+				return bit.HighByte(c.srcAddr)
 			},
 			// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
 			func(data uint8) {
-				c.srcAddr = utils.SetHighByte(c.srcAddr, data)
+				c.srcAddr = bit.SetHighByte(c.srcAddr, data)
 			},
 		)
 	}
@@ -252,7 +252,7 @@ func (cpu *CPU) initDasxL() {
 		cpu.dmaRegisters[0x305+16*i] = io.NewRegister(
 			// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
 			func() uint8 {
-				return utils.LowByte(c.transferSize)
+				return bit.LowByte(c.transferSize)
 			},
 			// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
 			func(data uint8) {
@@ -268,11 +268,11 @@ func (cpu *CPU) initDasxH() {
 		cpu.dmaRegisters[0x306+16*i] = io.NewRegister(
 			// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
 			func() uint8 {
-				return utils.HighByte(c.transferSize)
+				return bit.HighByte(c.transferSize)
 			},
 			// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
 			func(data uint8) {
-				c.transferSize = utils.SetHighByte(c.transferSize, data)
+				c.transferSize = bit.SetHighByte(c.transferSize, data)
 			},
 		)
 	}
@@ -300,7 +300,7 @@ func (cpu *CPU) initA2axl() {
 		cpu.dmaRegisters[0x308+16*i] = io.NewRegister(
 			// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
 			func() uint8 {
-				return utils.LowByte(c.hdmaAddr)
+				return bit.LowByte(c.hdmaAddr)
 			},
 			// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
 			func(data uint8) {
@@ -316,11 +316,11 @@ func (cpu *CPU) initA2axh() {
 		cpu.dmaRegisters[0x309+16*i] = io.NewRegister(
 			// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
 			func() uint8 {
-				return utils.HighByte(c.hdmaAddr)
+				return bit.HighByte(c.hdmaAddr)
 			},
 			// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
 			func(data uint8) {
-				c.hdmaAddr = utils.SetHighByte(c.hdmaAddr, data)
+				c.hdmaAddr = bit.SetHighByte(c.hdmaAddr, data)
 			},
 		)
 	}

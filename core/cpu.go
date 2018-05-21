@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/io"
-	"github.com/snes-emu/gose/utils"
 )
 
 // CPU represents the cpu 65C816
@@ -358,7 +358,7 @@ func (cpu *CPU) StartDebug() {
 
 func (cpu *CPU) pushStack(data uint8) {
 	if cpu.eFlag {
-		cpu.memory.SetByteBank(data, 0x00, utils.JoinUint16(cpu.getSLRegister(), 0x01))
+		cpu.memory.SetByteBank(data, 0x00, bit.JoinUint16(cpu.getSLRegister(), 0x01))
 		cpu.setSLRegister(cpu.getSLRegister() - 1)
 	} else {
 		cpu.memory.SetByteBank(data, 0x00, cpu.getSRegister())
@@ -369,7 +369,7 @@ func (cpu *CPU) pushStack(data uint8) {
 func (cpu *CPU) pullStack() uint8 {
 	var data uint8
 	if cpu.eFlag {
-		data = cpu.memory.GetByteBank(0x00, utils.JoinUint16(cpu.getSLRegister()+1, 0x01))
+		data = cpu.memory.GetByteBank(0x00, bit.JoinUint16(cpu.getSLRegister()+1, 0x01))
 		cpu.setSLRegister(cpu.getSLRegister() + 1)
 		return data
 	}

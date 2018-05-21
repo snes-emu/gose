@@ -1,7 +1,7 @@
 package ppu
 
 import (
-	"github.com/snes-emu/gose/utils"
+	"github.com/snes-emu/gose/bit"
 )
 
 type status struct {
@@ -33,7 +33,7 @@ func (ppu *PPU) slhv() uint8 {
 func (ppu *PPU) ophct() uint8 {
 	var result uint8
 	if ppu.status.ophctFlip {
-		result = utils.HighByte(ppu.status.hCounterLatch)
+		result = bit.HighByte(ppu.status.hCounterLatch)
 	} else {
 		result = uint8(ppu.status.hCounterLatch)
 	}
@@ -45,7 +45,7 @@ func (ppu *PPU) ophct() uint8 {
 func (ppu *PPU) opvct() uint8 {
 	var result uint8
 	if ppu.status.opvctFlip {
-		result = utils.HighByte(ppu.status.vCounterLatch)
+		result = bit.HighByte(ppu.status.vCounterLatch)
 	} else {
 		result = uint8(ppu.status.vCounterLatch)
 	}
