@@ -1,5 +1,9 @@
 package ppu
 
+import (
+	"github.com/snes-emu/gose/utils"
+)
+
 type backgroundData struct {
 	bg          [4]*bg // BG array containing the 4 backgrounds
 	scrollPrev1 uint8  // temporary variable for bg scrolling
@@ -49,41 +53,43 @@ func (ppu *PPU) mosaic(data uint8) {
 // 2107h - BG1SC - BG1 Screen Base and Screen Size (W)
 func (ppu *PPU) bg1sc(data uint8) {
 	ppu.backgroundData.bg[0].screenSize = data & 3
-	ppu.backgroundData.bg[0].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.backgroundData.bg[0].tileMapBaseAddress = utils.JoinUint16(0x00, data&^uint8(3))
 }
 
 // 2108h - BG2SC - BG2 Screen Base and Screen Size (W)
 func (ppu *PPU) bg2sc(data uint8) {
 	ppu.backgroundData.bg[1].screenSize = data & 3
-	ppu.backgroundData.bg[1].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.backgroundData.bg[1].tileMapBaseAddress = utils.JoinUint16(0x00, data&^uint8(3))
 }
 
 // 2109h - BG3SC - BG3 Screen Base and Screen Size (W)
 func (ppu *PPU) bg3sc(data uint8) {
 	ppu.backgroundData.bg[2].screenSize = data & 3
-	ppu.backgroundData.bg[2].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.backgroundData.bg[2].tileMapBaseAddress = utils.JoinUint16(0x00, data&^uint8(3))
 }
 
 // 210Ah - BG4SC - BG4 Screen Base and Screen Size (W)
 func (ppu *PPU) bg4sc(data uint8) {
 	ppu.backgroundData.bg[3].screenSize = data & 3
-	ppu.backgroundData.bg[3].tileMapBaseAddress = uint16(data&^uint8(3)) << 8
+	ppu.backgroundData.bg[3].tileMapBaseAddress = utils.JoinUint16(0x00, data&^uint8(3))
 }
 
 // 210Bh/210Ch - BG12NBA/BG34NBA - BG Character Data Area Designation (W)
 func (ppu *PPU) bg12nba(data uint8) {
+	// TODO: use util there
 	ppu.backgroundData.bg[0].tileSetBaseAddress = uint16(data&0x0F) << 12
-	ppu.backgroundData.bg[1].tileSetBaseAddress = uint16(data&0xF0) << 8
+	ppu.backgroundData.bg[1].tileSetBaseAddress = utils.JoinUint16(0x00, data&0xF0)
 }
 
 func (ppu *PPU) bg34nba(data uint8) {
+	// TODO: use util there
 	ppu.backgroundData.bg[2].tileSetBaseAddress = uint16(data&0x0F) << 12
-	ppu.backgroundData.bg[3].tileSetBaseAddress = uint16(data&0xF0) << 8
+	ppu.backgroundData.bg[3].tileSetBaseAddress = utils.JoinUint16(0x00, data&0xF0)
 }
 
 // 210Dh - BG1HOFS - BG1 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg1hofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = uint16(data)<<8 | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
+	ppu.backgroundData.bg[0].horizontalScroll = utils.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.backgroundData.scrollPrev2 = data
 	ppu.m7hofs(data)
@@ -91,46 +97,46 @@ func (ppu *PPU) bg1hofs(data uint8) {
 
 // 210Eh - BG1VOFS - BG1 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg1vofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = uint16(data)<<8 | uint16(ppu.backgroundData.scrollPrev1)
+	ppu.backgroundData.bg[0].horizontalScroll = utils.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.m7vofs(data)
 }
 
 // 210Fh - BG2HOFS - BG2 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg2hofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = uint16(data)<<8 | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
+	ppu.backgroundData.bg[1].horizontalScroll = utils.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.backgroundData.scrollPrev2 = data
 }
 
 // 2110h - BG2VOFS - BG2 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg2vofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = uint16(data)<<8 | uint16(ppu.backgroundData.scrollPrev1)
+	ppu.backgroundData.bg[1].horizontalScroll = utils.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
 }
 
 // 2111h - BG3HOFS - BG3 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg3hofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = uint16(data)<<8 | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
+	ppu.backgroundData.bg[2].horizontalScroll = utils.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.backgroundData.scrollPrev2 = data
 }
 
 // 2112h - BG3VOFS - BG3 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg3vofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = uint16(data)<<8 | uint16(ppu.backgroundData.scrollPrev1)
+	ppu.backgroundData.bg[2].horizontalScroll = utils.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
 }
 
 // 2113h - BG4HOFS - BG4 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg4hofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = uint16(data)<<8 | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
+	ppu.backgroundData.bg[3].horizontalScroll = utils.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
 	ppu.backgroundData.scrollPrev1 = data
 	ppu.backgroundData.scrollPrev2 = data
 }
 
 // 2114h - BG4VOFS - BG4 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg4vofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = uint16(data)<<8 | uint16(ppu.backgroundData.scrollPrev1)
+	ppu.backgroundData.bg[3].horizontalScroll = utils.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
 	ppu.backgroundData.scrollPrev1 = data
 }
