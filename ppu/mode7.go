@@ -1,7 +1,7 @@
 package ppu
 
 import (
-	"github.com/snes-emu/gose/utils"
+	"github.com/snes-emu/gose/bit"
 )
 
 type m7 struct {
@@ -82,18 +82,18 @@ func (ppu *PPU) m7y(data uint8) {
 
 // 2134h - MPYL - Signed Multiply Result (lower 8bit) (R)
 func (ppu *PPU) mpyl() uint8 {
-	LL, _, _ := utils.SplitUint32(ppu.m7.signedMutlResult)
+	LL, _, _ := bit.SplitUint32(ppu.m7.signedMutlResult)
 	return LL
 }
 
 // 2135h - MPYM - Signed Multiply Result (middle 8bit) (R)
 func (ppu *PPU) mpym() uint8 {
-	_, MM, _ := utils.SplitUint32(ppu.m7.signedMutlResult)
+	_, MM, _ := bit.SplitUint32(ppu.m7.signedMutlResult)
 	return MM
 }
 
 // 2136h - MPYH - Signed Multiply Result (upper 8bit) (R)
 func (ppu *PPU) mpyh() uint8 {
-	_, _, HH := utils.SplitUint32(ppu.m7.signedMutlResult)
+	_, _, HH := bit.SplitUint32(ppu.m7.signedMutlResult)
 	return HH
 }

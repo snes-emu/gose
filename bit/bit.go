@@ -1,4 +1,4 @@
-package utils
+package bit
 
 // BoolToUint16 provides a conversion from bool to uint16
 func BoolToUint16(f bool) uint16 {
