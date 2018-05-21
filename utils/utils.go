@@ -33,3 +33,19 @@ func SplitUint16(MM uint16) (uint8, uint8) {
 func SplitUint32(MM uint32) (uint8, uint8, uint8) {
 	return uint8(MM), uint8(MM >> 8), uint8(MM >> 16)
 }
+
+func SetLowByte(w uint16, ll uint8) uint16 {
+	return (w & 0xff00) | uint16(ll)
+}
+
+func SetHighByte(w uint16, ll uint8) uint16 {
+	return (w & 0x00ff) | uint16(ll)<<8
+}
+
+func LowByte(x uint16) uint8 {
+	return uint8(x & 0xff)
+}
+
+func HighByte(x uint16) uint8 {
+	return uint8(x >> 8)
+}
