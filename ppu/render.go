@@ -2,7 +2,7 @@ package ppu
 
 import "fmt"
 
-func (ppu *PPU) renderLine() {
+func (ppu *PPU) RenderLine() {
 	fmt.Printf("Render line: %v\n", ppu.vCounter)
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
