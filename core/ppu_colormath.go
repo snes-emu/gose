@@ -1,4 +1,4 @@
-package ppu
+package core
 
 type colorMath struct {
 	mainScreenBlack uint8 // Force main screen black (possible values: (3=Always, 2=MathWindow, 1=NotMathWin, 0=Never))

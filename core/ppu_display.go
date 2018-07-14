@@ -1,4 +1,4 @@
-package ppu
+package core
 
 type display struct {
 	brightness  uint8 // Display brightness

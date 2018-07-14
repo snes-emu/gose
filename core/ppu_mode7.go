@@ -1,4 +1,4 @@
-package ppu
+package core
 
 import (
 	"github.com/snes-emu/gose/bit"
