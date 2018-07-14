@@ -6,10 +6,14 @@ import (
 )
 
 type ioMemory struct {
-	bytes   [0x380]uint8 // Raw bytes
-	hirqPos uint16       // Horizontal IRQ position
-	virqPos uint16       // Vertical IRQ position
-	irqFlag bool         // IRQ Flag used in TIMEUP
+	bytes           [0x380]uint8 // Raw bytes
+	hirqPos         uint16       // Horizontal IRQ position
+	virqPos         uint16       // Vertical IRQ position
+	irqFlag         bool         // IRQ Flag used in TIMEUP
+	vBlankNMIEnable bool         // VBlank NMI Enable  (0=Disable, 1=Enable) (Initially disabled on reset)
+	hvIRQ           uint8        // H/V IRQ (0=Disable, 1=At H=H + V=Any, 2=At V=V + H=0, 3=At H=H + V=V)
+	joypadEnable    bool         // Joypad Enable    (0=Disable, 1=Enable Automatic Reading of Joypad) TODO
+	vBlankNMIFlag   bool         // (0=None, 1=Interrupt Request) (set on Begin of Vblank)
 }
 
 func (cpu *CPU) initIORegisters() {
@@ -67,7 +71,9 @@ func (cpu *CPU) joyb() uint8 {
 
 // 0x4200 - NMITIMEN- Interrupt Enable and Joypad Request (W)
 func (cpu *CPU) nmitimen(data uint8) {
-	// TODO
+	cpu.ioMemory.vBlankNMIEnable = data&0x80 != 0
+	cpu.ioMemory.hvIRQ = (data & 0x30) >> 4
+	cpu.ioMemory.joypadEnable = data&0x01 != 0
 }
 
 // 0x4201 - WRIO    - Joypad Programmable I/O Port (Open-Collector Output) (W)
@@ -153,7 +159,7 @@ func (cpu *CPU) memsel(data uint8) {
 func (cpu *CPU) rdnmi() uint8 {
 	// TODO: maybe the version is not correct there
 	version := uint8(2)
-	return (cpu.ioMemory.bytes[0x210]&0x80 | version)
+	return (utils.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
 }
 
 // 0x4211 - TIMEUP  - H/V-Timer IRQ Flag (Read/Ack)  (R)
