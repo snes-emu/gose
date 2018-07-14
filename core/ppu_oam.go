@@ -1,4 +1,4 @@
-package ppu
+package core
 
 type oam struct {
 	bytes           [0x200 + 0x20]byte // oam represents the object attribute memory (512 + 32 Bytes)

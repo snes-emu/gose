@@ -3,7 +3,6 @@ package core
 import (
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/io"
-	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
 
@@ -31,7 +30,7 @@ type Memory struct {
 	io      [ioSize]*io.Register
 	romType uint
 	apu     *apu.APU
-	ppu     *ppu.PPU
+	ppu     *PPU
 	cpu     *CPU
 }
 

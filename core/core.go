@@ -6,19 +6,18 @@ import (
 	"log"
 
 	"github.com/snes-emu/gose/apu"
-	"github.com/snes-emu/gose/ppu"
 	"github.com/snes-emu/gose/rom"
 )
 
 type Emulator struct {
 	CPU    *CPU
 	Memory *Memory
-	PPU    *ppu.PPU
+	PPU    *PPU
 }
 
 func New() *Emulator {
 	apu := apu.New()
-	ppu := ppu.New()
+	ppu := NewPPU()
 	mem := newMemory()
 	cpu := newCPU(mem)
 

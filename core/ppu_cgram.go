@@ -1,4 +1,4 @@
-package ppu
+package core
 
 type cgram struct {
 	bytes [0x200]byte // cgram represents the color graphics ram and stores the color palette with 256 color entries

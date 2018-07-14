@@ -1,4 +1,4 @@
-package ppu
+package core
 
 type window struct {
 	left  uint8

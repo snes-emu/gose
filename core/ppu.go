@@ -1,4 +1,4 @@
-package ppu
+package core
 
 import "github.com/snes-emu/gose/io"
 
@@ -33,7 +33,7 @@ type PPU struct {
 }
 
 // New initializes a PPU struct and returns it
-func New() *PPU {
+func NewPPU() *PPU {
 	ppu := &PPU{}
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}
