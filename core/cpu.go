@@ -59,6 +59,11 @@ func newCPU(memory *Memory) *CPU {
 
 func (cpu *CPU) step(cycles uint16) {
 	cpu.cycles += cycles
+
+	if cpu.cycles > 1364 {
+		cpu.ppu.RenderLine()
+		cpu.HandleIRQ()
+	}
 }
 
 func (cpu *CPU) registerOpcodes() {
