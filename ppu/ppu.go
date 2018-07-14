@@ -5,6 +5,10 @@ import "github.com/snes-emu/gose/io"
 const (
 	// HMax represents max H counter value
 	HMax = 339
+	// VBSNTSC represents VBlank start counter value in NTSC
+	VBSNTSC = 224
+	// VBSPAL represents VBlank start counter value in PAL
+	VBSPAL = 239
 	// VMaxNTSC represents max V counter value in NTSC
 	VMaxNTSC = 261
 	// VMaxPAL represents max V counter value in PAL
