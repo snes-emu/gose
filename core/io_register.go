@@ -1,8 +1,8 @@
 package core
 
 import (
+	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/io"
-	"github.com/snes-emu/gose/utils"
 )
 
 type ioMemory struct {
@@ -89,7 +89,7 @@ func (cpu *CPU) wrmpya(data uint8) {
 // 0x4203 - WRMPYB  - Set unsigned 8bit Multiplier and Start Multiplication (W)
 func (cpu *CPU) wrmpyb(data uint8) {
 	mult := uint(cpu.ioMemory.bytes[0x202]) * uint(data)
-	ll, hh := utils.SplitUint16(uint16(mult))
+	ll, hh := bit.SplitUint16(uint16(mult))
 	cpu.ioMemory.bytes[0x216] = ll
 	cpu.ioMemory.bytes[0x217] = hh
 
@@ -111,7 +111,7 @@ func (cpu *CPU) wrdivh(data uint8) {
 // 0x4206 - WRDIVB  - Set unsigned 8bit Divisor and Start Division (W)
 func (cpu *CPU) wrdivb(data uint8) {
 	divisor := uint16(data)
-	dividend := utils.JoinUint16(cpu.ioMemory.bytes[0x204], cpu.ioMemory.bytes[0x205])
+	dividend := bit.JoinUint16(cpu.ioMemory.bytes[0x204], cpu.ioMemory.bytes[0x205])
 
 	quotient := uint16(0xffff)
 	remainder := dividend
@@ -121,11 +121,11 @@ func (cpu *CPU) wrdivb(data uint8) {
 		remainder = dividend % divisor
 	}
 
-	llq, hhq := utils.SplitUint16(quotient)
+	llq, hhq := bit.SplitUint16(quotient)
 	cpu.ioMemory.bytes[0x214] = llq
 	cpu.ioMemory.bytes[0x215] = hhq
 
-	llr, hhr := utils.SplitUint16(remainder)
+	llr, hhr := bit.SplitUint16(remainder)
 	cpu.ioMemory.bytes[0x216] = llr
 	cpu.ioMemory.bytes[0x217] = hhr
 }
@@ -159,7 +159,7 @@ func (cpu *CPU) memsel(data uint8) {
 func (cpu *CPU) rdnmi() uint8 {
 	// TODO: maybe the version is not correct there
 	version := uint8(2)
-	return (utils.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
+	return (bit.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
 }
 
 // 0x4211 - TIMEUP  - H/V-Timer IRQ Flag (Read/Ack)  (R)
