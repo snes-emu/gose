@@ -11,11 +11,20 @@ type display struct {
 	ExtSynchro  bool  // usually 0, used with sfx chip
 }
 
+// VDisplay returns of the vertical size of the screen depending on the mode (NTSC/PAL)
 func (ppu *PPU) VDisplay() uint16 {
 	if ppu.display.bgVDisplay {
-		return 239
+		return VBSPAL
 	}
-	return 224
+	return VBSNTSC
+}
+
+// VDisplayEnd returns the extra VBLANK area of the screen depending on the mode (NTSC/PAL)
+func (ppu *PPU) VDisplayEnd() uint16 {
+	if ppu.display.bgVDisplay {
+		return VMaxPAL
+	}
+	return VMaxNTSC
 }
 
 // 2100h - INIDISP - Display Control 1 (W)
