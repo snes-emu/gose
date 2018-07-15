@@ -1,4 +1,34 @@
 language: go
+sudo: false
+matrix:
+  include:
+    - go: 1.x
+      env: LATEST=true
+    - go: 1.10.x
+    - go: tip
+  allow_failures:
+    - go: tip
 
-go:
-  - 1.8.x
+before_install:
+  - go get github.com/mitchellh/gox
+
+script:
+  - go get -t -v ./...
+  - diff -u <(echo -n) <(gofmt -d .)
+  - go vet $(go list ./... | grep -v /vendor/)
+  - go test -v -race ./...
+  # Only build binaries from the latest Go release.
+  - if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: fSH/uGnqz0Pmx4rqWkAx6HAYvq1HO9kOmerEL10tgrJ5Tn0HDxqPnkd9D5jwUb4bZ3xg9fTaWlIENLR653aLZUwObmX3sQr2tNddUWGcaCYoJcc+FNbhJIqa3wYHd/hZ4D/CJJJ0KT37yi3x4ZbqFka+B6pKVpqQ4c9pcReL6J4O+ieuP7cgzwpDznZoc5GwzNQOxwlVaNmqYlhBloinHsYMcaTTMdHG5Xkf91V6KGIAWHW+IAoAxReEQye2EhpdPaveXOpJtLHAnP11r0RE6Y1HZRh7vV98RqBaWE2xsPR1DqzLIKtrJgg+A3tianlfD71yPA9vyiCALvAa+q6bQavrm7xMCJ6KW4l0r3I1DnYbn4jSnir6Wa3SmlOOYXZucgEaSltNWdTWSs2PdMksyphtiYsx6vKJxsVntSBIMKZD2RBX/b4J9Uk0rAR8r9ALkAxyAsEec9WMNvIy5moCvNLorKM+WfomyFN+daxBFqetEuICfpW8j7FqCtLTterAvOQ3QJq56tXY7xpTDcokP3SxcMHUY2eJaBvpmw8uq+uxTJsO3g6fujeoMpx3+Qi+kSwO/X9g5kcnDBPMmdXzJL8QHSlekdgdk3E6b8TpZicbWzoZgNQit09dwhjiUhSkcixKfuLYMKsmAiIP+lWm+EJiMRRjEEn+fcuo6DfK74c=
+  file:
+  - gose_windows_amd64.exe
+  - gose_darwin_amd64
+  - gose_linux_amd64
+  on:
+    branch: master
+    condition: $LATEST = true
