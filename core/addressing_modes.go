@@ -349,7 +349,7 @@ func (cpu *CPU) admLongXP() (uint32, uint32) {
 // RELATIVE8 addressing mode
 func (cpu *CPU) admRelative8() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-	if LL < 80 {
+	if LL < 0x80 {
 		return uint16(LL)
 	}
 	return uint16(LL) - 256
