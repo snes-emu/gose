@@ -17,6 +17,7 @@ type ioMemory struct {
 }
 
 func (cpu *CPU) initIORegisters() {
+	cpu.ioMemory = &ioMemory{bytes: [0x380]uint8{}}
 	cpu.registerIORegisters()
 }
 
