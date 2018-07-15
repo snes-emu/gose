@@ -74,6 +74,9 @@ func (memory *Memory) initIo() {
 		memory.io[0x2100+i] = memory.ppu.Registers[i]
 		memory.io[0x2140+i] = memory.apu.Registers[i%4]
 	}
+	for i := 0; i < 0x380; i++ {
+		memory.io[0x4000+i] = memory.cpu.ioRegisters[i]
+	}
 }
 
 func (memory *Memory) initMmap() {
@@ -84,7 +87,7 @@ func (memory *Memory) initMmap() {
 		}
 		for offset := 0x2; offset < 0x8; offset++ {
 			memory.mmap[bankIndex<<4|offset] = ioRegisterRegion
-			memory.mmap[bankIndex<<4|offset] = ioRegisterRegion
+			memory.mmap[(bankIndex+0x80)<<4|offset] = ioRegisterRegion
 		}
 		for offset := 0x8; offset < 0x10; offset++ {
 			memory.mmap[bankIndex<<4|offset] = romRegion
