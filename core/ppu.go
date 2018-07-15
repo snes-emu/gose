@@ -33,7 +33,7 @@ type PPU struct {
 }
 
 // New initializes a PPU struct and returns it
-func NewPPU() *PPU {
+func newPPU() *PPU {
 	ppu := &PPU{}
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}

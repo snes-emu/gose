@@ -6,7 +6,7 @@ import (
 
 func TestOam(t *testing.T) {
 	// Set oam addr register to 0x104
-	ppu := NewPPU()
+	ppu := newPPU()
 	ppu.oamaddl(0x04)
 	ppu.oamaddh(0x1)
 
