@@ -7,7 +7,11 @@ func (ppu *PPU) renderLine() {
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
-		// TODO Trigger cpu vblank here
 		fmt.Println("VBlank !")
+		ppu.cpu.enterVblank()
+	}
+
+	if ppu.vCounter == 0 {
+		ppu.cpu.leavVblank()
 	}
 }
