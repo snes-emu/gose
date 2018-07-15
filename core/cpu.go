@@ -60,7 +60,7 @@ func (cpu *CPU) step(cycles uint16) {
 	cpu.cycles += cycles
 
 	if cpu.cycles > 1364 {
-		cpu.ppu.RenderLine()
+		cpu.ppu.renderLine()
 		cpu.HandleIRQ()
 	}
 }
