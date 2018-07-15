@@ -160,7 +160,9 @@ func (cpu *CPU) memsel(data uint8) {
 func (cpu *CPU) rdnmi() uint8 {
 	// TODO: maybe the version is not correct there
 	version := uint8(2)
-	return (bit.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
+	res := (bit.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
+	cpu.ioMemory.vBlankNMIFlag = false
+	return res
 }
 
 // 0x4211 - TIMEUP  - H/V-Timer IRQ Flag (Read/Ack)  (R)
