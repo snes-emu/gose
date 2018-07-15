@@ -25,3 +25,14 @@ func (cpu *CPU) HandleIRQ() {
 		fmt.Fprintf(os.Stderr, "Unknown value for cpu.ioMemory.hvIRQ: %v", cpu.ioMemory.hvIRQ)
 	}
 }
+
+func (cpu *CPU) enterVblank() {
+	cpu.ioMemory.vBlankNMIFlag = true
+	if cpu.ioMemory.vBlankNMIEnable {
+		cpu.nmi()
+	}
+}
+
+func (cpu *CPU) leavVblank() {
+	cpu.ioMemory.vBlankNMIFlag = false
+}
