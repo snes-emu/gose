@@ -17,7 +17,7 @@ type Emulator struct {
 
 func New() *Emulator {
 	apu := apu.New()
-	ppu := NewPPU()
+	ppu := newPPU()
 	mem := newMemory()
 	cpu := newCPU(mem)
 
