@@ -352,7 +352,7 @@ func (cpu *CPU) admRelative8() uint16 {
 	if LL < 0x80 {
 		return uint16(LL)
 	}
-	return uint16(LL) - 256
+	return uint16(LL) - 0x100
 
 }
 
