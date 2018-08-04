@@ -347,25 +347,6 @@ func (cpu *CPU) Start() {
 	}
 }
 
-func (cpu *CPU) StartDebug() {
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	for {
-		select {
-		case <-sigs:
-			fmt.Printf("Emulator exited")
-			os.Exit(0)
-		default:
-			K := cpu.getKRegister()
-			PC := cpu.getPCRegister()
-			opcode := cpu.memory.GetByteBank(K, PC)
-			fmt.Printf("%02X/%04X:	%02X opcode\n", K, PC, opcode)
-			cpu.opcodes[opcode]()
-		}
-	}
-}
-
 func (cpu *CPU) pushStack(data uint8) {
 	if cpu.eFlag {
 		cpu.memory.SetByteBank(data, 0x00, bit.JoinUint16(cpu.getSLRegister(), 0x01))
