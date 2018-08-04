@@ -1,16 +1,16 @@
-// +build !debug
+// +build debug
 
 package main
 
 import (
 	"flag"
+	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/snes-emu/gose/core"
 )
 
 var filename string
-var pprof bool
 
 func flags() {
 	flag.StringVar(&filename, "filename", "", "filename of the ROM to load")
@@ -22,5 +22,10 @@ func main() {
 
 	emu := core.New()
 	emu.ReadROM(filename)
-	emu.CPU.Start()
+	go debugServer()
+	emu.CPU.StartDebug()
+}
+
+func debugServer() {
+	http.ListenAndServe("localhost:8080", nil)
 }
