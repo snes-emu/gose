@@ -22,9 +22,12 @@ func (cpu *CPU) initIORegisters() {
 }
 
 func (cpu *CPU) registerIORegisters() {
+	for i := 0; i < 0x380; i++ {
+		cpu.ioRegisters[i] = io.NewRegister(nil, nil)
+	}
 	cpu.ioRegisters[0x016] = io.NewRegister(cpu.joya, cpu.joywr)
 	cpu.ioRegisters[0x017] = io.NewRegister(cpu.joyb, nil)
-	cpu.ioRegisters[0x200] = io.NewRegister(cpu.joyb, nil)
+	cpu.ioRegisters[0x200] = io.NewRegister(nil, cpu.nmitimen)
 	cpu.ioRegisters[0x201] = io.NewRegister(nil, cpu.wrio)
 	cpu.ioRegisters[0x202] = io.NewRegister(nil, cpu.wrmpya)
 	cpu.ioRegisters[0x203] = io.NewRegister(nil, cpu.wrmpyb)
@@ -45,6 +48,7 @@ func (cpu *CPU) registerIORegisters() {
 	cpu.ioRegisters[0x216] = io.NewRegister(cpu.rdmpyl, nil)
 	cpu.ioRegisters[0x217] = io.NewRegister(cpu.rdmpyh, nil)
 	cpu.ioRegisters[0x218] = io.NewRegister(cpu.joy1l, nil)
+	cpu.ioRegisters[0x219] = io.NewRegister(cpu.joy1h, nil)
 	cpu.ioRegisters[0x21A] = io.NewRegister(cpu.joy2l, nil)
 	cpu.ioRegisters[0x21B] = io.NewRegister(cpu.joy2h, nil)
 	cpu.ioRegisters[0x21C] = io.NewRegister(cpu.joy3l, nil)
