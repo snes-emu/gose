@@ -73,6 +73,7 @@ func (cpu *CPU) reset() {
 	cpu.D = 0x0000
 	cpu.DBR = 0x00
 	cpu.K = 0x00
+	cpu.S = 0x01FF
 	addressLo := cpu.memory.GetByteBank(0x00, resetEmulationVector)
 	addressHi := cpu.memory.GetByteBank(0x00, resetEmulationVector+1)
 	cpu.PC = bit.JoinUint16(addressLo, addressHi)
