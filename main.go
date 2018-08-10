@@ -2,21 +2,21 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	"github.com/snes-emu/gose/core"
 )
 
-var filename string
-
-func flags() {
-	flag.StringVar(&filename, "filename", "", "filename of the ROM to load")
-	flag.Parse()
-}
-
 func main() {
-	flags()
+	flag.Parse()
+
+	if len(flag.Args()) == 0 {
+		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
+		os.Exit(1)
+	}
 
 	emu := core.New()
-	emu.ReadROM(filename)
+	emu.ReadROM(flag.Arg(0))
 	emu.CPU.Start()
 }
