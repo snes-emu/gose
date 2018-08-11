@@ -1,6 +1,10 @@
 package apu
 
-import "github.com/snes-emu/gose/io"
+import (
+	"fmt"
+
+	"github.com/snes-emu/gose/io"
+)
 
 type APU struct {
 	CommunicationPorts [4]*port
@@ -11,7 +15,7 @@ func New() *APU {
 	apu := &APU{}
 	for i := 0; i < len(apu.CommunicationPorts); i++ {
 		apu.CommunicationPorts[i] = newPort()
-		apu.Registers[i] = io.NewRegister(apu.CommunicationPorts[i].CPUOutput, apu.CommunicationPorts[i].CPUInput)
+		apu.Registers[i] = io.NewRegister(apu.CommunicationPorts[i].CPUOutput, apu.CommunicationPorts[i].CPUInput, fmt.Sprintf("APUFAKE%v", i))
 	}
 	apu.init()
 	return apu
