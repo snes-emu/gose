@@ -134,7 +134,9 @@ func (cpu *CPU) initDmaen() {
 				cpu.dmaChannels[i].dmaEnabled = data&(1<<i) != 0
 			}
 			cpu.startDma()
-		})
+		},
+		"MDMAEN",
+	)
 
 	// 0x420C - HDMAEN - Select H-Blank DMA (H-DMA) Channel(s) (W)
 	cpu.ioRegisters[0x20c] = io.NewRegister(
@@ -143,6 +145,7 @@ func (cpu *CPU) initDmaen() {
 				cpu.dmaChannels[i].hdmaEnabled = data&(1<<i) != 0
 			}
 		},
+		"HMDMAEN",
 	)
 
 }
@@ -178,6 +181,7 @@ func (cpu *CPU) initDmapx() {
 				c.fixedTransfer = data&0x8 != 0
 				c.transferMode = data & 0x7
 			},
+			fmt.Sprintf("DMAP%v", i),
 		)
 	}
 }
@@ -194,6 +198,7 @@ func (cpu *CPU) initBbadx() {
 			func(data uint8) {
 				c.destAddr = data
 			},
+			fmt.Sprintf("BBAD%v", i),
 		)
 	}
 }
@@ -210,6 +215,7 @@ func (cpu *CPU) initA1txl() {
 			func(data uint8) {
 				c.srcAddr = bit.SetLowByte(c.srcAddr, data)
 			},
+			fmt.Sprintf("A1T%vL", i),
 		)
 	}
 }
@@ -226,6 +232,7 @@ func (cpu *CPU) initA1txh() {
 			func(data uint8) {
 				c.srcAddr = bit.SetHighByte(c.srcAddr, data)
 			},
+			fmt.Sprintf("A1T%vH", i),
 		)
 	}
 }
@@ -242,6 +249,7 @@ func (cpu *CPU) initA1bx() {
 			func(data uint8) {
 				c.srcBank = data
 			},
+			fmt.Sprintf("A1B%v", i),
 		)
 	}
 }
@@ -258,6 +266,7 @@ func (cpu *CPU) initDasxL() {
 			func(data uint8) {
 				c.transferSize = (c.transferSize & 0xff00) | uint16(data)
 			},
+			fmt.Sprintf("DAS%vL", i),
 		)
 	}
 }
@@ -274,6 +283,7 @@ func (cpu *CPU) initDasxH() {
 			func(data uint8) {
 				c.transferSize = bit.SetHighByte(c.transferSize, data)
 			},
+			fmt.Sprintf("DAS%vH", i),
 		)
 	}
 }
@@ -290,6 +300,7 @@ func (cpu *CPU) initDasbx() {
 			func(data uint8) {
 				c.indirectAddrBank = data
 			},
+			fmt.Sprintf("DASB%v", i),
 		)
 	}
 }
@@ -306,6 +317,7 @@ func (cpu *CPU) initA2axl() {
 			func(data uint8) {
 				c.hdmaAddr = (c.hdmaAddr & 0xff00) | uint16(data)
 			},
+			fmt.Sprintf("A2A%vL", i),
 		)
 	}
 }
@@ -322,6 +334,7 @@ func (cpu *CPU) initA2axh() {
 			func(data uint8) {
 				c.hdmaAddr = bit.SetHighByte(c.hdmaAddr, data)
 			},
+			fmt.Sprintf("A2A%vH", i),
 		)
 	}
 }
@@ -338,6 +351,7 @@ func (cpu *CPU) initNtrlx() {
 			func(data uint8) {
 				c.hdmaLineCounter = data
 			},
+			fmt.Sprintf("NTRL%v", i),
 		)
 	}
 }
@@ -353,6 +367,7 @@ func (cpu *CPU) initUnusedx() {
 			func(data uint8) {
 				c.unused = data
 			},
+			fmt.Sprintf("UNUSED%v", i),
 		)
 	}
 
