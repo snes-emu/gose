@@ -8,9 +8,12 @@ import (
 	"github.com/snes-emu/gose/core"
 )
 
-func main() {
-	flag.Parse()
+var VERSION string
 
+func main() {
+	fmt.Printf("Staring gose, version: %s\n", VERSION)
+
+	flag.Parse()
 	if len(flag.Args()) == 0 {
 		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
 		os.Exit(1)
