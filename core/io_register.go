@@ -18,13 +18,14 @@ type ioMemory struct {
 
 func (cpu *CPU) initIORegisters() {
 	cpu.ioMemory = &ioMemory{bytes: [0x380]uint8{}}
-	cpu.registerIORegisters()
-}
-
-func (cpu *CPU) registerIORegisters() {
 	for i := 0; i < 0x380; i++ {
 		cpu.ioRegisters[i] = io.NewRegister(nil, nil)
 	}
+	cpu.registerIORegisters()
+	cpu.initDma()
+}
+
+func (cpu *CPU) registerIORegisters() {
 	cpu.ioRegisters[0x016] = io.NewRegister(cpu.joya, cpu.joywr, "JOY")
 	cpu.ioRegisters[0x017] = io.NewRegister(cpu.joyb, nil, "JOYB")
 	cpu.ioRegisters[0x200] = io.NewRegister(nil, cpu.nmitimen, "NMITIMEN")
