@@ -79,11 +79,11 @@ func (cpu *CPU) startDma() {
 			cpuBank, cpuOffset := channel.cpuAddress()
 			ppuBank, ppuOffset := channel.ppuAddress(transferCount)
 			if channel.transferDirection {
-				data := cpu.memory.GetByteBank(cpuBank, cpuOffset)
-				cpu.memory.SetByteBank(data, ppuBank, ppuOffset)
-			} else {
 				data := cpu.memory.GetByteBank(ppuBank, ppuOffset)
 				cpu.memory.SetByteBank(data, cpuBank, cpuOffset)
+			} else {
+				data := cpu.memory.GetByteBank(cpuBank, cpuOffset)
+				cpu.memory.SetByteBank(data, ppuBank, ppuOffset)
 			}
 			transferCount++
 			channel.transferSize--
