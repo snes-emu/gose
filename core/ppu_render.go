@@ -62,7 +62,7 @@ func (ppu PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	// Initialize pixel line
 	var pixels [HMax]pixel
-	sprites := make([]uint16, 0, 32)
+	sprites := make([]sprite, 0, 32)
 	firstSprite := uint16(0)
 	if ppu.oam.priorityBit {
 		firstSprite = (ppu.oam.addr >> 2) & 0xFF
@@ -71,19 +71,20 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	for i := firstSprite; i < firstSprite+128; i++ {
 		// Check if line intersects sprite
 		spriteIndex := i % 128
-		if ppu.vCounter >= uint16(ppu.oam.bytes[4*spriteIndex+1]) && ppu.vCounter < uint16(ppu.oam.bytes[4*spriteIndex+1])+uint16(spriteSizeTable[ppu.oam.objectSize|((ppu.oam.bytes[0x200+i/4]&(1<<(2*(spriteIndex%4)+1)))>>(1<<(2*(spriteIndex%4)+1)))<<4][1]) {
+		sprite := ppu.getSpriteByIndex(spriteIndex)
+		if ppu.vCounter >= sprite.y && ppu.vCounter < sprite.y+sprite.vSize {
 			if len(sprites) == 32 {
 				ppu.status.rangeOver = true
 				break
 			} else {
-				sprites = append(sprites, i)
+				sprites = append(sprites, sprite)
 			}
 		}
 	}
 	// Go through all the selected sprites in reverse order (up to 34 tiles)
 	tiles := uint16(0)
 	for i := uint16(len(sprites) - 1); i >= 0; i-- {
-		sprite := ppu.getSpriteByIndex(i)
+		sprite := sprites[i]
 		// Go through all tiles containing the line
 		// Tiles are stored in the 2D-array 0xNyx
 
