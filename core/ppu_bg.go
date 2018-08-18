@@ -149,7 +149,7 @@ func (ppu *PPU) bg4vofs(data uint8) {
 	ppu.backgroundData.scrollPrev1 = data
 }
 
-func (ppu PPU) decodeTile(BG uint8, x uint16, y uint16) tile {
+func (ppu PPU) getTileFromBG(BG uint8, x uint16, y uint16) tile {
 	bg := ppu.backgroundData.bg[BG]
 	var mapIndex uint16
 	if bg.screenSize&0x1 != 0 {

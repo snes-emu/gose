@@ -8,9 +8,24 @@ type pixel struct {
 	priority uint8
 }
 
-func (ppu PPU) decodeTilePixel(tileAddress, colorDepth, x, y uint16) uint8 {
+// Return the color index for a sprite inside the sprite palette
+// Each 8x8 tile occupies 16, 32, or 64 bytes (for 4, 16, or 256 colors). BG tiles can be 4/16/256 colors (depending on BG Mode), OBJs are always 16 color.
+
+//   Color Bits (Planes)     Upper Row ........... Lower Row
+//   Plane 0 stored in bytes 00h,02h,04h,06h,08h,0Ah,0Ch,0Eh ;\for 4/16/256 colors
+//   Plane 1 stored in bytes 01h,03h,05h,07h,09h,0Bh,0Dh,0Fh ;/
+//   Plane 2 stored in bytes 10h,12h,14h,16h,18h,1Ah,1Ch,1Eh ;\for 16/256 colors
+//   Plane 3 stored in bytes 11h,13h,15h,17h,19h,1Bh,1Dh,1Fh ;/
+//   Plane 4 stored in bytes 20h,22h,24h,26h,28h,2Ah,2Ch,2Eh ;\
+//   Plane 5 stored in bytes 21h,23h,25h,27h,29h,2Bh,2Dh,2Fh ; for 256 colors
+//   Plane 6 stored in bytes 30h,32h,34h,36h,38h,3Ah,3Ch,3Eh ;
+//   Plane 7 stored in bytes 31h,33h,35h,37h,39h,3Bh,3Dh,3Fh ;/
+//   In each byte, bit7 is left-most, bit0 is right-most.
+//   Plane 0 is the LSB of color number.
+func (ppu PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	var colorIndex uint8
-	
+
+	// Multiply per 2 to get the correct row, 00h, 02h, 04h...
 	lineBaseAddress := tileAddress + 2*y
 	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> x & 1) << 0
 	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> x & 1) << 1
@@ -90,7 +105,7 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 				//Address of the current tile in VRAM
 				tileAddress := sprite.tileAddress + tileCoor<<5
 				// Get the color index of the pixel
-				colorIndex := ppu.decodeTilePixel(tileAddress, 16, x, y)
+				colorIndex := ppu.getColorIndex(tileAddress, 16, x, y)
 				// If color is not tansparent, write color value in the pixel
 				if colorIndex != 0 {
 					colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
@@ -128,7 +143,7 @@ func (ppu PPU) renderBgLine(BG uint8, colorDepth uint16) [HMax]pixel {
 			yTile = (y + bg.verticalScroll) % size
 		}
 		for xTile := (x + bg.horizontalScroll) % size; xTile < size; xTile++ {
-			colorIndex := ppu.decodeTilePixel(tileAddress, colorDepth, xTile, yTile)
+			colorIndex := ppu.getColorIndex(tileAddress, colorDepth, xTile, yTile)
 			var colorAddress uint16
 			if ppu.backgroundData.screenMode == 0 {
 				colorAddress = (uint16(BG)<<5 + tile.paletteIndex<<colorDepth + uint16(colorIndex)) << 1

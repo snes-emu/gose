@@ -94,7 +94,7 @@ var spriteSizeTable = [16][2]uint8{
 	{32, 32},
 }
 
-func (ppu PPU) decodeSprite(i uint16) sprite {
+func (ppu PPU) getSpriteByIndex(i uint16) sprite {
 	sprite := sprite{}
 	sprite.x = uint16(ppu.oam.bytes[4*i]) | uint16(ppu.oam.bytes[0x200+i/4]&(1<<(2*(i%4)))<<(8-2*(i%4)))
 	sprite.y = uint16(ppu.oam.bytes[4*i+1])
