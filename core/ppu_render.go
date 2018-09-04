@@ -14,10 +14,17 @@ type pixel struct {
 
 func (ppu *PPU) renderLine() {
 	fmt.Printf("Render line: %v\n", ppu.vCounter)
+	pixels := ppu.renderSpriteLine()
+	for i := 0; i < HMax; i++ {
+		lo, hi := bit.SplitUint16(pixels[i].bgr)
+		ppu.screen[int(ppu.vCounter)*HMax*2+2*i] = hi
+		ppu.screen[int(ppu.vCounter)*HMax*2+2*i+1] = lo
+	}
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
 		fmt.Println("VBlank !")
+		ppu.render(ppu.screen)
 		ppu.cpu.enterVblank()
 	}
 
