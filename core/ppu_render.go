@@ -90,7 +90,7 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	}
 	// Go through all the selected sprites in reverse order (up to 34 tiles)
 	tiles := uint16(0)
-	for i := uint16(len(sprites) - 1); i >= 0; i-- {
+	for i := len(sprites) - 1; i >= 0; i-- {
 		sprite := sprites[i]
 		// Go through all tiles containing the line
 		// Tiles are stored in the 2D-array 0xNyx
