@@ -130,7 +130,7 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 				//Address of the current tile in VRAM
 				tileAddress := sprite.tileAddress + tileCoor<<5
 				// Get the color index of the pixel
-				colorIndex := ppu.getColorIndex(tileAddress, 16, x, y)
+				colorIndex := ppu.getColorIndex(tileAddress, 4, x, y)
 				// If color is not tansparent, write color value in the pixel
 				if colorIndex != 0 {
 					colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
