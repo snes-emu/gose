@@ -206,3 +206,19 @@ func (ppu *PPU) renderBgLine(BG uint8, colorDepth uint16) [HMax]pixel {
 	}
 	return pixels
 }
+
+func (ppu *PPU) printColorPalette() {
+	for palette := 0; palette < 16; palette++ {
+		fmt.Println("palette", palette)
+		for color := 0; color < 16; color++ {
+			colorAddress := 2 * (palette<<4 + color)
+			colorBgr := bit.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1])
+			r := int((float32(colorBgr&0x1F) / 32.0) * 256)
+			g := int((float32(colorBgr&0x3E0>>5) / 32.0) * 256)
+			b := int((float32(colorBgr&0x7C00>>10) / 32.0) * 256)
+			fmt.Printf("\033[48;2;%d;%d;%dm  ", r, g, b)
+		}
+		fmt.Printf("\033[0m\n")
+	}
+
+}
