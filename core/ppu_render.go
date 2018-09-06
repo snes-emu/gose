@@ -47,7 +47,7 @@ func (ppu *PPU) renderLine() {
 //   Plane 7 stored in bytes 31h,33h,35h,37h,39h,3Bh,3Dh,3Fh ;/
 //   In each byte, bit7 is left-most, bit0 is right-most.
 //   Plane 0 is the LSB of color number.
-func (ppu PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
+func (ppu *PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	var colorIndex uint8
 
 	lineBaseAddress := tileAddress + 2*y
@@ -66,7 +66,7 @@ func (ppu PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	return colorIndex
 }
 
-func (ppu PPU) renderSpriteLine() [HMax]pixel {
+func (ppu *PPU) renderSpriteLine() [HMax]pixel {
 	// Initialize pixel line
 	var pixels [HMax]pixel
 	sprites := make([]sprite, 0, 32)
@@ -147,7 +147,7 @@ func (ppu PPU) renderSpriteLine() [HMax]pixel {
 	return pixels
 }
 
-func (ppu PPU) renderBgLine(BG uint8, colorDepth uint16) [HMax]pixel {
+func (ppu *PPU) renderBgLine(BG uint8, colorDepth uint16) [HMax]pixel {
 	var pixels [HMax]pixel
 	bg := ppu.backgroundData.bg[BG]
 	y := ppu.vCounter
