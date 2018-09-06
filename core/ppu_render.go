@@ -51,17 +51,17 @@ func (ppu *PPU) getColorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	var colorIndex uint8
 
 	lineBaseAddress := tileAddress + 2*y
-	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> x & 1) << 0
-	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> x & 1) << 1
+	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x00] >> (7 - x) & 1) << 0
+	colorIndex += (ppu.vram.bytes[lineBaseAddress+0x01] >> (7 - x) & 1) << 1
 	if colorDepth >= 4 {
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> x & 1) << 2
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> x & 1) << 3
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x10] >> (7 - x) & 1) << 2
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x11] >> (7 - x) & 1) << 3
 	}
 	if colorDepth >= 8 {
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x20] >> x & 1) << 4
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x21] >> x & 1) << 5
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x30] >> x & 1) << 6
-		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x31] >> x & 1) << 7
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x20] >> (7 - x) & 1) << 4
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x21] >> (7 - x) & 1) << 5
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x30] >> (7 - x) & 1) << 6
+		colorIndex += (ppu.vram.bytes[lineBaseAddress+0x31] >> (7 - x) & 1) << 7
 	}
 	return colorIndex
 }
@@ -96,29 +96,30 @@ func (ppu *PPU) renderSpriteLine() [HMax]pixel {
 		// Tiles are stored in the 2D-array 0xNyx
 
 		// Y coordinate of the tile containing the line
-		var yTile uint16
+		var yTile = (ppu.vCounter - sprite.y) / 8
 		// Y coordinate of the line in the tile
-		var y uint16
+		var y = (ppu.vCounter - sprite.y) % 8
 		if sprite.vFlip {
 			yTile = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) / 8
 			y = (sprite.vSize - 1 - (ppu.vCounter - sprite.y)) % 8
-		} else {
-			yTile = (ppu.vCounter - sprite.y) / 8
-			y = (ppu.vCounter - sprite.y) % 8
 		}
 		// Go through pixels in reverse order if hFlip is true
-		for baseTileCoor := yTile << 4; baseTileCoor < yTile<<4+sprite.hSize/8; baseTileCoor++ {
+		for baseTileOffset := yTile << 4; baseTileOffset < yTile<<4+sprite.hSize/8; baseTileOffset++ {
 			if tiles == 34 {
 				ppu.status.timeOver = true
 				break
 			}
 			// Tile coordinate in the form 0xYX
-			var tileCoor uint16
+			var tileOffset uint16
 			if sprite.hFlip {
-				tileCoor = 2*(yTile<<4) + sprite.hSize/8 - 1 - baseTileCoor
+				tileOffset = 2*(yTile<<4) + sprite.hSize/8 - 1 - baseTileOffset
 			} else {
-				tileCoor = baseTileCoor
+				tileOffset = baseTileOffset
 			}
+
+			//Address of the current tile in VRAM
+			tileAddress := sprite.tileAddress + tileOffset<<5
+
 			// Go through all pixel in the line
 			for pix := uint16(0); pix < 8; pix++ {
 				var x uint16
