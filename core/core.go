@@ -15,11 +15,13 @@ type Emulator struct {
 	CPU    *CPU
 	Memory *Memory
 	PPU    *PPU
+	Screen []byte
 }
 
-func New() *Emulator {
+func New(render func([]byte)) *Emulator {
 	apu := apu.New()
 	ppu := newPPU()
+	ppu.render = render
 	mem := newMemory()
 	cpu := newCPU(mem)
 
@@ -31,7 +33,7 @@ func New() *Emulator {
 	mem.apu = apu
 	mem.initIo()
 
-	return &Emulator{cpu, mem, ppu}
+	return &Emulator{cpu, mem, ppu, ppu.screen}
 }
 
 func readFile(src string) ([]byte, error) {

@@ -4,15 +4,15 @@ import "github.com/snes-emu/gose/io"
 
 const (
 	// HMax represents max H counter value
-	HMax = 339
+	HMax = 340
 	// VBSNTSC represents VBlank start counter value in NTSC
 	VBSNTSC = 224
 	// VBSPAL represents VBlank start counter value in PAL
 	VBSPAL = 239
 	// VMaxNTSC represents max V counter value in NTSC
-	VMaxNTSC = 261
+	VMaxNTSC = 262
 	// VMaxPAL represents max V counter value in PAL
-	VMaxPAL = 311
+	VMaxPAL = 312
 )
 
 // PPU represents the Picture Processing Unit of the SNES
@@ -27,6 +27,8 @@ type PPU struct {
 	window         [2]*window         // window parameters
 	status         *status            // store ppu status
 	Registers      [0x40]*io.Register // Registers represents the ppu registers as methods
+	screen         []byte
+	render         func([]byte)
 
 	hCounter uint16
 	vCounter uint16
@@ -50,6 +52,8 @@ func newPPU() *PPU {
 	ppu.window[0] = &window{}
 	ppu.window[1] = &window{}
 	ppu.status = &status{}
+
+	ppu.screen = make([]byte, HMax*VMaxPAL*2)
 	ppu.Registers[0x00] = io.NewRegister(nil, ppu.inidisp, "INIDISP")
 	ppu.Registers[0x01] = io.NewRegister(nil, ppu.obsel, "OBSEL")
 	ppu.Registers[0x02] = io.NewRegister(nil, ppu.oamaddl, "OAMADDL")
