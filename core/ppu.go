@@ -53,7 +53,7 @@ func newPPU() *PPU {
 	ppu.window[1] = &window{}
 	ppu.status = &status{}
 
-	ppu.screen = make([]byte, HMax*VMaxNTSC*2)
+	ppu.screen = make([]byte, HMax*VMaxPAL*2)
 	ppu.Registers[0x00] = io.NewRegister(nil, ppu.inidisp, "INIDISP")
 	ppu.Registers[0x01] = io.NewRegister(nil, ppu.obsel, "OBSEL")
 	ppu.Registers[0x02] = io.NewRegister(nil, ppu.oamaddl, "OAMADDL")
