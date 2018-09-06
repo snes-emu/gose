@@ -72,12 +72,12 @@ func (ppu *PPU) rdoam() uint8 {
 // 2101h - OBSEL - Object Size and Object Base (W)
 func (ppu *PPU) obsel(data uint8) {
 	ppu.oam.objectSize = (data >> 5)
-	ppu.oam.objectTileBaseAddress = uint16(data&0x7) << 14
-	ppu.oam.objectTileGapAddress = uint16((data>>3)&0x3) << 13
+	ppu.oam.objectTileBaseAddress = uint16(data & 0x7)
+	ppu.oam.objectTileGapAddress = uint16((data >> 3) & 0x3)
 }
 
 var spriteSizeTable = [16][2]uint8{
-	{8, 8},
+	{16, 16},
 	{8, 8},
 	{8, 8},
 	{16, 16},
@@ -97,14 +97,18 @@ var spriteSizeTable = [16][2]uint8{
 
 func (ppu PPU) getSpriteByIndex(i uint16) sprite {
 	sprite := sprite{}
-	sprite.x = uint16(ppu.oam.bytes[4*i]) | uint16(ppu.oam.bytes[0x200+i/4]&(1<<(2*(i%4)))<<(8-2*(i%4)))
+	sprite.x = uint16(ppu.oam.bytes[4*i]) | uint16((ppu.oam.bytes[0x200+i/4]>>(2*(i%4)))&0x01<<8)
 	sprite.y = uint16(ppu.oam.bytes[4*i+1])
-	sprite.tileAddress = ((ppu.oam.objectTileBaseAddress << 14) + (uint16(ppu.oam.bytes[4*i+2]) << 5) + (uint16(ppu.oam.bytes[4*i+3])&0x1)*(ppu.oam.objectTileGapAddress+1)<<13) & 0xFFFE
+	tileNumber := uint16(ppu.oam.bytes[4*i+2]) | uint16((ppu.oam.bytes[4*i+3]&0x01)<<8)
+	sprite.tileAddress = ppu.oam.objectTileBaseAddress<<14 + tileNumber<<5
+	if tileNumber&0x0100 != 0 {
+		sprite.tileAddress += ppu.oam.objectTileGapAddress << 13
+	}
 	sprite.paletteIndex = (uint16(ppu.oam.bytes[4*i+3]) & 0xE) >> 1
 	sprite.priority = (ppu.oam.bytes[4*i+3] & 0x30) >> 4
 	sprite.hFlip = ppu.oam.bytes[4*i+3]&0x40 != 0
 	sprite.vFlip = ppu.oam.bytes[4*i+3]&0x80 != 0
-	size := spriteSizeTable[ppu.oam.objectSize|((ppu.oam.bytes[0x200+i/4]&(1<<(2*(i%4)+1)))>>(1<<(2*(i%4)+1)))<<4]
+	size := spriteSizeTable[ppu.oam.objectSize|(ppu.oam.bytes[0x200+i/4]>>(2*(i%4)+1))&0x01<<3]
 	sprite.hSize = uint16(size[0])
 	sprite.vSize = uint16(size[1])
 	return sprite
