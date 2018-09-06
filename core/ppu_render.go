@@ -17,8 +17,8 @@ func (ppu *PPU) renderLine() {
 	pixels := ppu.renderSpriteLine()
 	for i := 0; i < HMax; i++ {
 		lo, hi := bit.SplitUint16(pixels[i].bgr)
-		ppu.screen[int(ppu.vCounter)*HMax*2+2*i] = hi
-		ppu.screen[int(ppu.vCounter)*HMax*2+2*i+1] = lo
+		ppu.screen[int(ppu.vCounter)*HMax*2+2*i] = lo
+		ppu.screen[int(ppu.vCounter)*HMax*2+2*i+1] = hi
 	}
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
