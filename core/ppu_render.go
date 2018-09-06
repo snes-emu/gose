@@ -2,9 +2,13 @@ package core
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/snes-emu/gose/bit"
 )
+
+var lastFrame = time.Now()
+var frameDuration = time.Duration(16666667)
 
 type pixel struct {
 	bgr      uint16
@@ -25,6 +29,10 @@ func (ppu *PPU) renderLine() {
 	if ppu.vCounter == ppu.VDisplay()+1 {
 		fmt.Println("VBlank !")
 		ppu.render(ppu.screen)
+		delta := time.Since(lastFrame)
+		fmt.Println(delta.String(), frameDuration.String())
+		time.Sleep(time.Duration(frameDuration.Nanoseconds() - delta.Nanoseconds()))
+		lastFrame = time.Now()
 		ppu.cpu.enterVblank()
 	}
 
