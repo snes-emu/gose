@@ -128,15 +128,23 @@ func (ppu *PPU) renderSpriteLine() [HMax]pixel {
 				} else {
 					x = pix
 				}
-				//Address of the current tile in VRAM
-				tileAddress := sprite.tileAddress + tileCoor<<5
 				// Get the color index of the pixel
 				colorIndex := ppu.getColorIndex(tileAddress, 4, x, y)
 				// If color is not tansparent, write color value in the pixel
 				if colorIndex != 0 {
-					colorAddress := 2 * (128 + 16*sprite.paletteIndex + uint16(colorIndex))
-					pixels[(sprite.x+8*(tileCoor&0xF)+x)%HMax] = pixel{
-						bgr:      bit.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1]),
+					colorAddress := 2 * (0x80 + sprite.paletteIndex<<4 + uint16(colorIndex))
+					colorBgr := bit.JoinUint16(ppu.cgram.bytes[colorAddress], ppu.cgram.bytes[colorAddress+1])
+					if ppu.display.brightness != 0 {
+						r := int(colorBgr) & 0x1F * (int(ppu.display.brightness) + 1) / 16
+						g := int(colorBgr) & 0x3E0 >> 5 * (int(ppu.display.brightness) + 1) / 16
+						b := int(colorBgr) & 0x7C00 >> 10 * (int(ppu.display.brightness) + 1) / 16
+						colorBgr = uint16(b<<10 | g<<5 | r)
+					} else {
+						colorBgr = 0
+					}
+
+					pixels[(sprite.x+8*(tileOffset&0xF)+x)%HMax] = pixel{
+						bgr:      colorBgr,
 						visible:  true,
 						priority: sprite.priority,
 					}
