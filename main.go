@@ -12,6 +12,7 @@ import (
 	"github.com/snes-emu/gose/debugger"
 )
 
+// VERSION set at compile time
 var VERSION string
 
 func main() {
