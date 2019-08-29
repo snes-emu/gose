@@ -9,6 +9,7 @@ import (
 
 	"github.com/snes-emu/gose/config"
 	"github.com/snes-emu/gose/core"
+	"github.com/snes-emu/gose/debugger"
 )
 
 var VERSION string
