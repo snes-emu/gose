@@ -38,5 +38,5 @@ func main() {
 
 	<-sigs
 	emu.Stop()
-	fmt.Printf("Emulator exited")
+	fmt.Println("Emulator exited")
 }
