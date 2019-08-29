@@ -12,9 +12,11 @@ import (
 )
 
 type Emulator struct {
-	CPU    *CPU
-	Memory *Memory
-	PPU    *PPU
+	CPU       *CPU
+	Memory    *Memory
+	PPU       *PPU
+	pauseChan chan struct{}
+	stopChan  chan struct{}
 }
 
 func New() *Emulator {
@@ -31,7 +33,11 @@ func New() *Emulator {
 	mem.apu = apu
 	mem.initIo()
 
-	return &Emulator{cpu, mem, ppu}
+	return &Emulator{
+		CPU:    cpu,
+		Memory: mem,
+		PPU:    ppu,
+	}
 }
 
 func readFile(src string) ([]byte, error) {
@@ -68,6 +74,7 @@ func readFile(src string) ([]byte, error) {
 	return ioutil.ReadAll(f)
 }
 
+// ReadROM open the rom at filename and load it in memory
 func (e *Emulator) ReadROM(filename string) {
 	buf, err := readFile(filename)
 	if err != nil {
@@ -83,4 +90,17 @@ func (e *Emulator) ReadROM(filename string) {
 
 	e.Memory.LoadROM(*rom)
 	e.CPU.Init()
+}
+
+// Start the main emulator loop
+func (e *Emulator) Start() {
+	e.pauseChan, e.stopChan = e.CPU.Start()
+}
+
+func (e *Emulator) TogglePause() {
+	e.pauseChan <- struct{}{}
+}
+
+func (e *Emulator) Stop() {
+	close(e.stopChan)
 }
