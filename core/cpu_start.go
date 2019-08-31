@@ -2,9 +2,6 @@ package core
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/snes-emu/gose/config"
 )
@@ -22,34 +19,12 @@ func init() {
 	}
 }
 
-func (cpu *CPU) Start() (chan struct{}, chan struct{}) {
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	pauseChan := make(chan struct{}, 1)
-	stopChan := make(chan struct{}, 1)
-
-	go cpu.loop(pauseChan, stopChan)
-
-	return pauseChan, stopChan
-}
-
-func (cpu *CPU) loop(pauseChan, stopChan chan struct{}) {
-	for {
-		select {
-		case <-stopChan:
-			return
-		case <-pauseChan:
-			// wait for unpause
-			<-pauseChan
-		default:
-			K := cpu.getKRegister()
-			PC := cpu.getPCRegister()
-			opcode := cpu.memory.GetByteBank(K, PC)
-			cpu.logState(K, PC, opcode)
-			cpu.opcodes[opcode]()
-		}
-	}
+func (cpu *CPU) execOpcode() {
+	K := cpu.getKRegister()
+	PC := cpu.getPCRegister()
+	opcode := cpu.memory.GetByteBank(K, PC)
+	cpu.logState(K, PC, opcode)
+	cpu.opcodes[opcode]()
 }
 
 var (

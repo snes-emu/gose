@@ -12,11 +12,15 @@ import (
 )
 
 type Emulator struct {
-	CPU       *CPU
-	Memory    *Memory
-	PPU       *PPU
+	CPU    *CPU
+	Memory *Memory
+	PPU    *PPU
+
+	//state
+	state     string
 	pauseChan chan struct{}
 	stopChan  chan struct{}
+	stepChan  chan int
 }
 
 func New() *Emulator {
@@ -34,9 +38,13 @@ func New() *Emulator {
 	mem.initIo()
 
 	return &Emulator{
-		CPU:    cpu,
-		Memory: mem,
-		PPU:    ppu,
+		CPU:       cpu,
+		Memory:    mem,
+		PPU:       ppu,
+		state:     "paused",
+		pauseChan: make(chan struct{}),
+		stopChan:  make(chan struct{}),
+		stepChan:  make(chan int),
 	}
 }
 
@@ -92,9 +100,74 @@ func (e *Emulator) ReadROM(filename string) {
 	e.CPU.Init()
 }
 
+func (e *Emulator) loop() {
+	n := 0
+	for {
+		switch e.state {
+		case "stopped":
+			return
+		case "paused":
+			n = e.statePaused()
+		case "started":
+			e.stateStarted(n)
+
+		}
+	}
+}
+
+func (e *Emulator) stateStarted(n int) {
+	if n > 0 {
+		for i := 0; i < n; i++ {
+			select {
+			case <-e.pauseChan:
+				e.state = "paused"
+				return
+			case <-e.stopChan:
+				e.state = "stopped"
+				return
+			default:
+				e.CPU.execOpcode()
+			}
+		}
+
+		// go back to paused state if execution is finished
+		e.state = "paused"
+		return
+	} else {
+		for {
+			select {
+			case <-e.pauseChan:
+				e.state = "paused"
+				return
+			case <-e.stopChan:
+				e.state = "stopped"
+				return
+			default:
+				e.CPU.execOpcode()
+			}
+		}
+	}
+}
+
+func (e *Emulator) statePaused() int {
+	select {
+	case <-e.stopChan:
+		e.state = "stopped"
+
+	case <-e.pauseChan:
+		e.state = "started"
+
+	case n := <-e.stepChan:
+		e.state = "started"
+		return n
+	}
+	return 0
+}
+
 // Start the main emulator loop
 func (e *Emulator) Start() {
-	e.pauseChan, e.stopChan = e.CPU.Start()
+	e.state = "started"
+	go e.loop()
 }
 
 func (e *Emulator) TogglePause() {
@@ -103,4 +176,8 @@ func (e *Emulator) TogglePause() {
 
 func (e *Emulator) Stop() {
 	close(e.stopChan)
+}
+
+func (e *Emulator) Step(n int) {
+	e.stepChan <- n
 }
