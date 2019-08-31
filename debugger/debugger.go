@@ -5,33 +5,71 @@ import (
 	"net/http"
 	"os/exec"
 
-	"github.com/snes-emu/gose/config"
+	"github.com/snes-emu/gose/core"
 )
 
-// Launch start the debugger and open the web page
-func Launch() {
-	s := createServer()
+type Debugger struct {
+	emu  *core.Emulator
+	addr string
+	s    *http.Server
+}
 
+// New debugger instance
+func New(emu *core.Emulator, addr string) *Debugger {
+	db := &Debugger{
+		emu:  emu,
+		addr: addr,
+	}
+	db.createServer(addr)
+
+	return db
+}
+
+//Start the debugger and open the web page
+func (db *Debugger) Start() {
 	go func() {
-		err := s.ListenAndServe()
+		err := db.s.ListenAndServe()
 		fmt.Println(err)
 	}()
 
-	fmt.Println("open web browser")
-	cmd := exec.Command("xdg-open", fmt.Sprintf("http://localhost:%d", config.DebugPort()))
+	fmt.Printf("open web browser at %s\n", db.addr)
+	cmd := exec.Command("xdg-open", fmt.Sprintf("http://%s", db.addr))
 	cmd.Start()
 }
 
-func createServer() *http.Server {
+func (db *Debugger) createServer(addr string) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
+	mux.HandleFunc("/", db.home)
+	mux.HandleFunc("/pause", db.pause)
+	mux.HandleFunc("/step", db.step)
 
-	return &http.Server{
-		Addr:    fmt.Sprintf("localhost:%d", config.DebugPort()),
+	db.s = &http.Server{
+		Addr:    addr,
 		Handler: mux,
 	}
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello"))
+func (db *Debugger) home(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(
+		`
+<html>
+	<head>
+		<title>Gose debugger</title>
+	</head>
+	<body>
+		<button onClick="fetch('/pause')">toggle pause</button>
+		<button onClick="fetch('/step')">step</button>
+	</body>
+</html>
+`))
+}
+
+func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
+	db.emu.TogglePause()
+
+}
+
+func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
+	db.emu.Step(1)
+
 }

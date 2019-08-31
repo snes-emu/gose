@@ -28,9 +28,10 @@ func main() {
 	emu.Start()
 
 	if config.DebugServer() {
-
 		fmt.Println("start debugger")
-		debugger.Launch()
+		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
+		db.Start()
+
 	}
 
 	sigs := make(chan os.Signal, 1)
