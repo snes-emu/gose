@@ -31,7 +31,6 @@ func main() {
 		fmt.Println("start debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
-
 	}
 
 	sigs := make(chan os.Signal, 1)

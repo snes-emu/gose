@@ -32,9 +32,27 @@ func (db *Debugger) Start() {
 		fmt.Println(err)
 	}()
 
-	fmt.Printf("open web browser at %s\n", db.addr)
-	cmd := exec.Command("xdg-open", fmt.Sprintf("http://%s", db.addr))
-	cmd.Start()
+	url := fmt.Sprintf("http://%s", db.addr)
+	fmt.Printf("open web browser at %s\n", url)
+	for _, open := range []string{"xdg-open", "open"} {
+		if err := openURL(open, url); err == nil {
+			break
+		}
+	}
+
+}
+
+func openURL(program, url string) error {
+	cmd := exec.Command(program, url)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *Debugger) createServer(addr string) {
@@ -50,18 +68,7 @@ func (db *Debugger) createServer(addr string) {
 }
 
 func (db *Debugger) home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(
-		`
-<html>
-	<head>
-		<title>Gose debugger</title>
-	</head>
-	<body>
-		<button onClick="fetch('/pause')">toggle pause</button>
-		<button onClick="fetch('/step')">step</button>
-	</body>
-</html>
-`))
+	w.Write(front)
 }
 
 func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
