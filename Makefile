@@ -14,33 +14,37 @@ GOCMD = GO111MODULE=on go
 all: build
 
 .PHONY: build
-build:
+build: deps
 	${GOCMD} build ${LDFLAGS} -o ${BINARY} .
 
 .PHONY: debug
-debug:
+debug: deps
 	${GOCMD} build ${DEBUGLDFLAGS} -tags debug -o ${BINARY} .
 
 .PHONY: linux
-linux:
+linux: deps
 	GOOS=linux GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} .
 
 .PHONY: macos
-macos:
+macos: deps
 	GOOS=darwin GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-macos-${GOARCH} .
 
 .PHONY: windows
-windows:
+windows: deps
 	GOOS=windows GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH}.exe .
 
+.PHONY: cross
 cross: linux macos windows
 
+.PHONY: deps
+deps:
+	${GOCMD} get -v ./...
+
 .PHONY: test
-test:
-	${GOCMD} get -t -v ./...; \
-	${GOCMD} vet $$(${GOCMD} list ./... | grep -v /vendor/); \
-	${GOCMD} test -v -race ./...; \
+test: deps
+	${GOCMD} vet $$(go list ./... | grep -v /vendor/); \
+	${GOCMD} test -v -race ./...
 
 .PHONY: fmt
 fmt:
-	${GOCMD} fmt $$(${GOCMD} list ./... | grep -v /vendor/)
+	${GOCMD} fmt $$(go list ./... | grep -v /vendor/)

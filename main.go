@@ -17,6 +17,8 @@ import (
 var VERSION string
 
 func main() {
+	config.Init()
+
 	// TODO allow to configure the logger / be in quiet mode
 	logger, err := zap.NewDevelopment()
 	if err != nil {
