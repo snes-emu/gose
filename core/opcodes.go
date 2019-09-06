@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/snes-emu/gose/bit"
@@ -1303,7 +1302,7 @@ func (cpu *CPU) opE2() {
 
 // stp STP stops the clock input of the 65C816,
 func (cpu *CPU) stp() {
-	fmt.Print("Cpu has been shutdown")
+	cpu.lg.Info("CPU has been shutdown")
 	os.Exit(0)
 }
 

@@ -8,37 +8,39 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 LDFLAGS = -ldflags "-X main.VERSION=${BRANCH}:${COMMIT}"
 DEBUGLDFLAGS =-ldflags "-X main.VERSION=${BRANCH}:${COMMIT}:debug"
 
+GOCMD = GO111MODULE=on go
+
 # Build the project
 all: build
 
 .PHONY: build
 build:
-	go build ${LDFLAGS} -o ${BINARY} .
+	${GOCMD} build ${LDFLAGS} -o ${BINARY} .
 
 .PHONY: debug
 debug:
-	go build ${DEBUGLDFLAGS} -tags debug -o ${BINARY} .
+	${GOCMD} build ${DEBUGLDFLAGS} -tags debug -o ${BINARY} .
 
 .PHONY: linux
 linux:
-	GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} .
+	GOOS=linux GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} .
 
 .PHONY: macos
 macos:
-	GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-macos-${GOARCH} .
+	GOOS=darwin GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-macos-${GOARCH} .
 
 .PHONY: windows
 windows:
-	GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH}.exe .
+	GOOS=windows GOARCH=${GOARCH} ${GOCMD} build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH}.exe .
 
 cross: linux macos windows
 
 .PHONY: test
 test:
-	go get -t -v ./...; \
-    go vet $$(go list ./... | grep -v /vendor/); \
-	go test -v -race ./...; \
+	${GOCMD} get -t -v ./...; \
+	${GOCMD} vet $$(${GOCMD} list ./... | grep -v /vendor/); \
+	${GOCMD} test -v -race ./...; \
 
 .PHONY: fmt
 fmt:
-	go fmt $$(go list ./... | grep -v /vendor/)
+	${GOCMD} fmt $$(${GOCMD} list ./... | grep -v /vendor/)

@@ -10,13 +10,23 @@ import (
 	"github.com/snes-emu/gose/config"
 	"github.com/snes-emu/gose/core"
 	"github.com/snes-emu/gose/debugger"
+	"go.uber.org/zap"
 )
 
 // VERSION set at compile time
 var VERSION string
 
 func main() {
-	fmt.Printf("Staring gose, version: %s\n", VERSION)
+	// TODO allow to configure the logger / be in quiet mode
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to instatiate the logger, logging won't work")
+	} else {
+		zap.ReplaceGlobals(logger)
+	}
+
+	lg := zap.L()
+	lg.Info("starting gose", zap.String("version", VERSION))
 
 	if len(flag.Args()) == 0 {
 		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
@@ -28,7 +38,7 @@ func main() {
 	emu.Start()
 
 	if config.DebugServer() {
-		fmt.Println("start debugger")
+		lg.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
 	}
@@ -38,5 +48,5 @@ func main() {
 
 	<-sigs
 	emu.Stop()
-	fmt.Println("Emulator exited")
+	lg.Info("emulation stopped")
 }

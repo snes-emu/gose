@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/snes-emu/gose/core"
+	"go.uber.org/zap"
 )
 
 type Debugger struct {
@@ -29,13 +30,17 @@ func New(emu *core.Emulator, addr string) *Debugger {
 func (db *Debugger) Start() {
 	go func() {
 		err := db.s.ListenAndServe()
-		fmt.Println(err)
+		zap.L().Error("an error occured with the debug server", zap.Error(err))
 	}()
 
 	url := fmt.Sprintf("http://%s", db.addr)
-	fmt.Printf("open web browser at %s\n", url)
+	zap.L().Info("open web browser at", zap.String("url", url))
 	for _, open := range []string{"xdg-open", "open"} {
 		if err := openURL(open, url); err == nil {
+			zap.L().Debug("failed to open url",
+				zap.String("url", url),
+				zap.Error(err),
+			)
 			break
 		}
 	}

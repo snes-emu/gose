@@ -69,7 +69,7 @@ func (cpu *CPU) initDma() {
 }
 
 func (cpu *CPU) startDma() {
-	fmt.Println("dma started")
+	cpu.lg.Debug("dma started")
 	for _, channel := range cpu.dmaChannels {
 		if !channel.dmaEnabled {
 			continue

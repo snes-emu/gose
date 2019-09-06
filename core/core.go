@@ -2,15 +2,15 @@ package core
 
 import (
 	"archive/zip"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/rom"
+	"go.uber.org/zap"
 )
 
+// Emulator gathers the components required for emulation (PPU, CPU, Memory)
 type Emulator struct {
 	CPU    *CPU
 	Memory *Memory
@@ -23,6 +23,7 @@ type Emulator struct {
 	stepChan  chan int
 }
 
+// New creates a new Emulator (creating the underlying components)
 func New() *Emulator {
 	apu := apu.New()
 	ppu := newPPU()
@@ -84,17 +85,17 @@ func readFile(src string) ([]byte, error) {
 
 // ReadROM open the rom at filename and load it in memory
 func (e *Emulator) ReadROM(filename string) {
+	lg := zap.L()
 	buf, err := readFile(filename)
 	if err != nil {
-		log.Fatalf("%v", err)
+		lg.Fatal("error when reading rom file", zap.Error(err))
 	}
 
 	rom, err := rom.ParseROM(buf)
-	fmt.Println(rom.Title)
-
 	if err != nil {
-		log.Fatalf("There were a problem while importing the ROM: %v", err)
+		lg.Fatal("an error occured while parsing the ROM", zap.Error(err))
 	}
+	lg.Info("sucess parsing rom", zap.String("name", rom.Title))
 
 	e.Memory.LoadROM(*rom)
 	e.CPU.Init()
@@ -133,18 +134,17 @@ func (e *Emulator) stateStarted(n int) {
 		// go back to paused state if execution is finished
 		e.state = "paused"
 		return
-	} else {
-		for {
-			select {
-			case <-e.pauseChan:
-				e.state = "paused"
-				return
-			case <-e.stopChan:
-				e.state = "stopped"
-				return
-			default:
-				e.CPU.execOpcode()
-			}
+	}
+	for {
+		select {
+		case <-e.pauseChan:
+			e.state = "paused"
+			return
+		case <-e.stopChan:
+			e.state = "stopped"
+			return
+		default:
+			e.CPU.execOpcode()
 		}
 	}
 }
@@ -170,14 +170,17 @@ func (e *Emulator) Start() {
 	go e.loop()
 }
 
+// TogglePause toggles a pause in execution
 func (e *Emulator) TogglePause() {
 	e.pauseChan <- struct{}{}
 }
 
+// Stop stops the emulation
 func (e *Emulator) Stop() {
 	close(e.stopChan)
 }
 
+// Step continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
 func (e *Emulator) Step(n int) {
 	e.stepChan <- n
 }

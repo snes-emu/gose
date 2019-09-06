@@ -1,6 +1,9 @@
 package core
 
-import "github.com/snes-emu/gose/io"
+import (
+	"github.com/snes-emu/gose/io"
+	"go.uber.org/zap"
+)
 
 const (
 	// HMax represents max H counter value
@@ -32,11 +35,13 @@ type PPU struct {
 	vCounter uint16
 
 	cpu *CPU
+
+	lg *zap.Logger
 }
 
 // New initializes a PPU struct and returns it
 func newPPU() *PPU {
-	ppu := &PPU{}
+	ppu := &PPU{lg: zap.L()}
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}
 	ppu.cgram = &cgram{}
