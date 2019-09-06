@@ -10,7 +10,10 @@ var (
 func init() {
 	flag.BoolVar(&debugServer, "debug-server", false, "enable the debug server")
 	flag.IntVar(&debugPort, "debug-port", 6060, "port the debugger listens to")
+}
 
+// Inits the config
+func Init() {
 	flag.Parse()
 }
 
