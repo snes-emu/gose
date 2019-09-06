@@ -1,17 +1,18 @@
 package core
 
-import "fmt"
+import "go.uber.org/zap"
 
 func (ppu *PPU) renderLine() {
-	fmt.Printf("Render line: %v\n", ppu.vCounter)
+	ppu.lg.Debug("Render line", zap.Uint16("vCounter", ppu.vCounter))
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
-		fmt.Println("VBlank !")
+		ppu.lg.Debug("VBlank")
 		ppu.cpu.enterVblank()
 	}
 
 	if ppu.vCounter == 0 {
+		ppu.lg.Debug("End of VBlank")
 		ppu.cpu.leavVblank()
 	}
 }

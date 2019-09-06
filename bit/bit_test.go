@@ -1,7 +1,6 @@
 package bit
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -56,7 +55,6 @@ func TestJoinUint32(t *testing.T) {
 
 	for i, tc := range testCases {
 		value := JoinUint32(tc.LL, tc.MM, tc.HH)
-		fmt.Println(value, tc.HH, tc.MM, tc.LL)
 
 		if value != tc.expected {
 			t.Errorf("Test %v failed, got %v, expected %v", i, value, tc.expected)
