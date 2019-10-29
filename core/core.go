@@ -2,6 +2,7 @@ package core
 
 import (
 	"archive/zip"
+	"github.com/snes-emu/gose/log"
 	"io/ioutil"
 	"os"
 
@@ -85,17 +86,16 @@ func readFile(src string) ([]byte, error) {
 
 // ReadROM open the rom at filename and load it in memory
 func (e *Emulator) ReadROM(filename string) {
-	lg := zap.L()
 	buf, err := readFile(filename)
 	if err != nil {
-		lg.Fatal("error when reading rom file", zap.Error(err))
+		log.Fatal("error when reading rom file", zap.Error(err))
 	}
 
 	rom, err := rom.ParseROM(buf)
 	if err != nil {
-		lg.Fatal("an error occured while parsing the ROM", zap.Error(err))
+		log.Fatal("an error occurred while parsing the ROM", zap.Error(err))
 	}
-	lg.Info("sucess parsing rom", zap.String("name", rom.Title))
+	log.Info("success parsing rom", zap.String("name", rom.Title))
 
 	e.Memory.LoadROM(*rom)
 	e.CPU.Init()

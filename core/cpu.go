@@ -3,8 +3,6 @@ package core
 import (
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/io"
-
-	"go.uber.org/zap"
 )
 
 // CPU represents the cpu 65C816
@@ -39,7 +37,6 @@ type CPU struct {
 	ioMemory    *ioMemory      // Memory used by the io registers
 	dmaChannels [8]*dmaChannel // DMA Related channels
 
-	lg *zap.Logger
 }
 
 type cpuOperation func()
@@ -47,7 +44,7 @@ type cpuOperation func()
 var opcodes []cpuOperation
 
 func newCPU(memory *Memory) *CPU {
-	cpu := &CPU{memory: memory, lg: zap.L()}
+	cpu := &CPU{memory: memory}
 	cpu.initIORegisters()
 	cpu.registerOpcodes()
 	return cpu

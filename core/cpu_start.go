@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/config"
 )
@@ -449,5 +450,5 @@ func (cpu *CPU) logState(K uint8, PC uint16, opcode uint8) {
 	} else {
 		PString += "c"
 	}
-	cpu.lg.Debug(fmt.Sprintf("$%02X:%04X %02X %s A:%04X X:%04X Y:%04X D:%04X DB:%02X S:%04X P:%s", K, PC, opcode, instruction.name, cpu.getCRegister(), cpu.getXRegister(), cpu.getYRegister(), cpu.getDRegister(), cpu.getDBRRegister(), cpu.getSRegister(), PString))
+	log.Debug(fmt.Sprintf("$%02X:%04X %02X %s A:%04X X:%04X Y:%04X D:%04X DB:%02X S:%04X P:%s", K, PC, opcode, instruction.name, cpu.getCRegister(), cpu.getXRegister(), cpu.getYRegister(), cpu.getDRegister(), cpu.getDBRRegister(), cpu.getSRegister(), PString))
 }

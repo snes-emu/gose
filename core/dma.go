@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/io"
@@ -69,7 +70,7 @@ func (cpu *CPU) initDma() {
 }
 
 func (cpu *CPU) startDma() {
-	cpu.lg.Debug("dma started")
+	log.Debug("dma started")
 	for _, channel := range cpu.dmaChannels {
 		if !channel.dmaEnabled {
 			continue

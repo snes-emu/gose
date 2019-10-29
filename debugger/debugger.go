@@ -2,6 +2,7 @@ package debugger
 
 import (
 	"fmt"
+	"github.com/snes-emu/gose/log"
 	"net/http"
 	"os/exec"
 
@@ -30,14 +31,14 @@ func New(emu *core.Emulator, addr string) *Debugger {
 func (db *Debugger) Start() {
 	go func() {
 		err := db.s.ListenAndServe()
-		zap.L().Error("an error occured with the debug server", zap.Error(err))
+		log.Error("an error occurred with the debug server", zap.Error(err))
 	}()
 
 	url := fmt.Sprintf("http://%s", db.addr)
-	zap.L().Info("open web browser at", zap.String("url", url))
+	log.Info("open web browser at", zap.String("url", url))
 	for _, open := range []string{"xdg-open", "open"} {
 		if err := openURL(open, url); err == nil {
-			zap.L().Debug("failed to open url",
+			log.Debug("failed to open url",
 				zap.String("url", url),
 				zap.Error(err),
 			)
