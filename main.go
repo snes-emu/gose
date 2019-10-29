@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/snes-emu/gose/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,16 +20,7 @@ var VERSION string
 func main() {
 	config.Init()
 
-	// TODO allow to configure the logger / be in quiet mode
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to instatiate the logger, logging won't work")
-	} else {
-		zap.ReplaceGlobals(logger)
-	}
-
-	lg := zap.L()
-	lg.Info("starting gose", zap.String("version", VERSION))
+	log.Info("starting gose", zap.String("version", VERSION))
 
 	if len(flag.Args()) == 0 {
 		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
@@ -40,7 +32,7 @@ func main() {
 	emu.Start()
 
 	if config.DebugServer() {
-		lg.Info("starting the debugger")
+		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
 	}
@@ -50,5 +42,5 @@ func main() {
 
 	<-sigs
 	emu.Stop()
-	lg.Info("emulation stopped")
+	log.Info("emulation stopped")
 }

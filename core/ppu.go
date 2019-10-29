@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/snes-emu/gose/io"
-	"go.uber.org/zap"
 )
 
 const (
@@ -36,12 +35,11 @@ type PPU struct {
 
 	cpu *CPU
 
-	lg *zap.Logger
 }
 
 // New initializes a PPU struct and returns it
 func newPPU() *PPU {
-	ppu := &PPU{lg: zap.L()}
+	ppu := &PPU{}
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}
 	ppu.cgram = &cgram{}
