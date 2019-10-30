@@ -1,6 +1,6 @@
 <html>
-    <script src="index.js"></script>
 	<head>
+        <link rel="stylesheet" href="index.css">
 		<title>Gose debugger</title>
 	</head>
 	<body>
@@ -8,8 +8,14 @@
 		<input id=count value=1 >
         <button onClick="step()">step</button>
         <input id=breakpoint value="">
-		<button onClick="breakpoint()">set breakpoint</button>
+        <button onClick="breakpoint()">set breakpoint</button>
 
-		<ul id=cpu></ul>
-	</body>
+        <div class="container">
+            <ul id=cpu></ul>
+            <div id=palette ></div>
+        </div>
+
+    </body>
+
+    <script src="index.js"></script>
 </html>

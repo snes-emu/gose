@@ -1,0 +1,18 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+#palette > * > *{
+    height: 30px;
+    width: 30px;
+    margin: 3px;
+}
+
+#palette {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    width: 50%;
+}

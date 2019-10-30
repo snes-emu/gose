@@ -89,14 +89,18 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 		count = 1
 	}
 
+	res := make(map[string]interface{})
+
 	db.emu.Step(count)
-	cpu, err := json.Marshal(db.emu.CPU)
+	res["palette"] = db.emu.PPU.ExportPalette()
+	res["cpu"] = db.emu.CPU
+	jsonRes, err := json.Marshal(res)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	w.Write(cpu)
+	w.Write(jsonRes)
 }
 
 func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
