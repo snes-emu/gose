@@ -477,6 +477,7 @@ func (cpu *CPU) MarshalJSON() ([]byte, error) {
 		C:           cpu.getCRegister(),
 		DBR:         cpu.getDBRRegister(),
 		D:           cpu.getDRegister(),
+		Flags:       cpu.prettyFlags(),
 	})
 }
 

@@ -1,4 +1,5 @@
 <html>
+    <script src="index.js"></script>
 	<head>
 		<title>Gose debugger</title>
 	</head>
@@ -7,20 +8,6 @@
 		<input id=count value=1 >
 		<button onClick="step()">step</button>
 
-		<div id=cpu></div>
+		<ul id=cpu></ul>
 	</body>
-	<script>
-	count = document.getElementById("count");
-	cpu = document.getElementById("cpu");
-
-	function pause() {
-		fetch('/pause');
-	}
-
-	function step() {
-		fetch('/step?count='+count.value)
-			.then(resp => resp.json())
-			.then(body => cpu.innerHTML = JSON.stringify(body))
-	}
-	</script>
 </html>
