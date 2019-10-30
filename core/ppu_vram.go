@@ -40,11 +40,7 @@ func (ppu *PPU) getvramAddr() uint16 {
 func (ppu *PPU) vmain(data uint8) {
 	ppu.vram.incrementMode = data&0x80 != 0
 
-	incrementValues := map[uint8]uint16{
-		0x00: 1, 0x01: 32, 0x10: 128, 0x11: 128,
-	}
-
-	ppu.vram.incrementAmount = incrementValues[data&0x3]
+	ppu.vram.incrementAmount = incrAmount(data)
 	ppu.vram.addrMapping = data & 0xc >> 2
 }
 
@@ -105,4 +101,16 @@ func (ppu *PPU) rdvramh() uint8 {
 	}
 
 	return res
+}
+
+func incrAmount(nb uint8) uint16 {
+	switch nb & 0x3 {
+	case 0:
+		return 1
+	case 1:
+		return 32
+	case 2, 3:
+		return 128
+	}
+	panic("invalid increment amount index")
 }

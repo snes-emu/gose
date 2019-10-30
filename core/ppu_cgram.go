@@ -25,7 +25,8 @@ func (ppu *PPU) cgdata(data uint8) {
 		// Write to the temporary variable
 		ppu.cgram.lsb = data
 	} else {
-		ppu.cgram.write(ppu.cgram.addr, ppu.cgram.lsb, data)
+		// addr - 1 because we increment even if we wrote in the lsb
+		ppu.cgram.write(ppu.cgram.addr-1, ppu.cgram.lsb, data)
 	}
 	ppu.cgram.incrAddr()
 }
@@ -43,8 +44,8 @@ func (cg *cgram) read(addr uint16) uint8 {
 
 func (cg *cgram) write(addr uint16, low uint8, high uint8) {
 	// This could be (high & 0x7f) but since last bit is never used in color palette it's not an issue
-	cg.bytes[addr] = high
-	cg.bytes[addr-1] = low
+	cg.bytes[addr+1] = high
+	cg.bytes[addr] = low
 }
 
 func (cg *cgram) incrAddr() {

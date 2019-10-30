@@ -54,8 +54,7 @@ func (ppu *PPU) oamdata(data uint8) {
 		ppu.oam.bytes[ppu.oam.addr] = data
 	} else if ppu.oam.addr%2 == 1 {
 		// Writing in the first table
-		// TODO: figure out: Remove the Obj Priority activation bit and keep only the b aaaaaaaa part
-		ppu.oam.write(ppu.oam.addr, ppu.oam.lsb, data)
+		ppu.oam.write(ppu.oam.addr-1, ppu.oam.lsb, data)
 	}
 	// Increment the address
 	ppu.oam.incrAddr()
@@ -94,8 +93,8 @@ func (o *oam) read(addr uint16) uint8 {
 }
 
 func (o *oam) write(addr uint16, low uint8, high uint8) {
-	o.bytes[addr] = high
-	o.bytes[addr-1] = low
+	o.bytes[addr+1] = high
+	o.bytes[addr] = low
 }
 
 func (o *oam) incrAddr() {
