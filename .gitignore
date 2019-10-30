@@ -13,6 +13,10 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
+#packr
+packrd/
+*-packr.go
+
 gose
 gose-linux-amd64
 gose-macos-amd64
