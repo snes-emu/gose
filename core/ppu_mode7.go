@@ -8,7 +8,7 @@ type m7 struct {
 	verticalFlip                   bool   // Vertical flip flag used in mode7
 	horizontalFlip                 bool   // Horizontal flip flag used in mode7
 	screenOver                     uint8  // Mode 7 screen over variable (possible values are 0,1,2 or 3)
-	cache                          uint16 // Mode 7 prefetch value used in various registers like M7A or M7HOFS
+	cache                          uint16 // Mode 7 cache value used in various registers like M7A or M7HOFS
 	aParam, bParam, cParam, dParam uint16 // Rotation/scaling parameters used in mode 7
 	hofsParam, vofsParam           uint16 // Mode 7 horizontal and vertical scroll offset parameters
 	xParam, yParam                 uint16 // Mode 7 Center Coordinate parameters
