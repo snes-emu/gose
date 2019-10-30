@@ -1,11 +1,15 @@
 package debugger
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/snes-emu/gose/log"
 	"net/http"
 	"os/exec"
+	"strconv"
 
+	"github.com/snes-emu/gose/log"
+
+	"github.com/gobuffalo/packr/v2"
 	"github.com/snes-emu/gose/core"
 	"go.uber.org/zap"
 )
@@ -62,8 +66,9 @@ func openURL(program, url string) error {
 }
 
 func (db *Debugger) createServer(addr string) {
+	box := packr.New("front", "./static")
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", db.home)
+	mux.Handle("/", http.FileServer(box))
 	mux.HandleFunc("/pause", db.pause)
 	mux.HandleFunc("/step", db.step)
 
@@ -73,16 +78,22 @@ func (db *Debugger) createServer(addr string) {
 	}
 }
 
-func (db *Debugger) home(w http.ResponseWriter, r *http.Request) {
-	w.Write(front)
-}
-
 func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
 	db.emu.TogglePause()
-
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
-	db.emu.Step(1)
+	count, err := strconv.Atoi(r.URL.Query().Get("count"))
+	if err != nil {
+		count = 1
+	}
 
+	db.emu.Step(count)
+	cpu, err := json.Marshal(db.emu.CPU)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Write(cpu)
 }
