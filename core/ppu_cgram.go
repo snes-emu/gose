@@ -11,7 +11,7 @@ type cgram struct {
 	// - we first set the addr where we want to write (for instance the color number 67, we will have 61 * 2 = 122 stored in addr
 	// - we call cgdata to write once (this will store the provided data in the lsb)
 	// - we call cgdata one more time and then we will write (data << 8 | lsb) to the registry
-	lsb   uint8
+	lsb uint8
 }
 
 // 2121 - Color index (0..255). This is a WORD-address (2-byte steps), allowing to access 256 words (512 bytes). Writing to this register resets the 1st/2nd access flipflop (for 2122h/213Bh) to 1st access.
@@ -37,7 +37,6 @@ func (ppu *PPU) rdcgram() uint8 {
 	return res
 }
 
-
 func (cg *cgram) read(addr uint16) uint8 {
 	return cg.bytes[addr]
 }
@@ -45,7 +44,7 @@ func (cg *cgram) read(addr uint16) uint8 {
 func (cg *cgram) write(addr uint16, low uint8, high uint8) {
 	// This could be (high & 0x7f) but since last bit is never used in color palette it's not an issue
 	cg.bytes[addr] = high
-	cg.bytes[addr - 1] = low
+	cg.bytes[addr-1] = low
 }
 
 func (cg *cgram) incrAddr() {

@@ -34,7 +34,6 @@ type PPU struct {
 	vCounter uint16
 
 	cpu *CPU
-
 }
 
 // New initializes a PPU struct and returns it

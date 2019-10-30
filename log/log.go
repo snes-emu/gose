@@ -27,24 +27,23 @@ func init() {
 	}
 }
 
-func Error(msg string, fields ...zap.Field){
+func Error(msg string, fields ...zap.Field) {
 	logger.Error(msg, fields...)
 }
 
-func Fatal(msg string, fields ...zap.Field){
+func Fatal(msg string, fields ...zap.Field) {
 	logger.Fatal(msg, fields...)
 }
 
-func Info(msg string, fields ...zap.Field){
+func Info(msg string, fields ...zap.Field) {
 	logger.Info(msg, fields...)
 }
 
-func Debug(msg string, fields ...zap.Field){
+func Debug(msg string, fields ...zap.Field) {
 	logger.Debug(msg, fields...)
 }
 
-
-type defaultLogger struct {}
+type defaultLogger struct{}
 
 func (d defaultLogger) fmt(level string, msg string, fields ...zap.Field) string {
 	return fmt.Sprintf("%s: %s: %v", level, msg, fields)
