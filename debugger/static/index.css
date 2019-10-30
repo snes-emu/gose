@@ -16,3 +16,8 @@
     align-content: start;
     width: 50%;
 }
+
+#palette > * {
+    display: flex;
+    flex-direction: row;
+}

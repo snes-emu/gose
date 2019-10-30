@@ -3,7 +3,9 @@ const paletteSize = 16
 let palette = document.getElementById("palette");
 
 for (let p = 0; p < paletteNum ; p++) {
-    palette.appendChild(document.createElement("div"));
+    let row = document.createElement("div");
+    row.appendChild(document.createTextNode(`${p}: `))
+    palette.appendChild(row);
     for (let c = 0; c < paletteSize; c++) {
         palette.children[p].appendChild(document.createElement("div"))
     }
