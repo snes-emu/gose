@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Gose debugger</title>
+	</head>
+	<body>
+		<button onClick="fetch('/pause')">toggle pause</button>
+		<input id=count value=1 >
+		<button onClick="step()">step</button>
+
+		<div id=cpu></div>
+	</body>
+	<script>
+	count = document.getElementById("count");
+	cpu = document.getElementById("cpu");
+
+	function pause() {
+		fetch('/pause');
+	}
+
+	function step() {
+		fetch('/step?count='+count.value)
+			.then(resp => resp.json())
+			.then(body => cpu.innerHTML = JSON.stringify(body))
+	}
+	</script>
+</html>
