@@ -13,10 +13,12 @@ import (
 )
 
 const (
-	started = "started"
-	paused  = "paused"
-	stopped = "stopped"
+	started state = iota
+	paused
+	stopped
 )
+
+type state int
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
 type Emulator struct {
@@ -25,7 +27,7 @@ type Emulator struct {
 	PPU    *PPU
 
 	//state
-	state     string
+	state     state
 	pauseChan chan struct{}
 	stopChan  chan struct{}
 	stepChan  chan int
@@ -53,7 +55,7 @@ func New() *Emulator {
 		CPU:       cpu,
 		Memory:    mem,
 		PPU:       ppu,
-		state:     "paused",
+		state:     paused,
 		pauseChan: make(chan struct{}),
 		stopChan:  make(chan struct{}),
 		stepChan:  make(chan int),
@@ -190,13 +192,22 @@ func (e *Emulator) statePaused() int {
 	return 0
 }
 
-// Start the main emulator loop
-func (e *Emulator) Start(state string) {
+func (e *Emulator) startState(state state) {
 	e.state = started
 	if state == paused || state == stopped || state == started {
 		e.state = state
 	}
 	go e.loop()
+}
+
+// Start the main emulator loop
+func (e *Emulator) Start() {
+	e.startState(started)
+}
+
+// StartPaused the main emulator loop
+func (e *Emulator) StartPaused() {
+	e.startState(paused)
 }
 
 // TogglePause toggles a pause in execution
