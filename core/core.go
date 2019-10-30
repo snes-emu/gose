@@ -181,7 +181,7 @@ func (e *Emulator) Stop() {
 	f, err := os.Create("/tmp/palette.snes")
 	if err != nil {
 		log.Error("failed to dump color palette", zap.Error(err))
-	}else {
+	} else {
 		defer f.Close()
 		f.Write(e.PPU.cgram.bytes[:])
 	}
