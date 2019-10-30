@@ -71,6 +71,7 @@ func (db *Debugger) createServer(addr string) {
 	mux.Handle("/", http.FileServer(box))
 	mux.HandleFunc("/pause", db.pause)
 	mux.HandleFunc("/step", db.step)
+	mux.HandleFunc("/breakpoint", db.breakpoint)
 
 	db.s = &http.Server{
 		Addr:    addr,
@@ -96,4 +97,15 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(cpu)
+}
+
+func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
+	log.Debug("/breakpoint")
+	address, err := strconv.Atoi(r.URL.Query().Get("address"))
+	if err != nil {
+		log.Info("fail to set breakpoint", zap.Error(err))
+		return
+	}
+
+	db.emu.SetBreakpoint(uint32(address))
 }

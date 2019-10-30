@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/snes-emu/gose/log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/config"
 	"github.com/snes-emu/gose/core"
@@ -29,13 +30,16 @@ func main() {
 
 	emu := core.New()
 	emu.ReadROM(flag.Arg(0))
-	emu.Start()
 
+	var state = ""
 	if config.DebugServer() {
 		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
+		state = "paused"
 	}
+
+	emu.Start(state)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
