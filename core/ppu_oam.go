@@ -30,7 +30,7 @@ func (ppu *PPU) oamaddl(data uint8) {
 // 2103 - oam.aDDH
 func (ppu *PPU) oamaddh(data uint8) {
 	ppu.oam.priorityBit = data&0x80 != 0
-	ppu.oam.addr = (uint16(data & 0x1) << 8) | (ppu.oam.lastWrittenAddr & 0xff)
+	ppu.oam.addr = (uint16(data&0x1) << 8) | (ppu.oam.lastWrittenAddr & 0xff)
 	ppu.oam.lastWrittenAddr = ppu.oam.addr
 }
 
