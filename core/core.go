@@ -2,13 +2,20 @@ package core
 
 import (
 	"archive/zip"
-	"github.com/snes-emu/gose/log"
 	"io/ioutil"
 	"os"
+
+	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
+)
+
+const (
+	started = "started"
+	paused  = "paused"
+	stopped = "stopped"
 )
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
@@ -22,6 +29,9 @@ type Emulator struct {
 	pauseChan chan struct{}
 	stopChan  chan struct{}
 	stepChan  chan int
+
+	//debugging
+	breakpoint uint32
 }
 
 // New creates a new Emulator (creating the underlying components)
@@ -101,15 +111,23 @@ func (e *Emulator) ReadROM(filename string) {
 	e.CPU.Init()
 }
 
+func (e *Emulator) SetBreakpoint(addr uint32) {
+	e.breakpoint = addr
+}
+
+func (e *Emulator) atBreakpoint() bool {
+	return e.breakpoint != 0 && uint16(e.breakpoint&0xFFFF) == e.CPU.PC && uint8(e.breakpoint>>16) == e.CPU.K
+}
+
 func (e *Emulator) loop() {
 	n := 0
 	for {
 		switch e.state {
-		case "stopped":
+		case stopped:
 			return
-		case "paused":
+		case paused:
 			n = e.statePaused()
-		case "started":
+		case started:
 			e.stateStarted(n)
 
 		}
@@ -121,30 +139,38 @@ func (e *Emulator) stateStarted(n int) {
 		for i := 0; i < n; i++ {
 			select {
 			case <-e.pauseChan:
-				e.state = "paused"
+				e.state = paused
 				return
 			case <-e.stopChan:
-				e.state = "stopped"
+				e.state = stopped
 				return
 			default:
 				e.CPU.execOpcode()
+				if e.atBreakpoint() {
+					e.state = paused
+					return
+				}
 			}
 		}
 
 		// go back to paused state if execution is finished
-		e.state = "paused"
+		e.state = paused
 		return
 	}
 	for {
 		select {
 		case <-e.pauseChan:
-			e.state = "paused"
+			e.state = paused
 			return
 		case <-e.stopChan:
-			e.state = "stopped"
+			e.state = stopped
 			return
 		default:
 			e.CPU.execOpcode()
+			if e.atBreakpoint() {
+				e.state = paused
+				return
+			}
 		}
 	}
 }
@@ -152,21 +178,24 @@ func (e *Emulator) stateStarted(n int) {
 func (e *Emulator) statePaused() int {
 	select {
 	case <-e.stopChan:
-		e.state = "stopped"
+		e.state = stopped
 
 	case <-e.pauseChan:
-		e.state = "started"
+		e.state = started
 
 	case n := <-e.stepChan:
-		e.state = "started"
+		e.state = started
 		return n
 	}
 	return 0
 }
 
 // Start the main emulator loop
-func (e *Emulator) Start() {
-	e.state = "started"
+func (e *Emulator) Start(state string) {
+	e.state = started
+	if state == paused || state == stopped || state == started {
+		e.state = state
+	}
 	go e.loop()
 }
 

@@ -14,3 +14,9 @@ function step() {
             cpu.appendChild(li);
         })
 }
+
+
+function breakpoint() {
+    address = document.getElementById("breakpoint");
+    fetch('/breakpoint?address='+address.value);
+}
