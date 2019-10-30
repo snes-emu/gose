@@ -5,7 +5,7 @@ package core
 // _bbbbbgg gggrrrrr
 // The last bit is not used
 type cgram struct {
-	bytes [0x200]byte // byte the raw 512 bytes (for 256 color entries)
+	bytes [0x200]byte // bytes represents the raw 512 bytes (for 256 color entries)
 	addr  uint16      // store the cgram address over 512 byte (not the Word addr !)
 	// lsb temporary variable for the cgdata register, it's used when we want to write a new color:
 	// - we first set the addr where we want to write (for instance the color number 67, we will have 61 * 2 = 122 stored in addr
