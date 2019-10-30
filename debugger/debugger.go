@@ -3,6 +3,7 @@ package debugger
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -81,6 +82,7 @@ func (db *Debugger) createServer(addr string) {
 
 func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
 	db.emu.TogglePause()
+	db.sendState(w)
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
@@ -89,18 +91,10 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 		count = 1
 	}
 
-	res := make(map[string]interface{})
-
 	db.emu.Step(count)
-	res["palette"] = db.emu.PPU.ExportPalette()
-	res["cpu"] = db.emu.CPU
-	jsonRes, err := json.Marshal(res)
-	if err != nil {
+	if err = db.sendState(w); err != nil {
 		w.Write([]byte(err.Error()))
-		return
 	}
-
-	w.Write(jsonRes)
 }
 
 func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
@@ -112,4 +106,18 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.emu.SetBreakpoint(uint32(address))
+}
+
+func (db *Debugger) sendState(w http.ResponseWriter) error {
+	res := make(map[string]interface{})
+
+	res["palette"] = db.emu.PPU.ExportPalette()
+	res["cpu"] = db.emu.CPU
+	jsonRes, err := json.Marshal(res)
+	if err != nil {
+		return errors.Wrap(err, "error marshalling the emulator state")
+	}
+
+	_, err = w.Write(jsonRes)
+	return errors.Wrap(err, "error writing response")
 }
