@@ -3,7 +3,7 @@ const paletteSize = 16
 let palette = document.getElementById("palette");
 
 for (let p = 0; p < paletteNum ; p++) {
-    let row = document.createElement("div");
+    const row = document.createElement("div");
     row.appendChild(document.createTextNode(`${p}: `))
     palette.appendChild(row);
     for (let c = 0; c < paletteSize; c++) {
@@ -16,7 +16,7 @@ function pause() {
 }
 
 function step() {
-    let count = document.getElementById("count");
+    const count = document.getElementById("count");
     fetch('/step?count='+count.value)
         .then(resp => resp.json())
         .then(displayState)
@@ -31,7 +31,7 @@ function displayState(body) {
     lu.appendChild(li);
 
     body.palette.forEach((color,i) => {
-        let rgb = `rgb(${color.r},${color.g},${color.b})`;
+        const rgb = `rgb(${color.r},${color.g},${color.b})`;
         palette.children[Math.floor(i/paletteNum)].children[i%paletteSize].style = `background-color:${rgb}`;
     });
 }
