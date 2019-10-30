@@ -17,7 +17,7 @@ func Init() {
 	flag.Parse()
 }
 
-// DebugServer is used to know wether to start the debug server
+// DebugServer is used to know whether to start the debug server
 func DebugServer() bool {
 	return debugServer
 }
