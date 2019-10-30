@@ -1,7 +1,9 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/config"
@@ -10,6 +12,19 @@ import (
 type instruction struct {
 	name    string
 	opcodes []uint8
+}
+
+type cpuState struct {
+	C           uint16
+	DBR         uint8
+	D           uint16
+	K           uint8
+	PC          uint16
+	S           uint16
+	X           uint16
+	Y           uint16
+	Flags       string
+	Instruction string
 }
 
 func init() {
@@ -399,11 +414,7 @@ var (
 	opcodeToInstruction = make([]instruction, 0x100)
 )
 
-func (cpu *CPU) logState(K uint8, PC uint16, opcode uint8) {
-	if !config.DebugServer() {
-		return
-	}
-	instruction := opcodeToInstruction[opcode]
+func (cpu *CPU) prettyFlags() string {
 	PString := ""
 	if cpu.eFlag {
 		PString += "E"
@@ -450,5 +461,30 @@ func (cpu *CPU) logState(K uint8, PC uint16, opcode uint8) {
 	} else {
 		PString += "c"
 	}
-	log.Debug(fmt.Sprintf("$%02X:%04X %02X %s A:%04X X:%04X Y:%04X D:%04X DB:%02X S:%04X P:%s", K, PC, opcode, instruction.name, cpu.getCRegister(), cpu.getXRegister(), cpu.getYRegister(), cpu.getDRegister(), cpu.getDBRRegister(), cpu.getSRegister(), PString))
+	return PString
+}
+
+func (cpu *CPU) MarshalJSON() ([]byte, error) {
+	K := cpu.getKRegister()
+	PC := cpu.getPCRegister()
+
+	opcode := cpu.memory.GetByteBank(K, PC)
+
+	return json.Marshal(cpuState{
+		K:           K,
+		PC:          PC,
+		Instruction: opcodeToInstruction[opcode].name,
+		C:           cpu.getCRegister(),
+		DBR:         cpu.getDBRRegister(),
+		D:           cpu.getDRegister(),
+	})
+}
+
+func (cpu *CPU) logState(K uint8, PC uint16, opcode uint8) {
+	if !config.DebugServer() {
+		return
+	}
+	instruction := opcodeToInstruction[opcode]
+
+	log.Debug(fmt.Sprintf("$%02X:%04X %02X %s A:%04X X:%04X Y:%04X D:%04X DB:%02X S:%04X P:%s", K, PC, opcode, instruction.name, cpu.getCRegister(), cpu.getXRegister(), cpu.getYRegister(), cpu.getDRegister(), cpu.getDBRRegister(), cpu.getSRegister(), cpu.prettyFlags()))
 }
