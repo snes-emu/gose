@@ -23,7 +23,7 @@ type oam struct {
 // TODO: have a look at "reload"
 // 2102 - oam.aDDL
 func (ppu *PPU) oamaddl(data uint8) {
-	ppu.oam.addr = (ppu.oam.lastWrittenAddr & 0x0200) | (uint16(data) << 1)
+	ppu.oam.addr = (ppu.oam.lastWrittenAddr & 0x0200) | uint16(data)
 	ppu.oam.lastWrittenAddr = ppu.oam.addr
 }
 
