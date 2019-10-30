@@ -12,26 +12,28 @@ for (let p = 0; p < paletteNum ; p++) {
 }
 
 function pause() {
-    fetch('/pause');
+    fetch('/pause').then(resp => resp.json()).then(displayState);
 }
 
 function step() {
     let count = document.getElementById("count");
     fetch('/step?count='+count.value)
         .then(resp => resp.json())
-        .then(body => {
-            let cpu = body.cpu;
+        .then(displayState)
+}
 
-            let lu = document.getElementById("cpu");
-            let li = document.createElement("li");
-            li.appendChild(document.createTextNode(Object.keys(cpu).map(key => `${key}: ${cpu[key]}`).join(',')));
-            lu.appendChild(li);
+function displayState(body) {
+    const cpu = body.cpu;
 
-            body.palette.forEach((color,i) => {
-                let rgb = `rgb(${color.r},${color.g},${color.b})`;
-                palette.children[Math.floor(i/paletteNum)].children[i%paletteSize].style = `background-color:${rgb}`;
-            });
-        })
+    const lu = document.getElementById("cpu");
+    const li = document.createElement("li");
+    li.appendChild(document.createTextNode(Object.keys(cpu).map(key => `${key}: ${cpu[key]}`).join(',')));
+    lu.appendChild(li);
+
+    body.palette.forEach((color,i) => {
+        let rgb = `rgb(${color.r},${color.g},${color.b})`;
+        palette.children[Math.floor(i/paletteNum)].children[i%paletteSize].style = `background-color:${rgb}`;
+    });
 }
 
 
