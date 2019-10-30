@@ -31,15 +31,14 @@ func main() {
 	emu := core.New()
 	emu.ReadROM(flag.Arg(0))
 
-	var state = ""
 	if config.DebugServer() {
 		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
-		state = "paused"
+		emu.StartPaused()
+	} else {
+		emu.Start()
 	}
-
-	emu.Start(state)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
