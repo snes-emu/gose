@@ -2,23 +2,14 @@ package core
 
 import (
 	"archive/zip"
+	"github.com/snes-emu/gose/log"
 	"io/ioutil"
 	"os"
-
-	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
 )
-
-const (
-	started state = iota
-	paused
-	stopped
-)
-
-type state int
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
 type Emulator struct {
@@ -27,7 +18,7 @@ type Emulator struct {
 	PPU    *PPU
 
 	//state
-	state     state
+	state     *state
 	pauseChan chan struct{}
 	stopChan  chan struct{}
 	stepChan  chan int
@@ -51,11 +42,14 @@ func New() *Emulator {
 	mem.apu = apu
 	mem.initIo()
 
+	state := NewState()
+	state.Pause()
+
 	return &Emulator{
 		CPU:       cpu,
 		Memory:    mem,
 		PPU:       ppu,
-		state:     paused,
+		state:     state,
 		pauseChan: make(chan struct{}),
 		stopChan:  make(chan struct{}),
 		stepChan:  make(chan int),
@@ -124,7 +118,7 @@ func (e *Emulator) atBreakpoint() bool {
 func (e *Emulator) loop() {
 	n := 0
 	for {
-		switch e.state {
+		switch e.state.Status() {
 		case stopped:
 			return
 		case paused:
@@ -141,36 +135,36 @@ func (e *Emulator) stateStarted(n int) {
 		for i := 0; i < n; i++ {
 			select {
 			case <-e.pauseChan:
-				e.state = paused
+				e.state.Pause()
 				return
 			case <-e.stopChan:
-				e.state = stopped
+				e.state.Stop()
 				return
 			default:
 				e.CPU.execOpcode()
 				if e.atBreakpoint() {
-					e.state = paused
+					e.state.Pause()
 					return
 				}
 			}
 		}
 
 		// go back to paused state if execution is finished
-		e.state = paused
+		e.state.Pause()
 		return
 	}
 	for {
 		select {
 		case <-e.pauseChan:
-			e.state = paused
+			e.state.Pause()
 			return
 		case <-e.stopChan:
-			e.state = stopped
+			e.state.Stop()
 			return
 		default:
 			e.CPU.execOpcode()
 			if e.atBreakpoint() {
-				e.state = paused
+				e.state.Pause()
 				return
 			}
 		}
@@ -180,23 +174,21 @@ func (e *Emulator) stateStarted(n int) {
 func (e *Emulator) statePaused() int {
 	select {
 	case <-e.stopChan:
-		e.state = stopped
+		e.state.Stop()
 
 	case <-e.pauseChan:
-		e.state = started
+		e.state.Start()
 
 	case n := <-e.stepChan:
-		e.state = started
+		e.state.Start()
 		return n
 	}
 	return 0
 }
 
-func (e *Emulator) startState(state state) {
-	e.state = started
-	if state == paused || state == stopped || state == started {
-		e.state = state
-	}
+func (e *Emulator) startState(status stateStatus) {
+	e.state.Start()
+	e.state.SetStatus(status)
 	go e.loop()
 }
 
@@ -215,8 +207,32 @@ func (e *Emulator) TogglePause() {
 	e.pauseChan <- struct{}{}
 }
 
+// TogglePause toggles a pause in execution
+func (e *Emulator) IsPaused() bool {
+	return e.state.Status() == paused
+}
+
 // Stop stops the emulation
 func (e *Emulator) Stop() {
+	// Dump the palette somewhere
+	{
+		f, err := os.Create("/tmp/palette.snes")
+		if err != nil {
+			log.Error("failed to dump color palette", zap.Error(err))
+		} else {
+			defer f.Close()
+			f.Write(e.PPU.cgram.bytes[:])
+		}
+	}
+	{
+		f, err := os.Create("/tmp/vram.snes")
+		if err != nil {
+			log.Error("failed to dump color palette", zap.Error(err))
+		} else {
+			defer f.Close()
+			f.Write(e.PPU.vram.bytes[:])
+		}
+	}
 	close(e.stopChan)
 }
 

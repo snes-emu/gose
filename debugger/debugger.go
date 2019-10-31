@@ -3,7 +3,6 @@ package debugger
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -82,7 +81,10 @@ func (db *Debugger) createServer(addr string) {
 
 func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
 	db.emu.TogglePause()
-	db.sendState(w)
+	// Send state only if we are now in paused state
+	if db.emu.IsPaused() {
+		db.sendState(w)
+	}
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
@@ -116,9 +118,12 @@ func (db *Debugger) sendState(w http.ResponseWriter) error {
 	res["cpu"] = db.emu.CPU
 	jsonRes, err := json.Marshal(res)
 	if err != nil {
-		return errors.Wrap(err, "error marshalling the emulator state")
+		return fmt.Errorf("error marshalling the emulator state: %w", err)
 	}
 
-	_, err = w.Write(jsonRes)
-	return errors.Wrap(err, "error writing response")
+	if _, err = w.Write(jsonRes); err != nil {
+		return fmt.Errorf("error writing response: %w", err)
+	}
+
+	return nil
 }
