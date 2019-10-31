@@ -4,4 +4,5 @@ package render
 type Renderer interface {
 	Render(*Screen)
 	Stop()
+	SetRomTitle(string)
 }

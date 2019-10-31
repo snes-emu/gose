@@ -104,6 +104,7 @@ func (e *Emulator) ReadROM(filename string) {
 	}
 	log.Info("success parsing rom", zap.String("name", rom.Title))
 
+	e.PPU.renderer.SetRomTitle(rom.Title)
 	e.Memory.LoadROM(*rom)
 	e.CPU.Init()
 }
