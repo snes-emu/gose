@@ -1,4 +1,6 @@
 class CPU extends HTMLUListElement {
+    static tagName = 'cpu-ul';
+
     constructor() {
         super();
         this.id = "cpu";
@@ -11,8 +13,8 @@ class CPU extends HTMLUListElement {
     }
 }
 
-customElements.define('cpu-ul', CPU, {extends: 'ul'});
+customElements.define(CPU.tagName, CPU, {extends: 'ul'});
 
 export function newCPU() {
-    return document.createElement('ul', {is: 'cpu-ul'})
+    return document.createElement('ul', {is: Cpu.tagName})
 }
