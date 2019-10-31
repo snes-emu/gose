@@ -1,43 +1,49 @@
-const paletteNum = 16
-const paletteSize = 16
-let palette = document.getElementById("palette");
+import { newPPU } from "./ppu.js";
+import { newCPU } from "./cpu.js";
+import { newTabManager } from "./tab_manager.js";
 
-for (let p = 0; p < paletteNum ; p++) {
-    const row = document.createElement("div");
-    row.appendChild(document.createTextNode(`${p}: `))
-    palette.appendChild(row);
-    for (let c = 0; c < paletteSize; c++) {
-        palette.children[p].appendChild(document.createElement("div"))
+
+//tab management
+const cpuTab = newCPU();
+
+const ppuTab = newPPU();
+
+const tabManager = newTabManager();
+tabManager.setTabs([
+    {
+        "name": "CPU",
+        "component": cpuTab,
+    },
+    {
+        "name": "PPU",
+        "component": ppuTab,
     }
-}
+]);
 
-function pause() {
+const root = document.getElementById("root");
+root.appendChild(tabManager);
+
+const pauseButton = document.getElementById("pause_button");
+pauseButton.onclick = function() {
     fetch('/pause').then(resp => resp.json()).then(displayState);
 }
 
-function step() {
+const stepButton = document.getElementById("step_button");
+stepButton.onclick = function() {
     const count = document.getElementById("count");
     fetch('/step?count='+count.value)
         .then(resp => resp.json())
         .then(displayState)
 }
 
-function displayState(body) {
-    const cpu = body.cpu;
-
-    const lu = document.getElementById("cpu");
-    const li = document.createElement("li");
-    li.appendChild(document.createTextNode(Object.keys(cpu).map(key => `${key}: ${cpu[key]}`).join(',')));
-    lu.appendChild(li);
-
-    body.palette.forEach((color,i) => {
-        const rgb = `rgb(${color.r},${color.g},${color.b})`;
-        palette.children[Math.floor(i/paletteNum)].children[i%paletteSize].style = `background-color:${rgb}`;
-    });
+const breakpointButton = document.getElementById("breakpoint_button");
+breakpointButton.onclick = function() {
+    const address = document.getElementById("breakpoint");
+    fetch('/breakpoint?address='+address.value);
 }
 
 
-function breakpoint() {
-    const address = document.getElementById("breakpoint");
-    fetch('/breakpoint?address='+address.value);
+function displayState(body) {
+    cpuTab.addState(body.cpu);
+    ppuTab.updatePalette(body.palette);
 }
