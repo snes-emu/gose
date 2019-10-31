@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/snes-emu/gose/io"
+	"github.com/snes-emu/gose/render"
 )
 
 const (
@@ -33,12 +34,17 @@ type PPU struct {
 	hCounter uint16
 	vCounter uint16
 
-	cpu *CPU
+	cpu      *CPU
+	renderer render.Renderer
+	screen   *render.Screen
 }
 
 // New initializes a PPU struct and returns it
-func newPPU() *PPU {
+func newPPU(renderer render.Renderer) *PPU {
 	ppu := &PPU{}
+	ppu.renderer = renderer
+	// TODO: fix dimensions
+	ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}
 	ppu.cgram = &cgram{}

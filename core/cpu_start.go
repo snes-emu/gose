@@ -3,10 +3,8 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/snes-emu/gose/log"
-
 	"github.com/snes-emu/gose/config"
+	"github.com/snes-emu/gose/log"
 )
 
 type instruction struct {
