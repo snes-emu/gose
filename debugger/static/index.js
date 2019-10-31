@@ -1,69 +1,49 @@
-const paletteNum = 16
-const paletteSize = 16
+import { newPPU } from "./ppu.js";
+import { newCPU } from "./cpu.js";
+import { newTabManager } from "./tab_manager.js";
 
 
 //tab management
-let container = document.getElementById('tab_container');
+const cpuTab = newCPU();
 
-let cpuTab = document.createElement("ul");
-cpuTab.id = 'cpu';
+const ppuTab = newPPU();
 
-let ppuTab = document.createElement('div');
-ppuTab.id = 'palette';
-for (let p = 0; p < paletteNum ; p++) {
-    const row = document.createElement("div");
-    row.appendChild(document.createTextNode(`${p}: `))
-    ppuTab.appendChild(row);
-    for (let c = 0; c < paletteSize; c++) {
-        ppuTab.children[p].appendChild(document.createElement("div"))
+const tabManager = newTabManager();
+tabManager.setTabs([
+    {
+        "name": "CPU",
+        "component": cpuTab,
+    },
+    {
+        "name": "PPU",
+        "component": ppuTab,
     }
-}
+]);
 
+const root = document.getElementById("root");
+root.appendChild(tabManager);
 
-let tabs = document.querySelectorAll('input[name=tab]');
-tabs.forEach(tab => tab.onchange= event => {
-    Array.from(container.children).forEach(child => container.removeChild(child));
-
-    switch (event.target.value) {
-        case 'cpu':
-            container.appendChild(cpuTab);
-            break;
-        case 'ppu':
-            container.appendChild(ppuTab);
-            break;
-    }
-
-});
-
-//mount initial tab
-container.appendChild(cpuTab);
-
-function pause() {
+const pauseButton = document.getElementById("pause_button");
+pauseButton.onclick = function() {
     fetch('/pause').then(resp => resp.json()).then(displayState);
 }
 
-function step() {
+const stepButton = document.getElementById("step_button");
+stepButton.onclick = function() {
     const count = document.getElementById("count");
     fetch('/step?count='+count.value)
         .then(resp => resp.json())
         .then(displayState)
 }
 
-function displayState(body) {
-    const cpu = body.cpu;
-
-    const li = document.createElement("li");
-    li.appendChild(document.createTextNode(Object.keys(cpu).map(key => `${key}: ${cpu[key]}`).join(',')));
-    cpuTab.appendChild(li);
-
-    body.palette.forEach((color,i) => {
-        const rgb = `rgb(${color.r},${color.g},${color.b})`;
-        ppuTab.children[Math.floor(i/paletteNum)].children[i%paletteSize].style = `background-color:${rgb}`;
-    });
+const breakpointButton = document.getElementById("breakpoint_button");
+breakpointButton.onclick = function() {
+    const address = document.getElementById("breakpoint");
+    fetch('/breakpoint?address='+address.value);
 }
 
 
-function breakpoint() {
-    const address = document.getElementById("breakpoint");
-    fetch('/breakpoint?address='+address.value);
+function displayState(body) {
+    cpuTab.addState(body.cpu);
+    ppuTab.updatePalette(body.palette);
 }
