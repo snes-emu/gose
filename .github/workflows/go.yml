@@ -1,0 +1,53 @@
+name: Go
+on: [push]
+jobs:
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: |
+        make deps
+
+    - name: Ensure fmt
+      run: |
+        make fmt
+        git diff-index --quiet HEAD
+
+    - name: Test
+      run: make test
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: github.ref == 'master'
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: build
+      run: make cross
+
+    - name: GH Release
+      uses: softprops/action-gh-release@v0.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          gose-linux-amd64
+          gose-macos-amd64
+          gose-windows-amd64.exe
