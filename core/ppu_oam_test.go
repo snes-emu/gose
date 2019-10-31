@@ -20,7 +20,7 @@ func TestOamLastWrittenAddr(t *testing.T) {
 	// Write 1 to 0x2103
 	ppu.oamaddh(0x1)
 
-	assert.EqualValues(t, 252 + 8 , ppu.oam.lastWrittenAddr)
+	assert.EqualValues(t, 252+8, ppu.oam.lastWrittenAddr)
 }
 
 func TestOamWritesAndReads(t *testing.T) {
