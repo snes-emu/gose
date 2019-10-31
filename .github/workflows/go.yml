@@ -13,6 +13,12 @@ jobs:
         go-version: 1.13
       id: go
 
+    - name: install_dependencies
+      run: |
+        sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+        sudo apt-get update -y -qq
+        sudo apt-get install libsdl2-dev
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
@@ -42,6 +48,12 @@ jobs:
       with:
         go-version: 1.13
       id: go
+
+    - name: install_dependencies
+      run: |
+        sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+        sudo apt-get update -y -qq
+        sudo apt-get install libsdl2-dev
 
     - name: build
       run: make cross
