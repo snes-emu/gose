@@ -20,6 +20,11 @@ jobs:
       run: |
         make deps
 
+    - name: Ensure fmt
+      run: |
+        make fmt
+        git diff-index --quiet HEAD
+
     - name: Test
       run: make test
 
