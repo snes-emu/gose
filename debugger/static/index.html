@@ -3,26 +3,13 @@
         <link rel="stylesheet" href="index.css">
         <title>Gose debugger</title>
     </head>
-    <body>
-        <button onClick="pause()">toggle pause</button>
+    <body id="root">
+        <button id="pause_button">toggle pause</button>
         <input id=count value=1 >
-        <button onClick="step()">step</button>
+        <button id="step_button">step</button>
         <input id=breakpoint value="">
-        <button onClick="breakpoint()">set breakpoint</button>
-        <div>
-            <input type="radio" id="cpu_choice"
-                name="tab" value="cpu" checked>
-            <label for="cpu_choice">CPU</label>
-        
-            <input type="radio" id="ppu_choice"
-                name="tab" value="ppu">
-            <label for="ppu_choice">PPU</label>
-        </div>
-
-        <div class="container" id="tab_container">
-        </div>
-
+        <button id="breakpoint_button">set breakpoint</button>
     </body>
 
-    <script src="index.js"></script>
+    <script src="index.js" type="module"></script>
 </html>
