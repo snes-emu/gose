@@ -6,6 +6,7 @@ import (
 	"github.com/snes-emu/gose/log"
 	"github.com/veandco/go-sdl2/sdl"
 	"go.uber.org/zap"
+	"strings"
 )
 
 var _ Renderer = &SDLRenderer{}
@@ -14,6 +15,10 @@ type SDLRenderer struct {
 	window   *sdl.Window
 	renderer *sdl.Renderer
 	texture  *sdl.Texture
+}
+
+func (sr *SDLRenderer) SetRomTitle(title string) {
+	sr.window.SetTitle(fmt.Sprintf("Gose - %s", strings.Title(strings.ToLower(title))))
 }
 
 func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
@@ -33,7 +38,7 @@ func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
 		return nil, fmt.Errorf("failed to create SDL texture: %w", err)
 	}
 
-	sr.window.SetTitle("Gose - SNES Emulator")
+	sr.window.SetTitle("Gose")
 	// TODO: icon
 	// TODO: poll close
 
