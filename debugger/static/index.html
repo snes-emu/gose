@@ -9,10 +9,17 @@
         <button onClick="step()">step</button>
         <input id=breakpoint value="">
         <button onClick="breakpoint()">set breakpoint</button>
+        <div>
+            <input type="radio" id="cpu_choice"
+                name="tab" value="cpu" checked>
+            <label for="cpu_choice">CPU</label>
+        
+            <input type="radio" id="ppu_choice"
+                name="tab" value="ppu">
+            <label for="ppu_choice">PPU</label>
+        </div>
 
-        <div class="container">
-            <ul id=cpu></ul>
-            <div id=palette ></div>
+        <div class="container" id="tab_container">
         </div>
 
     </body>
