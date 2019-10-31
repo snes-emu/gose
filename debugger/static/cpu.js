@@ -11,8 +11,8 @@ class CPU extends HTMLUListElement {
     }
 }
 
-customElements.define('cpu-div', CPU, {extends: 'ul'});
+customElements.define('cpu-ul', CPU, {extends: 'ul'});
 
 export function newCPU() {
-    return document.createElement('ul', {is: 'cpu-div'})
+    return document.createElement('ul', {is: 'cpu-ul'})
 }
