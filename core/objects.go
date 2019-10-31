@@ -63,10 +63,7 @@ func spriteSize(isLarge bool, objectSize uint8) (uint16, uint16) {
 
 	// Small
 	switch objectSize {
-	case 0:
-		// TODO: this should be 8, 8
-		return 16, 16
-	case 1, 2:
+	case 0, 1, 2:
 		return 8, 8
 	case 3, 4:
 		return 16, 16
