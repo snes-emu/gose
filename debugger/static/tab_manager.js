@@ -1,5 +1,7 @@
 class TabManager extends HTMLDivElement {
-    static tagName = 'tab-manager';
+    static tagName() {
+        return 'tab-manager';
+    }
 
     constructor() {
         super();
@@ -47,8 +49,8 @@ class TabManager extends HTMLDivElement {
     }
 }
 
-customElements.define(TabManager.tagName, TabManager, {extends: 'div'});
+customElements.define(TabManager.tagName(), TabManager, {extends: 'div'});
 
 export function newTabManager() {
-    return document.createElement('div', {is: TabManager.tagName})
+    return document.createElement('div', {is: TabManager.tagName()})
 }

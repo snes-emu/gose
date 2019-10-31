@@ -1,5 +1,7 @@
 class PPU extends HTMLDivElement {
-    static tagName = 'ppu-div';
+    static tagName(){
+        return 'ppu-div';
+    }
 
     constructor() {
         super();
@@ -26,8 +28,8 @@ class PPU extends HTMLDivElement {
     }
 }
 
-customElements.define(PPU.tagName, PPU, {extends: 'div'});
+customElements.define(PPU.tagName(), PPU, {extends: 'div'});
 
 export function newPPU() {
-    return document.createElement('div', {is: PPU.tagName})
+    return document.createElement('div', {is: PPU.tagName()})
 }
