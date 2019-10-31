@@ -1,2 +1,2 @@
 # gose
-[![Build Status](https://travis-ci.org/snes-emu/gose.svg?branch=master)](https://travis-ci.org/snes-emu/gose)
+![Build Status](https://github.com/snes-emu/gose/workflows/Go/badge.svg?branch=master)
