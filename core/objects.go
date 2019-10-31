@@ -31,6 +31,11 @@ type sprite struct {
 	hSize, vSize uint16 // horizontal and vertical sizes
 }
 
+// return true if the given sprite intersects the v-line
+func (s *sprite) IntersectsLine(vCounter uint16) bool {
+	return vCounter >= s.y && vCounter < s.y+s.vSize
+}
+
 // spriteSize returns the horizontal and vertical sizes for a sprite given the oam config, it uses the following table:
 // Val Small  Large
 // 0 = 8x8    16x16
@@ -58,7 +63,10 @@ func spriteSize(isLarge bool, objectSize uint8) (uint16, uint16) {
 
 	// Small
 	switch objectSize {
-	case 0, 1, 2:
+	case 0:
+		// TODO: this should be 8, 8
+		return 16, 16
+	case 1, 2:
 		return 8, 8
 	case 3, 4:
 		return 16, 16

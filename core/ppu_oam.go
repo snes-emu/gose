@@ -101,6 +101,20 @@ func (o *oam) incrAddr() {
 	o.addr = (o.addr + 1) % 544
 }
 
+// intersectingSprites returns all the sprites currently intersecting the v-line
+func (o *oam) intersectingSprites(vCounter uint16) []sprite {
+	sprites := make([]sprite, 128)
+
+	for i := range sprites {
+		s := o.sprite(uint16(i))
+		if s.IntersectsLine(vCounter) {
+			sprites[i] = o.sprite(uint16(i))
+		}
+	}
+
+	return sprites
+}
+
 // sprite gets the sprite at the given index
 // the oam stores 128 entries in the following format:
 //
@@ -140,10 +154,10 @@ func (o *oam) sprite(idx uint16) sprite {
 	// Priority and palette
 	sprite.priority = (attrs >> 4) & 0x3
 	// Sprite palette starts at 128
-	sprite.palette = 128 + (16 * (attrs >> 1) & 0x7)
+	sprite.palette = 128 + (16 * ((attrs >> 1) & 0x7))
 
 	// Sprite size
-	isLarge := (raw2>>1)&0x1 != 0
+	isLarge := (raw2 & 0x2) != 0
 	sprite.hSize, sprite.vSize = spriteSize(isLarge, o.objectSize)
 
 	// Base Address is in 16K bytes steps

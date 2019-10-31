@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/snes-emu/gose/render"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,7 +29,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	emu := core.New()
+	// TODO: fix dimension
+	renderer, err := render.NewSDLRenderer(core.WIDTH, core.HEIGHT)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error creating renderer: %s", err)
+		os.Exit(1)
+	}
+	emu := core.New(renderer)
 	emu.ReadROM(flag.Arg(0))
 
 	if config.DebugServer() {

@@ -3,6 +3,7 @@ package core
 import (
 	"archive/zip"
 	"github.com/snes-emu/gose/log"
+	"github.com/snes-emu/gose/render"
 	"io/ioutil"
 	"os"
 
@@ -28,9 +29,9 @@ type Emulator struct {
 }
 
 // New creates a new Emulator (creating the underlying components)
-func New() *Emulator {
+func New(renderer render.Renderer) *Emulator {
 	apu := apu.New()
-	ppu := newPPU()
+	ppu := newPPU(renderer)
 	mem := newMemory()
 	cpu := newCPU(mem)
 
