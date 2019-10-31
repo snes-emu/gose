@@ -2,7 +2,13 @@ package core
 
 import "fmt"
 
-type tile struct{}
+// tile defines how a tile is handled by the super-nes
+type tile struct {
+	number       uint16 // tile number (used to find it in the vram)
+	palette      uint8  // index of the color palette to use (the number of entries in the palette depends on the mode and the background)
+	priority     bool   // Tile priority, for tiles this is only encoded in 1 bit (whereas for sprites it's encoded into 2 bits)
+	hFlip, vFlip bool   // horizontal and vertical flips
+}
 
 // sprite defines how a sprite is handled by the super-nes
 // A sprite is composed by 8x8 tiles and can have the following sizes:
