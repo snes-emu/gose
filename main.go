@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/snes-emu/gose/render"
+	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 
 	"github.com/snes-emu/gose/log"
@@ -19,21 +21,35 @@ import (
 // VERSION set at compile time
 var VERSION string
 
+func init() {
+	// Make sure the main goroutine is bound to the main thread.
+	// required for the SDL
+	runtime.LockOSThread()
+}
+
 func main() {
+	var exitcode int
+	sdl.Main(func() {
+		exitcode = Main()
+	})
+	os.Exit(exitcode)
+}
+
+func Main() int {
 	config.Init()
 
 	log.Info("starting gose", zap.String("version", VERSION))
 
 	if len(flag.Args()) == 0 {
 		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
-		os.Exit(1)
+		return 1
 	}
 
 	// TODO: fix dimension
 	renderer, err := render.NewSDLRenderer(core.WIDTH, core.HEIGHT)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating renderer: %s", err)
-		os.Exit(1)
+		return 1
 	}
 	emu := core.New(renderer)
 	emu.ReadROM(flag.Arg(0))
@@ -42,9 +58,9 @@ func main() {
 		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
-		emu.StartPaused()
+		sdl.Do(emu.StartPaused)
 	} else {
-		emu.Start()
+		sdl.Do(emu.Start)
 	}
 
 	sigs := make(chan os.Signal, 1)
@@ -53,4 +69,5 @@ func main() {
 	<-sigs
 	emu.Stop()
 	log.Info("emulation stopped")
+	return 0
 }
