@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/log"
@@ -15,6 +16,12 @@ type SDLRenderer struct {
 	window   *sdl.Window
 	renderer *sdl.Renderer
 	texture  *sdl.Texture
+}
+
+func (sr *SDLRenderer) SetRomTitle(title string) {
+	sdl.Do(func() {
+		sr.window.SetTitle(fmt.Sprintf("Gose - %s", strings.Title(strings.ToLower(title))))
+	})
 }
 
 func NewSDLRenderer(width, height int32) (sr *SDLRenderer, err error) {
@@ -38,7 +45,7 @@ func NewSDLRenderer(width, height int32) (sr *SDLRenderer, err error) {
 			return
 		}
 
-		sr.window.SetTitle("Gose - SNES Emulator")
+		sr.window.SetTitle("Gose")
 		// TODO: icon
 		// TODO: poll close
 	})
