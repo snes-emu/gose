@@ -1,4 +1,4 @@
-export class CPU extends HTMLUListElement {
+class CPU extends HTMLUListElement {
     constructor() {
         super();
         this.id = "cpu";
