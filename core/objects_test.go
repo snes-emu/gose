@@ -7,8 +7,7 @@ import (
 
 func TestSpriteSizeTable(t *testing.T) {
 	spriteSizeTable := [16][2]uint8{
-		// TODO: this should be 8, 8
-		{16, 16},
+		{8, 8},
 		{8, 8},
 		{8, 8},
 		{16, 16},
