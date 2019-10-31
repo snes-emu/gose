@@ -8,16 +8,16 @@ type oam struct {
 	priorityBit     bool               // Hold addr flip (even or odd part of a word)
 	lsb             uint8              // temporary variable for the oamdata register
 
-	objectSize            uint8  // index representing object size in pixel
-	objectTileBaseAddress uint16 // Tile used for sprites base address in VRAM (16K bytes steps, 8k words)
-	objectTileGapAddress  uint16 // Gap between object tile 0x0FF and 0x100 in VRAM (8K bytes steps, 4k words)
-	windowMask1           uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
-	windowMask2           uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
-	windowMaskLogic       uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
-	mainScreenWindow      bool   // Disable window area on main screen
-	subScreenWindow       bool   // Disable windows area on sub screen
-	mainScreen            bool   // Enable layer on main screen
-	subScreen             bool   // Enable layer on sub screen
+	objectSize       uint8  // index representing object size in pixel
+	baseAddr         uint16 // Tile used for sprites base address in VRAM (16K bytes steps, 8k words)
+	nameSelect       uint16 // Gap between object tile 0x0FF and 0x100 in VRAM (8K bytes steps, 4k words)
+	windowMask1      uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMask2      uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
+	windowMaskLogic  uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
+	mainScreenWindow bool   // Disable window area on main screen
+	subScreenWindow  bool   // Disable windows area on sub screen
+	mainScreen       bool   // Enable layer on main screen
+	subScreen        bool   // Enable layer on sub screen
 }
 
 // TODO: have a look at "reload"
@@ -84,8 +84,8 @@ func (ppu *PPU) rdoam() uint8 {
 // 2-0   Base Address for OBJ Tiles 000h..0FFh  (8K-word steps) (16K-byte steps)
 func (ppu *PPU) obsel(data uint8) {
 	ppu.oam.objectSize = (data >> 5)
-	ppu.oam.objectTileGapAddress = uint16((data >> 3) & 0x3)
-	ppu.oam.objectTileBaseAddress = uint16(data & 0x7)
+	ppu.oam.nameSelect = uint16((data >> 3) & 0x3)
+	ppu.oam.baseAddr = uint16(data & 0x7)
 }
 
 func (o *oam) read(addr uint16) uint8 {
@@ -99,4 +99,65 @@ func (o *oam) write(addr uint16, low uint8, high uint8) {
 
 func (o *oam) incrAddr() {
 	o.addr = (o.addr + 1) % 544
+}
+
+// sprite gets the sprite at the given index
+// the oam stores 128 entries in the following format:
+//
+// Table 1 (4-bytes per sprite) -> 512 bytes:
+// Byte 1:    xxxxxxxx    x: X coordinate
+// Byte 2:    yyyyyyyy    y: Y coordinate
+// Byte 3:    cccccccc    c: Starting tile #
+// Byte 4:    vhoopppc    v: vertical flip h: horizontal flip  o: priority bits  p: palette
+//
+// Table 2 (2 bits per sprite) -> 32 bytes:
+// Bit 0: upper X coordinate bit
+// Bit 1: Sprite size (0 is small, 1 is large)
+func (o *oam) sprite(idx uint16) sprite {
+	// raw1 contains the 4 bytes from the Table 1 for the given index
+	raw1 := o.bytes[4*idx : 4*(idx+1)]
+
+	// raw2 contains the two bits of interest from the Table 2 for the given index
+	raw2 := (o.bytes[0x200+(idx/4)] >> (2 * (idx % 4))) & 0x3
+
+	attrs := raw1[3]
+
+	sprite := sprite{}
+
+	// Read x, y, and firstTileAddress low word
+	sprite.x = uint16(raw1[0])
+	sprite.y = uint16(raw1[1])
+	tileIdx := uint16(raw1[2])
+
+	// Add upper bits
+	sprite.x |= uint16(raw2&0x1) << 8
+	tileIdx |= uint16(attrs&0x1) << 8
+
+	// Vertical and Horizontal flips
+	sprite.hFlip = attrs&0x40 != 0
+	sprite.vFlip = attrs&0x80 != 0
+
+	// Priority and palette
+	sprite.priority = (attrs >> 4) & 0x3
+	// Sprite palette starts at 128
+	sprite.palette = 128 + (16 * (attrs >> 1) & 0x7)
+
+	// Sprite size
+	isLarge := (raw2>>1)&0x1 != 0
+	sprite.hSize, sprite.vSize = spriteSize(isLarge, o.objectSize)
+
+	// Base Address is in 16K bytes steps
+	// NameSelect is in 8k bytes steps
+	// Formula is:
+	// ((Base << 14) + (index << 5) + (nameSelect ? ((Name+1)<<13) : 0))
+	// The & 0x7fff is just to limit the range to 32KB
+	// See: https://wiki.superfamicom.org/sprites
+	// The formula in wiki.superfamicom.com is given as word address (hence 2 bytes)
+	// that's why they limit the result to 32KB
+	sprite.firstTileAddr = (o.baseAddr << 14) + (tileIdx << 5)
+	if o.nameSelect != 0 {
+		sprite.firstTileAddr += (1 + o.nameSelect) << 13
+	}
+
+	return sprite
 }
