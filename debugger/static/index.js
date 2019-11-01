@@ -42,6 +42,11 @@ breakpointButton.onclick = function() {
     fetch('/breakpoint?address='+address.value);
 }
 
+const registerBreakpointButton = document.getElementById("register_breakpoint_button");
+registerBreakpointButton.onclick = function() {
+    const register = document.getElementById("register_breakpoint");
+    fetch('/breakpoint?register='+register.value);
+}
 
 function displayState(body) {
     cpuTab.addState(body.cpu);
