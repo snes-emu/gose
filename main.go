@@ -7,7 +7,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 
 	"github.com/snes-emu/gose/log"
@@ -20,12 +19,6 @@ import (
 
 // VERSION set at compile time
 var VERSION string
-
-func init() {
-	// Make sure the main goroutine is bound to the main thread.
-	// required for the SDL
-	runtime.LockOSThread()
-}
 
 func main() {
 	var exitcode int
@@ -58,9 +51,9 @@ func Main() int {
 		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
-		sdl.Do(emu.StartPaused)
+		emu.StartPaused()
 	} else {
-		sdl.Do(emu.Start)
+		emu.Start()
 	}
 
 	sigs := make(chan os.Signal, 1)
