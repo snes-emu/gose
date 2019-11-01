@@ -9,7 +9,7 @@ import (
 const regionNumber = 0x1000
 const bankNumber = 0x100
 const offsetMask = 0xFFFF
-const sramSize = 0x8000
+const sramSize = 0x80000
 const wramSize = 0x20000
 const ioSize = 0x8000
 
@@ -40,17 +40,22 @@ func newMemory() *Memory {
 	for bank := 0; bank < bankNumber; bank++ {
 		memory.main[bank] = make([]byte, 0x10000)
 	}
+
+	//set rom region as default
+	for region := 0; region < regionNumber; region++ {
+		memory.mmap[region] = romRegion
+	}
 	return memory
 }
 
 // LoadROM takes a memory buffer and load it into memory depending ROM type
 func (memory *Memory) LoadROM(r rom.ROM) {
+	romSize := len(r.Data)
 
-	// only LoROM for now
+	// set the ROM section according to: https://en.wikibooks.org/wiki/Super_NES_Programming/SNES_memory_map
 	switch r.Type {
 	case rom.LoROM:
 		memory.romType = rom.LoROM
-		romSize := len(r.Data)
 		for bank := 0x00; bank < 0x80; bank++ {
 			for offset := 0x8000; offset < 0x10000; offset++ {
 				if pos := offset + (bank-1)*0x8000; pos < romSize {
@@ -58,10 +63,21 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 				}
 			}
 		}
-
-		for bank := 0x80; bank < 0x100; bank++ {
-			memory.main[bank] = memory.main[bank-0x80]
+	case rom.HiROM:
+		memory.romType = rom.HiROM
+		for bank := 0x00; bank < 0x40; bank++ {
+			for offset := 0; offset < 0x10000; offset++ {
+				if pos := offset + bank*0x10000; pos < romSize {
+					memory.main[bank][offset] = r.Data[pos]
+					memory.main[bank+0x40][offset] = r.Data[pos]
+				}
+			}
 		}
+	}
+
+	//upper banks are mirrors of the lower ones
+	for bank := 0x80; bank < 0x100; bank++ {
+		memory.main[bank] = memory.main[bank-0x80]
 	}
 	memory.initMmap()
 }
@@ -80,6 +96,7 @@ func (memory *Memory) initIo(rf *io.RegisterFactory) {
 }
 
 func (memory *Memory) initMmap() {
+	//map system reserved banks
 	for bankIndex := 0x0; bankIndex < 0x40; bankIndex++ {
 		for offset := 0x0; offset < 0x2; offset++ {
 			memory.mmap[bankIndex<<4|offset] = lowWramRegion
@@ -89,38 +106,32 @@ func (memory *Memory) initMmap() {
 			memory.mmap[bankIndex<<4|offset] = ioRegisterRegion
 			memory.mmap[(bankIndex+0x80)<<4|offset] = ioRegisterRegion
 		}
-		for offset := 0x8; offset < 0x10; offset++ {
-			memory.mmap[bankIndex<<4|offset] = romRegion
-			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
+	}
+
+	//map sram
+	switch memory.romType {
+	case rom.LoROM:
+		for bankIndex := 0x70; bankIndex < 0x80; bankIndex++ {
+			for offset := 0; offset < 0x8; offset++ {
+				memory.mmap[bankIndex<<4|offset] = sramRegion
+				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+			}
+		}
+	case rom.HiROM:
+		//in HiROM sram is mapped here: overwrite the unused ioRegister regions
+		for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
+			for offset := 0x6; offset < 0x8; offset++ {
+				memory.mmap[bankIndex<<4|offset] = sramRegion
+				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+			}
 		}
 	}
-	for bankIndex := 0x40; bankIndex < 0x70; bankIndex++ {
-		for offset := 0; offset < 0x10; offset++ {
-			memory.mmap[bankIndex<<4|offset] = romRegion
-			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
-		}
-	}
-	for bankIndex := 0x70; bankIndex < 0x7E; bankIndex++ {
-		for offset := 0; offset < 0x8; offset++ {
-			memory.mmap[bankIndex<<4|offset] = sramRegion
-			memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
-		}
-		for offset := 0x8; offset < 0x10; offset++ {
-			memory.mmap[bankIndex<<4|offset] = romRegion
-			memory.mmap[(bankIndex+0x80)<<4|offset] = romRegion
-		}
-	}
+
+	//map work ram
+	//note: in LoROM this will overwrite the last sram regions in the lower banks
 	for bankIndex := 0x7E; bankIndex < 0x80; bankIndex++ {
 		for offset := 0; offset < 0x10; offset++ {
 			memory.mmap[bankIndex<<4|offset] = wramRegion
-		}
-	}
-	for bankIndex := 0xFE; bankIndex < 0x100; bankIndex++ {
-		for offset := 0; offset < 0x8; offset++ {
-			memory.mmap[bankIndex<<4|offset] = sramRegion
-		}
-		for offset := 0x8; offset < 0x10; offset++ {
-			memory.mmap[bankIndex<<4|offset] = romRegion
 		}
 	}
 }
