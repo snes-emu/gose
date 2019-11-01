@@ -131,5 +131,5 @@ func (ppu *PPU) tileSpriteColor(tileAddress, x, y uint16, palette uint8) render.
 	colorWordAddr := 2 * uint16(palette+idx)
 	return render.BGR555{
 		Color: bit.JoinUint16(ppu.cgram.bytes[colorWordAddr], ppu.cgram.bytes[colorWordAddr+1]),
-	}
+	}.ApplyBrightness(ppu.display.brightness)
 }
