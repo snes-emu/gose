@@ -34,7 +34,6 @@ func (ppu *PPU) renderLine() {
 // spritesToPixelLine takes the given sprites and outputs a row of pixels that intersects with the vCounter
 // TODO: vertical flip
 // TODO: horizontal flip
-// TODO: brightness
 // TODO: Update ppu status
 // TODO: limit to 32 sprites
 // TODO: limit to 34 tiles
@@ -60,7 +59,7 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 
 			// Go through all the pixels in the tile line
 			for x := uint16(0); x < 8; x++ {
-				color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette).ApplyBrightness(ppu.display.brightness)
+				color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette)
 
 				// Only change the pixel if the color is not transparent
 				if !color.Transparent {
