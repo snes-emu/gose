@@ -1,5 +1,7 @@
 package io
 
+const UNUSED_REGISTER = "UNUSED_REGISTER"
+
 // Register represents an read/write io register
 type Register struct {
 	Read  func() uint8
@@ -7,9 +9,21 @@ type Register struct {
 	Name  string
 }
 
-const UNUSED_REGISTER = "UNUSED_REGISTER"
+type RegisterFactory struct {
+	hook func(string)
+}
 
-func NewRegister(read func() uint8, write func(uint8), name ...string) *Register {
+func NewRegisterFactory() *RegisterFactory {
+	return NewRegisterFactoryWithHook(nil)
+}
+
+func NewRegisterFactoryWithHook(hook func(string)) *RegisterFactory {
+	return &RegisterFactory{
+		hook: hook,
+	}
+}
+
+func (rf *RegisterFactory) NewRegister(read func() uint8, write func(uint8), name ...string) *Register {
 	regname := UNUSED_REGISTER
 
 	if read == nil {
@@ -23,6 +37,18 @@ func NewRegister(read func() uint8, write func(uint8), name ...string) *Register
 		regname = name[0]
 	}
 
+	if rf.hook != nil {
+		read = func() uint8 {
+			rf.hook(regname)
+			return read()
+		}
+
+		write = func(data uint8) {
+			rf.hook(regname)
+			write(data)
+		}
+	}
+
 	r := &Register{
 		read,
 		write,
@@ -30,6 +56,7 @@ func NewRegister(read func() uint8, write func(uint8), name ...string) *Register
 	}
 	return r
 }
+
 func unusedRead() uint8 {
 	return 0
 }

@@ -2,12 +2,13 @@ package core
 
 import (
 	"archive/zip"
-	"github.com/snes-emu/gose/log"
-	"github.com/snes-emu/gose/render"
 	"io/ioutil"
 	"os"
 
 	"github.com/snes-emu/gose/apu"
+	"github.com/snes-emu/gose/io"
+	"github.com/snes-emu/gose/log"
+	"github.com/snes-emu/gose/render"
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
 )
@@ -25,15 +26,35 @@ type Emulator struct {
 	stepChan  chan int
 
 	//debugging
-	breakpoint uint32
+	registerBreakpoint string
+	breakpoint         uint32
+	debug              bool
 }
 
 // New creates a new Emulator (creating the underlying components)
-func New(renderer render.Renderer) *Emulator {
-	apu := apu.New()
-	ppu := newPPU(renderer)
+func New(renderer render.Renderer, debug bool) *Emulator {
+	state := NewState()
+	state.Pause()
+
+	e := &Emulator{
+		state:     state,
+		pauseChan: make(chan struct{}),
+		stopChan:  make(chan struct{}),
+		stepChan:  make(chan int),
+		debug:     debug,
+	}
+
+	var rf *io.RegisterFactory
+	if debug {
+		rf = io.NewRegisterFactoryWithHook(e.maybePause)
+	} else {
+		rf = io.NewRegisterFactory()
+	}
+
+	apu := apu.New(rf)
+	ppu := newPPU(renderer, rf)
 	mem := newMemory()
-	cpu := newCPU(mem)
+	cpu := newCPU(mem, rf)
 
 	cpu.ppu = ppu
 	ppu.cpu = cpu
@@ -41,20 +62,13 @@ func New(renderer render.Renderer) *Emulator {
 	mem.cpu = cpu
 	mem.ppu = ppu
 	mem.apu = apu
-	mem.initIo()
+	mem.initIo(rf)
 
-	state := NewState()
-	state.Pause()
+	e.Memory = mem
+	e.CPU = cpu
+	e.PPU = ppu
 
-	return &Emulator{
-		CPU:       cpu,
-		Memory:    mem,
-		PPU:       ppu,
-		state:     state,
-		pauseChan: make(chan struct{}),
-		stopChan:  make(chan struct{}),
-		stepChan:  make(chan int),
-	}
+	return e
 }
 
 func readFile(src string) ([]byte, error) {
@@ -115,6 +129,12 @@ func (e *Emulator) SetBreakpoint(addr uint32) {
 
 func (e *Emulator) atBreakpoint() bool {
 	return e.breakpoint != 0 && uint16(e.breakpoint&0xFFFF) == e.CPU.PC && uint8(e.breakpoint>>16) == e.CPU.K
+}
+
+func (e *Emulator) maybePause(register string) {
+	if !e.IsPaused() && register == e.registerBreakpoint {
+		e.TogglePause()
+	}
 }
 
 func (e *Emulator) loop() {
@@ -196,12 +216,11 @@ func (e *Emulator) startState(status stateStatus) {
 
 // Start the main emulator loop
 func (e *Emulator) Start() {
-	e.startState(started)
-}
-
-// StartPaused the main emulator loop
-func (e *Emulator) StartPaused() {
-	e.startState(paused)
+	initState := started
+	if e.debug {
+		initState = paused
+	}
+	e.startState(initState)
 }
 
 // TogglePause toggles a pause in execution

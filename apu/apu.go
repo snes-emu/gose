@@ -11,11 +11,11 @@ type APU struct {
 	Registers          [4]*io.Register
 }
 
-func New() *APU {
+func New(rf *io.RegisterFactory) *APU {
 	apu := &APU{}
 	for i := 0; i < len(apu.CommunicationPorts); i++ {
 		apu.CommunicationPorts[i] = newPort()
-		apu.Registers[i] = io.NewRegister(apu.CommunicationPorts[i].CPUOutput, apu.CommunicationPorts[i].CPUInput, fmt.Sprintf("APUFAKE%v", i))
+		apu.Registers[i] = rf.NewRegister(apu.CommunicationPorts[i].CPUOutput, apu.CommunicationPorts[i].CPUInput, fmt.Sprintf("APUFAKE%v", i))
 	}
 	apu.init()
 	return apu

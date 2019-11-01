@@ -43,9 +43,9 @@ type cpuOperation func()
 
 var opcodes []cpuOperation
 
-func newCPU(memory *Memory) *CPU {
+func newCPU(memory *Memory, rf *io.RegisterFactory) *CPU {
 	cpu := &CPU{memory: memory}
-	cpu.initIORegisters()
+	cpu.initIORegisters(rf)
 	cpu.registerOpcodes()
 	return cpu
 }
