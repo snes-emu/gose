@@ -238,6 +238,8 @@ func (e *Emulator) TogglePause() {
 	e.pauseChan <- struct{}{}
 }
 
+//asyncTogglePause should be called during the execution of an instruction to pause just before the next one
+//TODO: There is actually a race condition because we are not sure the goroutine will be executed early enough
 func (e *Emulator) asyncTogglePause() {
 	started := make(chan struct{})
 	go func() {
