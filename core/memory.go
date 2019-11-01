@@ -29,6 +29,7 @@ type Memory struct {
 	wram    [wramSize]uint8
 	io      [ioSize]*io.Register
 	romType uint
+	sm      *sramMapper
 	apu     *apu.APU
 	ppu     *PPU
 	cpu     *CPU
@@ -117,6 +118,7 @@ func (memory *Memory) initMmap() {
 				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
 			}
 		}
+		memory.sm = loromSramMapper
 	case rom.HiROM:
 		//in HiROM sram is mapped here: overwrite the unused ioRegister regions
 		for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
@@ -125,6 +127,7 @@ func (memory *Memory) initMmap() {
 				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
 			}
 		}
+		memory.sm = hiromSramMapper
 	}
 
 	//map work ram
@@ -153,9 +156,9 @@ func (memory *Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	case romRegion:
 		return memory.main[K][offset]
 	case wramRegion:
-		return memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)]
+		return memory.wram[(uint32(K%0x80)-0x7E)<<16|uint32(offset)]
 	case sramRegion:
-		return memory.sram[offset]
+		return memory.sram[memory.sm.getAddr(K, offset)]
 	default:
 		return 0x00
 	}
@@ -176,8 +179,32 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	case ioRegisterRegion:
 		memory.io[offset].Write(value)
 	case wramRegion:
-		memory.wram[(uint32(K)-0x7E)<<16+uint32(offset)] = value
+		memory.wram[(uint32(K%0x80)-0x7E)<<16+uint32(offset)] = value
 	case sramRegion:
-		memory.sram[offset] = value
+		memory.sram[memory.sm.getAddr(K, offset)] = value
 	}
+}
+
+type sramMapper struct {
+	bankStart   uint32
+	shift       uint32
+	offsetStart uint32
+}
+
+func (sm *sramMapper) getAddr(K uint8, offset uint16) uint32 {
+	return (uint32(K%0x80)-sm.bankStart)<<sm.shift | (uint32(offset) - sm.offsetStart)
+}
+
+//sram is mapped to whole banks from 0x70 to 0x7E and from 0xF0 to 0xFF
+var loromSramMapper = &sramMapper{
+	bankStart:   0x70,
+	shift:       16,
+	offsetStart: 0,
+}
+
+//sram is mapped to upper 0x2000 bytes of banks 0x20 to 0x3F
+var hiromSramMapper = &sramMapper{
+	bankStart:   0x20,
+	shift:       13,
+	offsetStart: 0x6000,
 }
