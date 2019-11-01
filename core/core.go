@@ -46,7 +46,7 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 
 	var rf *io.RegisterFactory
 	if debug {
-		rf = io.NewRegisterFactoryWithHook(e.maybePause)
+		rf = io.NewRegisterFactoryWithHook(e.handleRegisterBreakpoint)
 	} else {
 		rf = io.NewRegisterFactory()
 	}
@@ -139,7 +139,7 @@ func (e *Emulator) atRegisterBreakpoint(register string) bool {
 	return e.registerBreakpoint != "" && register == e.registerBreakpoint
 }
 
-func (e *Emulator) maybePause(register string) {
+func (e *Emulator) handleRegisterBreakpoint(register string) {
 	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
 		log.Debug("maybePause Pausing", zap.String("register", register))
 		e.asyncTogglePause()
