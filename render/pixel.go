@@ -16,9 +16,30 @@ type BGR555 struct {
 }
 
 // ApplyBrightness apply the given brightness from 0 to 15
-// TODO
+// If the brightness is 0 we return a black color
+// otherwise we replace the colors by color * brightness + 1 / 16
 func (c BGR555) ApplyBrightness(bness uint8) BGR555 {
-	return c
+	if bness == 0 {
+		return BGR555{
+			Color:       0,
+			Transparent: c.Transparent,
+		}
+	}
+
+	r := int(c.Color) & 0x1f
+	g := int(c.Color>>5) & 0x1f
+	b := int(c.Color>>10) & 0x1f
+
+	b32 := int(bness)
+
+	r = (r * (1 + b32)) >> 4
+	g = (g * (1 + b32)) >> 4
+	b = (b * (1 + b32)) >> 4
+
+	return BGR555{
+		Color:       uint16(b<<10 | g<<5 | r),
+		Transparent: c.Transparent,
+	}
 }
 
 // RGBA implements the color.Color interface
