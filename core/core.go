@@ -131,9 +131,18 @@ func (e *Emulator) atBreakpoint() bool {
 	return e.breakpoint != 0 && uint16(e.breakpoint&0xFFFF) == e.CPU.PC && uint8(e.breakpoint>>16) == e.CPU.K
 }
 
+func (e *Emulator) SetRegisterBreakpoint(register string) {
+	e.registerBreakpoint = register
+}
+
+func (e *Emulator) atRegisterBreakpoint(register string) bool {
+	return e.registerBreakpoint != "" && register == e.registerBreakpoint
+}
+
 func (e *Emulator) maybePause(register string) {
-	if !e.IsPaused() && register == e.registerBreakpoint {
-		e.TogglePause()
+	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
+		log.Debug("maybePause Pausing", zap.String("register", register))
+		e.asyncTogglePause()
 	}
 }
 
@@ -157,6 +166,7 @@ func (e *Emulator) stateStarted(n int) {
 		for i := 0; i < n; i++ {
 			select {
 			case <-e.pauseChan:
+				log.Debug("emulator paused")
 				e.state.Pause()
 				return
 			case <-e.stopChan:
@@ -226,6 +236,16 @@ func (e *Emulator) Start() {
 // TogglePause toggles a pause in execution
 func (e *Emulator) TogglePause() {
 	e.pauseChan <- struct{}{}
+}
+
+func (e *Emulator) asyncTogglePause() {
+	started := make(chan struct{})
+	go func() {
+		close(started)
+		e.pauseChan <- struct{}{}
+	}()
+
+	<-started
 }
 
 // TogglePause toggles a pause in execution

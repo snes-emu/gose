@@ -103,12 +103,16 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	log.Debug("/breakpoint")
 	address, err := strconv.Atoi(r.URL.Query().Get("address"))
+	register := r.URL.Query().Get("register")
 	if err != nil {
 		log.Info("fail to set breakpoint", zap.Error(err))
-		return
+	} else {
+		db.emu.SetBreakpoint(uint32(address))
 	}
 
-	db.emu.SetBreakpoint(uint32(address))
+	if register != "" {
+		db.emu.SetRegisterBreakpoint(register)
+	}
 }
 
 func (db *Debugger) sendState(w http.ResponseWriter) error {

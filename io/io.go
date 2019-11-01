@@ -36,22 +36,23 @@ func (rf *RegisterFactory) NewRegister(read func() uint8, write func(uint8), nam
 	if len(name) > 0 {
 		regname = name[0]
 	}
-
+	rread := read
+	rwrite := write
 	if rf.hook != nil {
-		read = func() uint8 {
+		rread = func() uint8 {
 			rf.hook(regname)
 			return read()
 		}
 
-		write = func(data uint8) {
+		rwrite = func(data uint8) {
 			rf.hook(regname)
 			write(data)
 		}
 	}
 
 	r := &Register{
-		read,
-		write,
+		rread,
+		rwrite,
 		regname,
 	}
 	return r
