@@ -1,14 +1,16 @@
 package core
 
 import (
+	"testing"
+
+	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/render"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestOamLastWrittenAddr(t *testing.T) {
 	// Set oam addr register to 0x104
-	ppu := newPPU(&render.NoOpRenderer{})
+	ppu := newPPU(&render.NoOpRenderer{}, io.NewRegisterFactory())
 	ppu.oamaddl(0x04)
 	ppu.oamaddh(0x1)
 
@@ -30,7 +32,7 @@ func TestOamWritesAndReads(t *testing.T) {
 	// Write 1, read, read, Write 2, read, write 3
 	// => OAM is 00 00 01 02 01 03, rather than 01 00 00 02 00 03 as you might expect.
 
-	ppu := newPPU(&render.NoOpRenderer{})
+	ppu := newPPU(&render.NoOpRenderer{}, io.NewRegisterFactory())
 	ppu.oamdata(0x1)
 	assert.EqualValues(t, 0, ppu.rdoam())
 	assert.EqualValues(t, 0, ppu.rdoam())
