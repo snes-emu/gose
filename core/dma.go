@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+
 	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/bit"
@@ -32,7 +33,7 @@ type dmaChannel struct {
 	unused uint8
 }
 
-func (cpu *CPU) initDma() {
+func (cpu *CPU) initDma(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		cpu.dmaChannels[i] = &dmaChannel{
 			dmaEnabled:        false,
@@ -54,19 +55,19 @@ func (cpu *CPU) initDma() {
 	}
 
 	// Init the dma registers
-	cpu.initDmaen()
-	cpu.initDmapx()
-	cpu.initBbadx()
-	cpu.initA1txl()
-	cpu.initA1txh()
-	cpu.initA1bx()
-	cpu.initDasxL()
-	cpu.initDasxH()
-	cpu.initDasbx()
-	cpu.initA2axl()
-	cpu.initA2axh()
-	cpu.initNtrlx()
-	cpu.initUnusedx()
+	cpu.initDmaen(rf)
+	cpu.initDmapx(rf)
+	cpu.initBbadx(rf)
+	cpu.initA1txl(rf)
+	cpu.initA1txh(rf)
+	cpu.initA1bx(rf)
+	cpu.initDasxL(rf)
+	cpu.initDasxH(rf)
+	cpu.initDasbx(rf)
+	cpu.initA2axl(rf)
+	cpu.initA2axh(rf)
+	cpu.initNtrlx(rf)
+	cpu.initUnusedx(rf)
 }
 
 func (cpu *CPU) startDma() {
@@ -127,9 +128,9 @@ func (dma *dmaChannel) ppuAddress(count uint8) (uint8, uint16) {
 	return bank, offset
 }
 
-func (cpu *CPU) initDmaen() {
+func (cpu *CPU) initDmaen(rf *io.RegisterFactory) {
 	// 0x420B - MDMAEN - Select General Purpose DMA Channel(s) and Start Transfer (W)
-	cpu.ioRegisters[0x20b] = io.NewRegister(
+	cpu.ioRegisters[0x20b] = rf.NewRegister(
 		nil, func(data uint8) {
 			for i := uint8(0); i < 8; i++ {
 				cpu.dmaChannels[i].dmaEnabled = data&(1<<i) != 0
@@ -140,7 +141,7 @@ func (cpu *CPU) initDmaen() {
 	)
 
 	// 0x420C - HDMAEN - Select H-Blank DMA (H-DMA) Channel(s) (W)
-	cpu.ioRegisters[0x20c] = io.NewRegister(
+	cpu.ioRegisters[0x20c] = rf.NewRegister(
 		nil, func(data uint8) {
 			for i := uint8(0); i < 8; i++ {
 				cpu.dmaChannels[i].hdmaEnabled = data&(1<<i) != 0
@@ -151,10 +152,10 @@ func (cpu *CPU) initDmaen() {
 
 }
 
-func (cpu *CPU) initDmapx() {
+func (cpu *CPU) initDmapx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x300+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x300+16*i] = rf.NewRegister(
 			// 0x43x0 - DMAPx - DMA/HDMA Parameters (R/W)
 			func() uint8 {
 				var res uint8
@@ -187,10 +188,10 @@ func (cpu *CPU) initDmapx() {
 	}
 }
 
-func (cpu *CPU) initBbadx() {
+func (cpu *CPU) initBbadx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x301+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x301+16*i] = rf.NewRegister(
 			// 0x43x1 - BBADx - DMA/HDMA I/O-Bus Address (PPU-Bus aka B-Bus) (R/W)
 			func() uint8 {
 				return c.destAddr
@@ -204,10 +205,10 @@ func (cpu *CPU) initBbadx() {
 	}
 }
 
-func (cpu *CPU) initA1txl() {
+func (cpu *CPU) initA1txl(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x302+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x302+16*i] = rf.NewRegister(
 			// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
 			func() uint8 {
 				return bit.LowByte(c.srcAddr)
@@ -221,10 +222,10 @@ func (cpu *CPU) initA1txl() {
 	}
 }
 
-func (cpu *CPU) initA1txh() {
+func (cpu *CPU) initA1txh(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x303+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x303+16*i] = rf.NewRegister(
 			// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
 			func() uint8 {
 				return bit.HighByte(c.srcAddr)
@@ -238,10 +239,10 @@ func (cpu *CPU) initA1txh() {
 	}
 }
 
-func (cpu *CPU) initA1bx() {
+func (cpu *CPU) initA1bx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x304+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x304+16*i] = rf.NewRegister(
 			// 0x43x4 - A1Bx - HDMA Table Start Address (bank) / DMA Current Addr (bank) (R/W)
 			func() uint8 {
 				return c.srcBank
@@ -255,10 +256,10 @@ func (cpu *CPU) initA1bx() {
 	}
 }
 
-func (cpu *CPU) initDasxL() {
+func (cpu *CPU) initDasxL(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x305+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x305+16*i] = rf.NewRegister(
 			// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
 			func() uint8 {
 				return bit.LowByte(c.transferSize)
@@ -272,10 +273,10 @@ func (cpu *CPU) initDasxL() {
 	}
 }
 
-func (cpu *CPU) initDasxH() {
+func (cpu *CPU) initDasxH(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x306+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x306+16*i] = rf.NewRegister(
 			// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
 			func() uint8 {
 				return bit.HighByte(c.transferSize)
@@ -289,10 +290,10 @@ func (cpu *CPU) initDasxH() {
 	}
 }
 
-func (cpu *CPU) initDasbx() {
+func (cpu *CPU) initDasbx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x307+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x307+16*i] = rf.NewRegister(
 			// 0x43x7 - DASBx - Indirect HDMA Address (bank) (R/W)
 			func() uint8 {
 				return c.indirectAddrBank
@@ -306,10 +307,10 @@ func (cpu *CPU) initDasbx() {
 	}
 }
 
-func (cpu *CPU) initA2axl() {
+func (cpu *CPU) initA2axl(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x308+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x308+16*i] = rf.NewRegister(
 			// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
 			func() uint8 {
 				return bit.LowByte(c.hdmaAddr)
@@ -323,10 +324,10 @@ func (cpu *CPU) initA2axl() {
 	}
 }
 
-func (cpu *CPU) initA2axh() {
+func (cpu *CPU) initA2axh(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x309+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x309+16*i] = rf.NewRegister(
 			// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
 			func() uint8 {
 				return bit.HighByte(c.hdmaAddr)
@@ -340,10 +341,10 @@ func (cpu *CPU) initA2axh() {
 	}
 }
 
-func (cpu *CPU) initNtrlx() {
+func (cpu *CPU) initNtrlx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x30a+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x30a+16*i] = rf.NewRegister(
 			// 0x43xA - NTRLx - HDMA Line-Counter (from current Table entry) (R/W)
 			func() uint8 {
 				return c.hdmaLineCounter
@@ -357,10 +358,10 @@ func (cpu *CPU) initNtrlx() {
 	}
 }
 
-func (cpu *CPU) initUnusedx() {
+func (cpu *CPU) initUnusedx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
-		cpu.ioRegisters[0x30b+16*i] = io.NewRegister(
+		cpu.ioRegisters[0x30b+16*i] = rf.NewRegister(
 			// 0x43xB - UNUSEDx - Unused Byte (R/W)
 			func() uint8 {
 				return c.unused

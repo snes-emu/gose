@@ -66,9 +66,9 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 	memory.initMmap()
 }
 
-func (memory *Memory) initIo() {
+func (memory *Memory) initIo(rf *io.RegisterFactory) {
 	for i := 0; i < ioSize; i++ {
-		memory.io[i] = io.NewRegister(nil, nil)
+		memory.io[i] = rf.NewRegister(nil, nil)
 	}
 	for i := 0; i < 0x40; i++ {
 		memory.io[0x2100+i] = memory.ppu.Registers[i]

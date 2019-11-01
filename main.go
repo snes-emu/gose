@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/snes-emu/gose/render"
-	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/snes-emu/gose/render"
+	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/snes-emu/gose/log"
 
@@ -44,17 +45,16 @@ func Main() int {
 		fmt.Fprintf(os.Stderr, "error creating renderer: %s", err)
 		return 1
 	}
-	emu := core.New(renderer)
+	emu := core.New(renderer, config.DebugServer())
 	emu.ReadROM(flag.Arg(0))
 
 	if config.DebugServer() {
 		log.Info("starting the debugger")
 		db := debugger.New(emu, fmt.Sprintf("localhost:%d", config.DebugPort()))
 		db.Start()
-		emu.StartPaused()
-	} else {
-		emu.Start()
 	}
+
+	emu.Start()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
