@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/snes-emu/gose/log"
 
@@ -102,16 +103,25 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 
 func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	log.Debug("/breakpoint")
-	address, err := strconv.Atoi(r.URL.Query().Get("address"))
+	rawAddr := r.URL.Query().Get("address")
 	register := r.URL.Query().Get("register")
-	if err != nil {
-		log.Info("fail to set breakpoint", zap.Error(err))
-	} else {
-		db.emu.SetBreakpoint(uint32(address))
+
+	if rawAddr != "" {
+		// Address breakpoint
+		address, err := strconv.Atoi(rawAddr)
+		if err != nil {
+			log.Info("fail to set breakpoint", zap.Error(err))
+		} else {
+			log.Debug("Setting address breakpoint", zap.Int("address", address))
+			db.emu.SetBreakpoint(uint32(address))
+		}
 	}
 
 	if register != "" {
-		db.emu.SetRegisterBreakpoint(register)
+		// Register breakpoint
+		reg := strings.ToUpper(register)
+		log.Debug("Setting register breakpoint", zap.String("register_breakpoint", reg))
+		db.emu.SetRegisterBreakpoint(reg)
 	}
 }
 

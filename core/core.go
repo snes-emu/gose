@@ -141,7 +141,7 @@ func (e *Emulator) atRegisterBreakpoint(register string) bool {
 
 func (e *Emulator) handleRegisterBreakpoint(register string) {
 	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
-		log.Debug("maybePause Pausing", zap.String("register", register))
+		log.Debug("breakpoint reached, pausing execution...", zap.String("register", register))
 		e.asyncTogglePause()
 	}
 }
@@ -236,18 +236,6 @@ func (e *Emulator) Start() {
 // TogglePause toggles a pause in execution
 func (e *Emulator) TogglePause() {
 	e.pauseChan <- struct{}{}
-}
-
-//asyncTogglePause should be called during the execution of an instruction to pause just before the next one
-//TODO: There is actually a race condition because we are not sure the goroutine will be executed early enough
-func (e *Emulator) asyncTogglePause() {
-	started := make(chan struct{})
-	go func() {
-		close(started)
-		e.pauseChan <- struct{}{}
-	}()
-
-	<-started
 }
 
 // TogglePause toggles a pause in execution
