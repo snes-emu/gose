@@ -142,7 +142,7 @@ func (e *Emulator) atRegisterBreakpoint(register string) bool {
 func (e *Emulator) handleRegisterBreakpoint(register string) {
 	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
 		log.Debug("breakpoint reached, pausing execution...", zap.String("register", register))
-		e.asyncTogglePause()
+		e.TogglePause()
 	}
 }
 
