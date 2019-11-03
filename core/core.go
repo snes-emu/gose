@@ -38,7 +38,7 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 
 	e := &Emulator{
 		state:     state,
-		pauseChan: make(chan struct{}),
+		pauseChan: make(chan struct{}, 1),
 		stopChan:  make(chan struct{}),
 		stepChan:  make(chan int),
 		debug:     debug,
