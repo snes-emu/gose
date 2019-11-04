@@ -68,7 +68,7 @@ func (db *Debugger) createServer(addr string) {
 	box := packr.New("front", "./static")
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(box))
-	mux.HandleFunc("/pause", db.pause)
+	mux.HandleFunc("/resume", db.resume)
 	mux.HandleFunc("/step", db.step)
 	mux.HandleFunc("/breakpoint", db.breakpoint)
 
@@ -78,15 +78,11 @@ func (db *Debugger) createServer(addr string) {
 	}
 }
 
-func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
-	// Send state only if we are now in paused state
-	if <-db.emu.TogglePause() {
-		db.sendState(w)
-	} else {
-		// Otherwise wait for the breakpoint to be reached
-		register := <-db.emu.BreakpointCh
-		db.sendStateWithRegister(register, w)
-	}
+func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
+	db.emu.Resume()
+	// Wait for the next breakpoint to be reached
+	register := <-db.emu.BreakpointCh
+	db.sendStateWithRegister(register, w)
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {

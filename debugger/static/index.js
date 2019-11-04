@@ -28,9 +28,9 @@ tabManager.setTabs([
 const root = document.getElementById("root");
 root.appendChild(tabManager);
 
-const pauseButton = document.getElementById("pause_button");
-pauseButton.onclick = function() {
-    fetch('/pause').then(resp => resp.json()).then(displayState);
+const resumeButton = document.getElementById("resume_button");
+resumeButton.onclick = function() {
+    fetch('/resume').then(resp => resp.json()).then(displayState);
 }
 
 const stepButton = document.getElementById("step_button");
