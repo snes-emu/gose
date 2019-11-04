@@ -40,7 +40,8 @@ func Main() int {
 	}
 
 	// TODO: fix dimension
-	renderer, err := render.NewSDLRenderer(core.WIDTH, core.HEIGHT)
+	stop := make(chan struct{}, 1)
+	renderer, err := render.NewSDLRenderer(core.WIDTH, core.HEIGHT, stop)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating renderer: %s", err)
 		return 1
@@ -59,7 +60,11 @@ func Main() int {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	<-sigs
+	select {
+	case <-sigs:
+	case <-stop:
+	}
+
 	emu.Stop()
 	log.Info("emulation stopped")
 	return 0

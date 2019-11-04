@@ -2,11 +2,13 @@ package render
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/log"
 	"github.com/veandco/go-sdl2/sdl"
 	"go.uber.org/zap"
-	"strings"
 )
 
 var _ Renderer = &SDLRenderer{}
@@ -23,7 +25,7 @@ func (sr *SDLRenderer) SetRomTitle(title string) {
 	})
 }
 
-func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
+func NewSDLRenderer(width, height int32, stop chan struct{}) (*SDLRenderer, error) {
 	sr := &SDLRenderer{}
 	var err error
 
@@ -50,6 +52,23 @@ func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
 		// TODO: icon
 		// TODO: poll close
 	})
+
+	if err == nil {
+		go func() {
+			for range time.Tick(10 * time.Millisecond) {
+				var event sdl.Event
+				if sdl.Do(func() {
+					event = sdl.PollEvent()
+				}); event != nil {
+					switch event.(type) {
+					case *sdl.QuitEvent:
+						close(stop)
+
+					}
+				}
+			}
+		}()
+	}
 
 	return sr, err
 }
