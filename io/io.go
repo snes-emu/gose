@@ -2,6 +2,11 @@ package io
 
 const UNUSED_REGISTER = "UNUSED_REGISTER"
 
+const READ = "read"
+const WRITE = "write"
+
+type registerHook func(reg string, typ string, data uint8)
+
 // Register represents an read/write io register
 type Register struct {
 	Read  func() uint8
@@ -10,14 +15,14 @@ type Register struct {
 }
 
 type RegisterFactory struct {
-	hook func(string)
+	hook registerHook
 }
 
 func NewRegisterFactory() *RegisterFactory {
 	return NewRegisterFactoryWithHook(nil)
 }
 
-func NewRegisterFactoryWithHook(hook func(string)) *RegisterFactory {
+func NewRegisterFactoryWithHook(hook registerHook) *RegisterFactory {
 	return &RegisterFactory{
 		hook: hook,
 	}
@@ -40,13 +45,14 @@ func (rf *RegisterFactory) NewRegister(read func() uint8, write func(uint8), nam
 	rwrite := write
 	if rf.hook != nil {
 		rread = func() uint8 {
-			rf.hook(regname)
-			return read()
+			res := read()
+			rf.hook(regname, READ, res)
+			return res
 		}
 
 		rwrite = func(data uint8) {
-			rf.hook(regname)
 			write(data)
+			rf.hook(regname, WRITE, data)
 		}
 	}
 
