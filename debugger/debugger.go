@@ -81,9 +81,8 @@ func (db *Debugger) createServer(addr string) {
 }
 
 func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
-	db.emu.TogglePause()
 	// Send state only if we are now in paused state
-	if db.emu.IsPaused() {
+	if <-db.emu.TogglePause() {
 		db.sendState(w)
 	}
 }

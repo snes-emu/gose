@@ -21,7 +21,7 @@ type Emulator struct {
 
 	//state
 	state     *state
-	pauseChan chan struct{}
+	pauseChan chan chan bool
 	stopChan  chan struct{}
 	stepChan  chan int
 
@@ -38,7 +38,7 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 
 	e := &Emulator{
 		state:     state,
-		pauseChan: make(chan struct{}, 1),
+		pauseChan: make(chan chan bool, 1),
 		stopChan:  make(chan struct{}),
 		stepChan:  make(chan int),
 		debug:     debug,
@@ -146,6 +146,12 @@ func (e *Emulator) handleRegisterBreakpoint(register string) {
 	}
 }
 
+func (e *Emulator) pause(ch chan bool) {
+	log.Debug("emulator paused")
+	e.state.Pause()
+	ch <- true
+}
+
 func (e *Emulator) loop() {
 	n := 0
 	for {
@@ -165,9 +171,8 @@ func (e *Emulator) stateStarted(n int) {
 	if n > 0 {
 		for i := 0; i < n; i++ {
 			select {
-			case <-e.pauseChan:
-				log.Debug("emulator paused")
-				e.state.Pause()
+			case ch := <-e.pauseChan:
+				e.pause(ch)
 				return
 			case <-e.stopChan:
 				e.state.Stop()
@@ -187,8 +192,8 @@ func (e *Emulator) stateStarted(n int) {
 	}
 	for {
 		select {
-		case <-e.pauseChan:
-			e.state.Pause()
+		case ch := <-e.pauseChan:
+			e.pause(ch)
 			return
 		case <-e.stopChan:
 			e.state.Stop()
@@ -208,8 +213,9 @@ func (e *Emulator) statePaused() int {
 	case <-e.stopChan:
 		e.state.Stop()
 
-	case <-e.pauseChan:
+	case ch := <-e.pauseChan:
 		e.state.Start()
+		ch <- false
 
 	case n := <-e.stepChan:
 		e.state.Start()
@@ -234,8 +240,10 @@ func (e *Emulator) Start() {
 }
 
 // TogglePause toggles a pause in execution
-func (e *Emulator) TogglePause() {
-	e.pauseChan <- struct{}{}
+func (e *Emulator) TogglePause() chan bool {
+	listenCh := make(chan bool, 1)
+	e.pauseChan <- listenCh
+	return listenCh
 }
 
 // TogglePause toggles a pause in execution
