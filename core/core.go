@@ -28,6 +28,7 @@ type Emulator struct {
 	//debugging
 	registerBreakpoint string
 	breakpoint         uint32
+	BreakpointCh       chan struct{}
 	debug              bool
 }
 
@@ -37,11 +38,12 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 	state.Pause()
 
 	e := &Emulator{
-		state:     state,
-		pauseChan: make(chan chan bool, 1),
-		stopChan:  make(chan struct{}),
-		stepChan:  make(chan int),
-		debug:     debug,
+		state:        state,
+		pauseChan:    make(chan chan bool, 1),
+		stopChan:     make(chan struct{}),
+		stepChan:     make(chan int),
+		BreakpointCh: make(chan struct{}),
+		debug:        debug,
 	}
 
 	var rf *io.RegisterFactory
@@ -143,6 +145,7 @@ func (e *Emulator) handleRegisterBreakpoint(register string) {
 	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
 		log.Debug("breakpoint reached, pausing execution...", zap.String("register", register))
 		e.TogglePause()
+		e.BreakpointCh <- struct{}{}
 	}
 }
 

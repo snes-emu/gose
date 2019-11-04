@@ -84,6 +84,10 @@ func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
 	// Send state only if we are now in paused state
 	if <-db.emu.TogglePause() {
 		db.sendState(w)
+	} else {
+		// Otherwise wait for the breakpoint to be reached
+		<-db.emu.BreakpointCh
+		db.sendState(w)
 	}
 }
 
