@@ -3,12 +3,10 @@ package debugger
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/snes-emu/gose/log"
 	"net/http"
 	"os/exec"
 	"strconv"
-	"strings"
-
-	"github.com/snes-emu/gose/log"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/snes-emu/gose/core"
@@ -86,8 +84,8 @@ func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
 		db.sendState(w)
 	} else {
 		// Otherwise wait for the breakpoint to be reached
-		<-db.emu.BreakpointCh
-		db.sendState(w)
+		register := <-db.emu.BreakpointCh
+		db.sendStateWithRegister(register, w)
 	}
 }
 
@@ -107,7 +105,7 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	log.Debug("/breakpoint")
 	rawAddr := r.URL.Query().Get("address")
-	register := r.URL.Query().Get("register")
+	registers := r.URL.Query().Get("registers")
 
 	if rawAddr != "" {
 		// Address breakpoint
@@ -120,25 +118,37 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if register != "" {
+	if registers != "" {
 		// Register breakpoint
-		reg := strings.ToUpper(register)
-		log.Debug("Setting register breakpoint", zap.String("register_breakpoint", reg))
-		db.emu.SetRegisterBreakpoint(reg)
+		log.Debug("Setting register breakpoints", zap.String("breakpoints", registers))
+		db.emu.SetRegisterBreakpoint(registers)
 	}
 }
 
-func (db *Debugger) sendState(w http.ResponseWriter) error {
+func (db *Debugger) emulatorState() map[string]interface{} {
 	res := make(map[string]interface{})
-
 	res["palette"] = db.emu.PPU.ExportPalette()
 	res["cpu"] = db.emu.CPU
-	jsonRes, err := json.Marshal(res)
+	return res
+}
+
+func (db *Debugger) sendStateWithRegister(register core.BreakpointData, w http.ResponseWriter) error {
+	res := db.emulatorState()
+	res["register"] = register
+	return db.send(res, w)
+}
+
+func (db *Debugger) sendState(w http.ResponseWriter) error {
+	return db.send(db.emulatorState(), w)
+}
+
+func (db *Debugger) send(payload map[string]interface{}, w http.ResponseWriter) error {
+	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("error marshalling the emulator state: %w", err)
 	}
 
-	if _, err = w.Write(jsonRes); err != nil {
+	if _, err = w.Write(jsonPayload); err != nil {
 		return fmt.Errorf("error writing response: %w", err)
 	}
 

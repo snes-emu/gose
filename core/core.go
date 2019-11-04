@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/io"
@@ -12,6 +13,12 @@ import (
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
 )
+
+type BreakpointData struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+	Data uint8  `json:"data"`
+}
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
 type Emulator struct {
@@ -26,10 +33,10 @@ type Emulator struct {
 	stepChan  chan int
 
 	//debugging
-	registerBreakpoint string
-	breakpoint         uint32
-	BreakpointCh       chan struct{}
-	debug              bool
+	registerBreakpoints map[string]struct{}
+	breakpoint          uint32
+	BreakpointCh        chan BreakpointData
+	debug               bool
 }
 
 // New creates a new Emulator (creating the underlying components)
@@ -38,12 +45,13 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 	state.Pause()
 
 	e := &Emulator{
-		state:        state,
-		pauseChan:    make(chan chan bool, 1),
-		stopChan:     make(chan struct{}),
-		stepChan:     make(chan int),
-		BreakpointCh: make(chan struct{}),
-		debug:        debug,
+		state:               state,
+		pauseChan:           make(chan chan bool, 1),
+		stopChan:            make(chan struct{}),
+		stepChan:            make(chan int),
+		debug:               debug,
+		registerBreakpoints: map[string]struct{}{},
+		BreakpointCh:        make(chan BreakpointData),
 	}
 
 	var rf *io.RegisterFactory
@@ -133,19 +141,29 @@ func (e *Emulator) atBreakpoint() bool {
 	return e.breakpoint != 0 && uint16(e.breakpoint&0xFFFF) == e.CPU.PC && uint8(e.breakpoint>>16) == e.CPU.K
 }
 
-func (e *Emulator) SetRegisterBreakpoint(register string) {
-	e.registerBreakpoint = register
+func (e *Emulator) SetRegisterBreakpoint(registers string) {
+	newBreakpoints := map[string]struct{}{}
+	for _, reg := range strings.Split(registers, ",") {
+		newBreakpoints[strings.ToUpper(strings.TrimSpace(reg))] = struct{}{}
+	}
+	e.registerBreakpoints = newBreakpoints
 }
 
 func (e *Emulator) atRegisterBreakpoint(register string) bool {
-	return e.registerBreakpoint != "" && register == e.registerBreakpoint
+	_, ok := e.registerBreakpoints[register]
+	return ok
 }
 
-func (e *Emulator) handleRegisterBreakpoint(register string) {
-	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
-		log.Debug("breakpoint reached, pausing execution...", zap.String("register", register))
+func (e *Emulator) handleRegisterBreakpoint(name string, typ string, data uint8) {
+	if !e.IsPaused() && e.atRegisterBreakpoint(name) {
+		log.Debug(
+			"breakpoint reached, pausing execution...",
+			zap.String("register", name),
+			zap.String("type", typ),
+			zap.Uint8("data", data),
+		)
 		e.TogglePause()
-		e.BreakpointCh <- struct{}{}
+		e.BreakpointCh <- BreakpointData{Name: name, Type: typ, Data: data}
 	}
 }
 
