@@ -1,9 +1,14 @@
+// +build !ci
+
 package render
 
 import (
 	"fmt"
 	"image"
 	"image/png"
+
+	"github.com/snes-emu/gose/log"
+	"go.uber.org/zap"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/hajimehoshi/ebiten"
@@ -20,8 +25,8 @@ type EbitenRenderer struct {
 	running         bool
 }
 
-//NewEbitenRenderer creates a ebiten renderer
-func NewEbitenRenderer(width, height int) *EbitenRenderer {
+//newEbitenRenderer creates a ebiten renderer
+func newEbitenRenderer(width, height int) (Renderer, error) {
 	//We use this offscreen buffer because we don't want our SNES main loop to be tied to the ebiten one
 	offscreenBuffer, _ := ebiten.NewImage(width, height, ebiten.FilterDefault)
 	er := &EbitenRenderer{
@@ -36,7 +41,7 @@ func NewEbitenRenderer(width, height int) *EbitenRenderer {
 	ebiten.SetWindowIcon(getWindowLogos())
 	ebiten.SetRunnableInBackground(true)
 
-	return er
+	return er, nil
 }
 
 //Render updates the offscreen buffer with the new SNES screen content
@@ -69,8 +74,11 @@ func (er *EbitenRenderer) update(screen *ebiten.Image) error {
 
 //Run starts the ebiten main loop
 //should be called on the main thread
-func (er *EbitenRenderer) Run() error {
-	return ebiten.Run(er.update, er.width, er.height, er.scale, er.title)
+func (er *EbitenRenderer) Run() {
+	err := ebiten.Run(er.update, er.width, er.height, er.scale, er.title)
+	if err != nil {
+		log.Fatal("ebiten crashed", zap.Error(err))
+	}
 }
 
 //Stop implements the Renderer interface
@@ -99,4 +107,8 @@ func getWindowLogos() []image.Image {
 	}
 
 	return logos
+}
+
+func init() {
+	register("ebiten", newEbitenRenderer)
 }

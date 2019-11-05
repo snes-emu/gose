@@ -43,7 +43,7 @@ deps:
 .PHONY: test
 test: deps
 	${GOCMD} vet $$(go list ./... | grep -v /vendor/); \
-	${GOCMD} test -v -race ./...
+	${GOCMD} test -v -race -tags ci ./...
 
 .PHONY: fmt
 fmt:

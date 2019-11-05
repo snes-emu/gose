@@ -2,11 +2,12 @@ package render
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/log"
 	"github.com/veandco/go-sdl2/sdl"
 	"go.uber.org/zap"
-	"strings"
 )
 
 var _ Renderer = &SDLRenderer{}
@@ -23,9 +24,12 @@ func (sr *SDLRenderer) SetRomTitle(title string) {
 	})
 }
 
-func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
+func newSDLRenderer(width, height int) (Renderer, error) {
 	sr := &SDLRenderer{}
 	var err error
+
+	sdlWidth := int32(width)
+	sdlHeight := int32(height)
 
 	sdl.Do(func() {
 		if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
@@ -34,13 +38,13 @@ func NewSDLRenderer(width, height int32) (*SDLRenderer, error) {
 		}
 
 		var err error
-		sr.window, sr.renderer, err = sdl.CreateWindowAndRenderer(width, height, sdl.WINDOW_SHOWN)
+		sr.window, sr.renderer, err = sdl.CreateWindowAndRenderer(sdlWidth, sdlHeight, sdl.WINDOW_SHOWN)
 		if err != nil {
 			sr, err = nil, fmt.Errorf("failed to create SDL window and renderer: %w", err)
 			return
 		}
 
-		sr.texture, err = sr.renderer.CreateTexture(sdl.PIXELFORMAT_BGR555, sdl.TEXTUREACCESS_STREAMING, width, height)
+		sr.texture, err = sr.renderer.CreateTexture(sdl.PIXELFORMAT_BGR555, sdl.TEXTUREACCESS_STREAMING, sdlWidth, sdlHeight)
 		if err != nil {
 			sr, err = nil, fmt.Errorf("failed to create SDL texture: %w", err)
 			return
@@ -93,4 +97,12 @@ func (sr *SDLRenderer) Stop() {
 
 		sdl.Quit()
 	})
+}
+
+func (sr *SDLRenderer) Run() {
+
+}
+
+func init() {
+	register("sdl", newSDLRenderer)
 }

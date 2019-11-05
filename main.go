@@ -31,7 +31,10 @@ func main() {
 	}
 
 	// TODO: fix dimension
-	renderer := render.NewEbitenRenderer(int(core.WIDTH), int(core.HEIGHT))
+	renderer, err := render.NewRenderer(int(core.WIDTH), int(core.HEIGHT))
+	if err != nil {
+		log.Fatal("failed to init renderer", zap.Error(err))
+	}
 	emu := core.New(renderer, config.DebugServer())
 	emu.ReadROM(flag.Arg(0))
 
