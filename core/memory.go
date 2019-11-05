@@ -13,8 +13,10 @@ const sramSize = 0x80000
 const wramSize = 0x20000
 const ioSize = 0x8000
 
+type memoryRegion int
+
 const (
-	lowWramRegion = iota
+	lowWramRegion memoryRegion = iota
 	ioRegisterRegion
 	romRegion
 	wramRegion
@@ -23,7 +25,7 @@ const (
 
 // Memory struct containing SNES working RAM, cartridge static RAM, special hardware registers and default memory buffer for ROM
 type Memory struct {
-	mmap    [regionNumber]uint
+	mmap    [regionNumber]memoryRegion
 	main    [bankNumber][]uint8
 	sram    [sramSize]uint8
 	wram    [wramSize]uint8
