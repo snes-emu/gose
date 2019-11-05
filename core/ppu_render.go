@@ -47,26 +47,22 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 
 	for _, sprite := range sprites {
 		// Y coordinate of the tile containing the line
-		var yTile = (ppu.vCounter - sprite.y) / TILE_SIZE
+		yTile := (ppu.vCounter - sprite.y) / TILE_SIZE
 
 		// Y coordinate of the line in the tile
-		var y = (ppu.vCounter - sprite.y) % TILE_SIZE
-
-		base := yTile << 4
+		y := (ppu.vCounter - sprite.y) % TILE_SIZE
 
 		// Loop over all the tiles contained in the sprite
-		for tileNb := uint16(0); tileNb < sprite.hSize/TILE_SIZE; tileNb++ {
+		for xTile := uint16(0); xTile < sprite.hSize/TILE_SIZE; xTile++ {
 
 			// Address of the current tile in the VRAM
-			tileAddress := sprite.firstTileAddr + (base+tileNb)<<5
+			tileAddress := sprite.tileAddr(xTile, yTile)
 
 			// Go through all the pixels in the tile line
-			for x := uint16(0); x < TILE_SIZE; x++ {
-				color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette)
-
+			for x, color := range ppu.tileSpriteRowColor(tileAddress, y, sprite.palette) {
 				// Only change the pixel if the color is not transparent
 				if !color.Transparent {
-					lineIdx := sprite.x + x + (TILE_SIZE * tileNb)
+					lineIdx := sprite.x + uint16(x) + (TILE_SIZE * xTile)
 					pixels[lineIdx%WIDTH] = render.Pixel{
 						Color:    color,
 						Visible:  true,
@@ -90,15 +86,14 @@ func (ppu *PPU) spriteToImage(sprite sprite) image.Image {
 	for yTile := uint16(0); yTile < sprite.vSize/TILE_SIZE; yTile++ {
 		for xTile := uint16(0); xTile < sprite.hSize/TILE_SIZE; xTile++ {
 			// Address of the current tile in the VRAM
-			tileAddress := sprite.firstTileAddr + yTile<<9 + xTile<<5
+			tileAddress := sprite.tileAddr(xTile, yTile)
 
 			// Loop over all the pixels in the current tile
-			for x := uint16(0); x < TILE_SIZE; x++ {
-				for y := uint16(0); y < TILE_SIZE; y++ {
-					color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette)
+			for y := uint16(0); y < TILE_SIZE; y++ {
+				for x, color := range ppu.tileSpriteRowColor(tileAddress, y, sprite.palette) {
 
 					if !color.Transparent {
-						img.Set(int(xTile*TILE_SIZE+x), int(yTile*TILE_SIZE+y), color)
+						img.Set(int(xTile*TILE_SIZE+uint16(x)), int(yTile*TILE_SIZE+y), color)
 					}
 				}
 			}
