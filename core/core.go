@@ -2,15 +2,14 @@ package core
 
 import (
 	"archive/zip"
-	"io/ioutil"
-	"os"
-
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/log"
 	"github.com/snes-emu/gose/render"
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
+	"io/ioutil"
+	"os"
 )
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
@@ -20,15 +19,17 @@ type Emulator struct {
 	PPU    *PPU
 
 	//state
-	state     *state
-	pauseChan chan struct{}
-	stopChan  chan struct{}
-	stepChan  chan int
+	state      *state
+	pauseChan  chan struct{}
+	resumeChan chan struct{}
+	stopChan   chan struct{}
+	stepChan   chan int
 
 	//debugging
-	registerBreakpoint string
-	breakpoint         uint32
-	debug              bool
+	registerBreakpoints map[string]struct{}
+	breakpoint          uint32
+	BreakpointCh        chan BreakpointData
+	debug               bool
 }
 
 // New creates a new Emulator (creating the underlying components)
@@ -37,11 +38,14 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 	state.Pause()
 
 	e := &Emulator{
-		state:     state,
-		pauseChan: make(chan struct{}),
-		stopChan:  make(chan struct{}),
-		stepChan:  make(chan int),
-		debug:     debug,
+		state:               state,
+		pauseChan:           make(chan struct{}, 1),
+		resumeChan:          make(chan struct{}),
+		stopChan:            make(chan struct{}),
+		stepChan:            make(chan int),
+		debug:               debug,
+		registerBreakpoints: map[string]struct{}{},
+		BreakpointCh:        make(chan BreakpointData),
 	}
 
 	var rf *io.RegisterFactory
@@ -123,29 +127,6 @@ func (e *Emulator) ReadROM(filename string) {
 	e.CPU.Init()
 }
 
-func (e *Emulator) SetBreakpoint(addr uint32) {
-	e.breakpoint = addr
-}
-
-func (e *Emulator) atBreakpoint() bool {
-	return e.breakpoint != 0 && uint16(e.breakpoint&0xFFFF) == e.CPU.PC && uint8(e.breakpoint>>16) == e.CPU.K
-}
-
-func (e *Emulator) SetRegisterBreakpoint(register string) {
-	e.registerBreakpoint = register
-}
-
-func (e *Emulator) atRegisterBreakpoint(register string) bool {
-	return e.registerBreakpoint != "" && register == e.registerBreakpoint
-}
-
-func (e *Emulator) handleRegisterBreakpoint(register string) {
-	if !e.IsPaused() && e.atRegisterBreakpoint(register) {
-		log.Debug("maybePause Pausing", zap.String("register", register))
-		e.asyncTogglePause()
-	}
-}
-
 func (e *Emulator) loop() {
 	n := 0
 	for {
@@ -166,7 +147,6 @@ func (e *Emulator) stateStarted(n int) {
 		for i := 0; i < n; i++ {
 			select {
 			case <-e.pauseChan:
-				log.Debug("emulator paused")
 				e.state.Pause()
 				return
 			case <-e.stopChan:
@@ -208,7 +188,7 @@ func (e *Emulator) statePaused() int {
 	case <-e.stopChan:
 		e.state.Stop()
 
-	case <-e.pauseChan:
+	case <-e.resumeChan:
 		e.state.Start()
 
 	case n := <-e.stepChan:
@@ -233,24 +213,19 @@ func (e *Emulator) Start() {
 	e.startState(initState)
 }
 
-// TogglePause toggles a pause in execution
-func (e *Emulator) TogglePause() {
+// Pause pauses the execution
+func (e *Emulator) Pause() {
 	e.pauseChan <- struct{}{}
+	log.Debug("execution paused")
 }
 
-//asyncTogglePause should be called during the execution of an instruction to pause just before the next one
-//TODO: There is actually a race condition because we are not sure the goroutine will be executed early enough
-func (e *Emulator) asyncTogglePause() {
-	started := make(chan struct{})
-	go func() {
-		close(started)
-		e.pauseChan <- struct{}{}
-	}()
-
-	<-started
+// Resume resumes the execution
+func (e *Emulator) Resume() {
+	e.resumeChan <- struct{}{}
+	log.Debug("execution resumed")
 }
 
-// TogglePause toggles a pause in execution
+// IsPaused checks if the execution is paused
 func (e *Emulator) IsPaused() bool {
 	return e.state.Status() == paused
 }
