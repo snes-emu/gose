@@ -31,6 +31,7 @@ func main() {
 
 func Main() int {
 	config.Init()
+	log.Init()
 
 	log.Info("starting gose", zap.String("version", VERSION))
 
