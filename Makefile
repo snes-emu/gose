@@ -6,7 +6,6 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
 # Setup the -ldflags option for go build here, interpolate the variable values
 LDFLAGS = -ldflags "-X main.VERSION=${BRANCH}:${COMMIT}"
-DEBUGLDFLAGS =-ldflags "-X main.VERSION=${BRANCH}:${COMMIT}:debug"
 
 GOCMD = GO111MODULE=on go
 
@@ -16,10 +15,6 @@ all: build
 .PHONY: build
 build: deps
 	${GOCMD} build ${LDFLAGS} -o ${BINARY} .
-
-.PHONY: debug
-debug: deps
-	${GOCMD} build ${DEBUGLDFLAGS} -tags debug -o ${BINARY} .
 
 .PHONY: linux
 linux: deps
