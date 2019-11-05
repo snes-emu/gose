@@ -101,14 +101,25 @@ func (o *oam) incrAddr() {
 	o.addr = (o.addr + 1) % 544
 }
 
-// intersectingSprites returns all the sprites currently intersecting the v-line
-func (o *oam) intersectingSprites(vCounter uint16) []sprite {
+// allSprites returns all the sprites currently stored in the OAM
+func (o *oam) allSprites() []sprite {
 	sprites := make([]sprite, 128)
 
 	for i := range sprites {
+		sprites[i] = o.sprite(uint16(i))
+	}
+
+	return sprites
+}
+
+// intersectingSprites returns all the sprites currently intersecting the v-line
+func (o *oam) intersectingSprites(vCounter uint16) []sprite {
+	sprites := make([]sprite, 0, 128)
+
+	for i := 0; i < 128; i++ {
 		s := o.sprite(uint16(i))
 		if s.IntersectsLine(vCounter) {
-			sprites[i] = o.sprite(uint16(i))
+			sprites = append(sprites, o.sprite(uint16(i)))
 		}
 	}
 

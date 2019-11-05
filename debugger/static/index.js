@@ -1,12 +1,14 @@
-import { newPPU } from "./ppu.js";
+import { newPalette } from "./palette.js";
 import { newCPU } from "./cpu.js";
+import { newSprites } from "./sprites.js";
 import { newRegister } from "./register.js";
 import { newTabManager } from "./tab_manager.js";
 
 
 //tab management
 const cpuTab = newCPU();
-const ppuTab = newPPU();
+const paletteTab = newPalette();
+const spritesTab = newSprites();
 const registerTab = newRegister();
 
 const tabManager = newTabManager();
@@ -16,8 +18,12 @@ tabManager.setTabs([
         "component": cpuTab,
     },
     {
-        "name": "PPU",
-        "component": ppuTab,
+        "name": "Palette",
+        "component": paletteTab,
+    },
+    {
+        "name": "Sprites",
+        "component": spritesTab,
     },
     {
         "name": "Registers",
@@ -55,7 +61,8 @@ registerBreakpointButton.onclick = function() {
 
 function displayState(body) {
     cpuTab.addState(body.cpu);
-    ppuTab.updatePalette(body.palette);
+    paletteTab.updatePalette(body.palette);
+    spritesTab.updateSprites(body.sprites);
     if (body.register) {
         registerTab.addState(body.register);
     }

@@ -60,8 +60,8 @@ func (cg *cgram) incrAddr() {
 	cg.addr = (cg.addr + 1) % 512
 }
 
-// ExportPalette exports the content of the cgram
-func (ppu *PPU) ExportPalette() color.Palette {
+// Palette exports the content of the cgram
+func (ppu *PPU) Palette() color.Palette {
 	var palette color.Palette
 
 	for i := 0; i < len(ppu.cgram.bytes)/2; i++ {
