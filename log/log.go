@@ -2,9 +2,11 @@ package log
 
 import (
 	"fmt"
+	"github.com/snes-emu/gose/config"
 	"go.uber.org/zap"
 	"log"
 	"os"
+	"strings"
 )
 
 var logger Logger = defaultLogger{}
@@ -17,13 +19,17 @@ type Logger interface {
 	Debug(msg string, fields ...zap.Field)
 }
 
-func init() {
+func Init() {
 	// TODO: allow to configure the logger
-	lg, err := zap.NewDevelopment()
+	cfg := zap.NewDevelopmentConfig()
+	if config.DebugLogs() || strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug" {
+		cfg.Level.SetLevel(zap.InfoLevel)
+	}
+	lg, err := cfg.Build()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Failed to instatiate the zap logger: %s, will use default logger\n", err)
 	} else {
-		logger = lg
+		logger = lg.WithOptions(zap.AddCallerSkip(1))
 	}
 }
 
