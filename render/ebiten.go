@@ -2,7 +2,10 @@ package render
 
 import (
 	"fmt"
+	"image"
+	"image/png"
 
+	"github.com/gobuffalo/packr/v2"
 	"github.com/hajimehoshi/ebiten"
 )
 
@@ -29,6 +32,9 @@ func NewEbitenRenderer(width, height int) *EbitenRenderer {
 		offscreenBuffer: offscreenBuffer,
 		drawOptions:     &ebiten.DrawImageOptions{},
 	}
+
+	ebiten.SetWindowIcon(getWindowLogos())
+	ebiten.SetRunnableInBackground(true)
 
 	return er
 }
@@ -70,4 +76,27 @@ func (er *EbitenRenderer) Run() error {
 //Stop implements the Renderer interface
 func (er *EbitenRenderer) Stop() {
 
+}
+
+func getWindowLogos() []image.Image {
+	logoBox := packr.New("logos", "../logos")
+
+	var logos []image.Image
+
+	for _, filename := range logoBox.List() {
+		logoFile, err := logoBox.Resolve(filename)
+		if err != nil {
+			continue
+		}
+
+		logo, err := png.Decode(logoFile)
+		if err != nil {
+			continue
+		}
+
+		logos = append(logos, logo)
+
+	}
+
+	return logos
 }
