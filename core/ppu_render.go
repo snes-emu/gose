@@ -3,10 +3,13 @@ package core
 import (
 	"github.com/snes-emu/gose/log"
 	"github.com/snes-emu/gose/render"
+	"image"
 )
 
 const WIDTH = 250
 const HEIGHT = 250
+
+const TILE_SIZE = 8
 
 func (ppu *PPU) renderLine() {
 	if ppu.screen == nil {
@@ -44,26 +47,26 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 
 	for _, sprite := range sprites {
 		// Y coordinate of the tile containing the line
-		var yTile = (ppu.vCounter - sprite.y) / 8
+		var yTile = (ppu.vCounter - sprite.y) / TILE_SIZE
 
 		// Y coordinate of the line in the tile
-		var y = (ppu.vCounter - sprite.y) % 8
+		var y = (ppu.vCounter - sprite.y) % TILE_SIZE
 
 		base := yTile << 4
 
 		// Loop over all the tiles contained in the sprite
-		for tileNb := uint16(0); tileNb < sprite.hSize/8; tileNb++ {
+		for tileNb := uint16(0); tileNb < sprite.hSize/TILE_SIZE; tileNb++ {
 
 			// Address of the current tile in the VRAM
 			tileAddress := sprite.firstTileAddr + (base+tileNb)<<5
 
 			// Go through all the pixels in the tile line
-			for x := uint16(0); x < 8; x++ {
+			for x := uint16(0); x < TILE_SIZE; x++ {
 				color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette)
 
 				// Only change the pixel if the color is not transparent
 				if !color.Transparent {
-					lineIdx := sprite.x + x + (8 * tileNb)
+					lineIdx := sprite.x + x + (TILE_SIZE * tileNb)
 					pixels[lineIdx%WIDTH] = render.Pixel{
 						Color:    color,
 						Visible:  true,
@@ -75,4 +78,42 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 	}
 
 	return pixels
+}
+
+func (ppu *PPU) spriteToImage(sprite sprite) image.Image {
+	img := image.NewRGBA(image.Rectangle{
+		Min: image.Point{},
+		Max: image.Point{X: int(sprite.hSize), Y: int(sprite.hSize)},
+	})
+
+	// Loop over all the tiles contained in the sprite
+	for yTile := uint16(0); yTile < sprite.vSize/TILE_SIZE; yTile++ {
+		for xTile := uint16(0); xTile < sprite.hSize/TILE_SIZE; xTile++ {
+			// Address of the current tile in the VRAM
+			tileAddress := sprite.firstTileAddr + yTile<<9 + xTile<<5
+
+			// Loop over all the pixels in the current tile
+			for x := uint16(0); x < TILE_SIZE; x++ {
+				for y := uint16(0); y < TILE_SIZE; y++ {
+					color := ppu.tileSpriteColor(tileAddress, x, y, sprite.palette)
+
+					if !color.Transparent {
+						img.Set(int(xTile*TILE_SIZE+x), int(yTile*TILE_SIZE+y), color)
+					}
+				}
+			}
+		}
+	}
+
+	return img
+}
+
+// Sprites returns all the sprites in image.Image format
+func (ppu *PPU) Sprites() []image.Image {
+	sprites := ppu.oam.allSprites()
+	images := make([]image.Image, len(sprites))
+	for i, sprite := range sprites {
+		images[i] = ppu.spriteToImage(sprite)
+	}
+	return images
 }

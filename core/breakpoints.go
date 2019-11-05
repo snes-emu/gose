@@ -35,7 +35,7 @@ func (e *Emulator) atRegisterBreakpoint(register string) bool {
 
 func (e *Emulator) handleRegisterBreakpoint(name string, typ string, data uint8) {
 	if !e.IsPaused() && e.atRegisterBreakpoint(name) {
-		log.Debug(
+		log.Info(
 			"breakpoint reached, pausing execution...",
 			zap.String("register", name),
 			zap.String("type", typ),

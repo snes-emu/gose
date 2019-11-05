@@ -1,6 +1,6 @@
-class PPU extends HTMLDivElement {
+class Palette extends HTMLDivElement {
     static tagName(){
-        return 'ppu-div';
+        return 'palette-div';
     }
 
     constructor() {
@@ -28,8 +28,8 @@ class PPU extends HTMLDivElement {
     }
 }
 
-customElements.define(PPU.tagName(), PPU, {extends: 'div'});
+customElements.define(Palette.tagName(), Palette, {extends: 'div'});
 
-export function newPPU() {
-    return document.createElement('div', {is: PPU.tagName()})
+export function newPalette() {
+    return document.createElement('div', {is: Palette.tagName()})
 }

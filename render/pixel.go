@@ -48,9 +48,9 @@ func (c BGR555) RGBA() (r, g, b, a uint32) {
 	if c.Transparent {
 		a = 0
 	}
-	r = uint32(c.Color&0x1F) << 3
-	g = uint32((c.Color&0x3E0)>>5) << 3
-	b = uint32((c.Color&0x7C00)>>10) << 3
+	r = uint32(c.Color&0x1F) << 11
+	g = uint32((c.Color&0x3E0)>>5) << 11
+	b = uint32((c.Color&0x7C00)>>10) << 11
 
 	return
 }

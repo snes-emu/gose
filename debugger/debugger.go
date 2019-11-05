@@ -1,9 +1,11 @@
 package debugger
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/snes-emu/gose/log"
+	"image/png"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -107,24 +109,41 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 		// Address breakpoint
 		address, err := strconv.Atoi(rawAddr)
 		if err != nil {
-			log.Info("fail to set breakpoint", zap.Error(err))
+			log.Error("failed to set breakpoint", zap.Error(err))
 		} else {
-			log.Debug("Setting address breakpoint", zap.Int("address", address))
+			log.Info("Setting address breakpoint", zap.Int("address", address))
 			db.emu.SetBreakpoint(uint32(address))
 		}
 	}
 
 	if registers != "" {
 		// Register breakpoint
-		log.Debug("Setting register breakpoints", zap.String("breakpoints", registers))
+		log.Info("Setting register breakpoints", zap.String("breakpoints", registers))
 		db.emu.SetRegisterBreakpoint(registers)
 	}
 }
 
 func (db *Debugger) emulatorState() map[string]interface{} {
 	res := make(map[string]interface{})
-	res["palette"] = db.emu.PPU.ExportPalette()
+	res["palette"] = db.emu.PPU.Palette()
 	res["cpu"] = db.emu.CPU
+
+	sprites := db.emu.PPU.Sprites()
+	// Will store base64 encoded sprite images
+	encoded := make([][]byte, len(sprites))
+
+	for i, sprite := range sprites {
+		buf := &bytes.Buffer{}
+		if err := png.Encode(buf, sprite); err != nil {
+			log.Error("error encoding sprite, this sprite will be skipped", zap.Int("sprite_number", i), zap.Error(err))
+			continue
+		}
+
+		encoded[i] = buf.Bytes()
+	}
+
+	res["sprites"] = encoded
+
 	return res
 }
 
