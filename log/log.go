@@ -22,7 +22,7 @@ type Logger interface {
 func Init() {
 	// TODO: allow to configure the logger
 	cfg := zap.NewDevelopmentConfig()
-	if config.DebugLogs() || strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug" {
+	if !(config.DebugLogs() || strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug") {
 		cfg.Level.SetLevel(zap.InfoLevel)
 	}
 	lg, err := cfg.Build()

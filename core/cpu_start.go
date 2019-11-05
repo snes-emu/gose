@@ -1,7 +1,6 @@
 package core
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/snes-emu/gose/config"
 	"github.com/snes-emu/gose/log"
@@ -10,19 +9,6 @@ import (
 type instruction struct {
 	name    string
 	opcodes []uint8
-}
-
-type cpuState struct {
-	C           uint16
-	DBR         uint8
-	D           uint16
-	K           uint8
-	PC          uint16
-	S           uint16
-	X           uint16
-	Y           uint16
-	Flags       string
-	Instruction string
 }
 
 func init() {
@@ -462,21 +448,26 @@ func (cpu *CPU) prettyFlags() string {
 	return PString
 }
 
-func (cpu *CPU) MarshalJSON() ([]byte, error) {
+func (cpu *CPU) Export() map[string]interface{} {
 	K := cpu.getKRegister()
 	PC := cpu.getPCRegister()
 
 	opcode := cpu.memory.GetByteBank(K, PC)
 
-	return json.Marshal(cpuState{
-		K:           K,
-		PC:          PC,
-		Instruction: opcodeToInstruction[opcode].name,
-		C:           cpu.getCRegister(),
-		DBR:         cpu.getDBRRegister(),
-		D:           cpu.getDRegister(),
-		Flags:       cpu.prettyFlags(),
-	})
+	return map[string]interface{}{
+		"C":           cpu.getCRegister(),
+		"DBR":         cpu.getDBRRegister(),
+		"D":           cpu.getDRegister(),
+		"K":           K,
+		"PC":          PC,
+		"S":           cpu.S,
+		"X":           cpu.X,
+		"Y":           cpu.Y,
+		"instruction": opcodeToInstruction[opcode].name,
+		"flags":       cpu.prettyFlags(),
+		"cycles":      cpu.cycles,
+		"waiting":     cpu.waiting,
+	}
 }
 
 func (cpu *CPU) logState(K uint8, PC uint16, opcode uint8) {

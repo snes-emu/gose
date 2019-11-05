@@ -126,7 +126,7 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 func (db *Debugger) emulatorState() map[string]interface{} {
 	res := make(map[string]interface{})
 	res["palette"] = db.emu.PPU.Palette()
-	res["cpu"] = db.emu.CPU
+	res["cpu"] = db.emu.CPU.Export()
 
 	sprites := db.emu.PPU.Sprites()
 	// Will store base64 encoded sprite images
