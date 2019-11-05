@@ -17,6 +17,8 @@
 packrd/
 *-packr.go
 
+logos/*.png
+
 gose
 gose-linux-amd64
 gose-macos-amd64
