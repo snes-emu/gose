@@ -23,7 +23,7 @@ func init() {
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Failed to instatiate the zap logger: %s, will use default logger\n", err)
 	} else {
-		logger = lg
+		logger = lg.WithOptions(zap.AddCallerSkip(1))
 	}
 }
 
