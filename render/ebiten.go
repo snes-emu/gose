@@ -24,7 +24,7 @@ func NewEbitenRenderer(width, height int) *EbitenRenderer {
 	er := &EbitenRenderer{
 		width:           width,
 		height:          height,
-		scale:           1.0,
+		scale:           2.0,
 		title:           "Gose",
 		offscreenBuffer: offscreenBuffer,
 		drawOptions:     &ebiten.DrawImageOptions{},
