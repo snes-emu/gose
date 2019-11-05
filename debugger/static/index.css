@@ -4,20 +4,11 @@
     width: 100%;
 }
 
-#palette > * > *{
+#palette > tbody > tr > * {
     height: 30px;
     width: 30px;
-    margin: 3px;
 }
 
-#palette {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: start;
-    width: 50%;
-}
-
-#palette > * {
-    display: flex;
-    flex-direction: row;
+#root {
+    max-width: 70vw;
 }

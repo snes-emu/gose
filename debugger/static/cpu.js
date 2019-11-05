@@ -1,22 +1,18 @@
-class CPU extends HTMLUListElement {
+import { DynamicTable } from "./table.js";
+
+class CPU extends DynamicTable {
     static tagName() {
-        return 'cpu-ul';
+        return 'cpu-table';
     }
 
     constructor() {
         super();
         this.id = "cpu";
     }
-
-    addState(cpu) {
-        const li = document.createElement("li");
-        li.appendChild(document.createTextNode(Object.keys(cpu).map(key => `${key}: ${cpu[key]}`).join(',')));
-        this.appendChild(li);
-    }
 }
 
-customElements.define(CPU.tagName(), CPU, {extends: 'ul'});
+customElements.define(CPU.tagName(), CPU, {extends: 'table'});
 
 export function newCPU() {
-    return document.createElement('ul', {is: CPU.tagName()})
+    return document.createElement('table', {is: CPU.tagName()})
 }

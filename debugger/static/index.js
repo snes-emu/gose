@@ -60,10 +60,10 @@ registerBreakpointButton.onclick = function() {
 }
 
 function displayState(body) {
-    cpuTab.addState(body.cpu);
+    cpuTab.addEntry(body.cpu);
     paletteTab.updatePalette(body.palette);
     spritesTab.updateSprites(body.sprites);
     if (body.register) {
-        registerTab.addState(body.register);
+        registerTab.addData(body.register);
     }
 }
