@@ -1,6 +1,8 @@
-class Register extends HTMLUListElement {
+import { DynamicTable } from "./table.js";
+
+class Register extends DynamicTable {
     static tagName() {
-        return 'register-ul';
+        return 'register-table';
     }
 
     constructor() {
@@ -8,17 +10,15 @@ class Register extends HTMLUListElement {
         this.id = "register";
     }
 
-    addState(reg) {
-        const li = document.createElement("li");
-        li.appendChild(document.createTextNode(
-            `name: ${reg.name}, type: ${reg.type}, data: 0x${reg.data.toString(16)}`
-        ));
-        this.appendChild(li);
+    addData(entry) {
+        const newEntry = {...entry};
+        newEntry.data = `0x${entry.data.toString(16)}`;
+        this.addEntry(newEntry);
     }
 }
 
-customElements.define(Register.tagName(), Register, {extends: 'ul'});
+customElements.define(Register.tagName(), Register, {extends: 'table'});
 
 export function newRegister() {
-    return document.createElement('ul', {is: Register.tagName()})
+    return document.createElement('table', {is: Register.tagName()})
 }

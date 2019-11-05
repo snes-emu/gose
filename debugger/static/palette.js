@@ -1,6 +1,6 @@
-class Palette extends HTMLDivElement {
+class Palette extends HTMLTableElement {
     static tagName(){
-        return 'palette-div';
+        return 'palette-table';
     }
 
     constructor() {
@@ -10,26 +10,28 @@ class Palette extends HTMLDivElement {
         this.paletteSize = 16;
         this.id = "palette";
 
+        this.body = document.createElement("tbody");
+        this.appendChild(this.body);
+
         for (let p = 0; p < this.paletteNum ; p++) {
-            const row = document.createElement("div");
-            row.appendChild(document.createTextNode(`${p}: `))
-            this.appendChild(row);
+            const row = document.createElement("tr");
+            this.body.appendChild(row);
             for (let c = 0; c < this.paletteSize; c++) {
-                this.children[p].appendChild(document.createElement("div"))
+                row.appendChild(document.createElement("td"));
             }
         }
     }
 
     updatePalette(palette) {
         palette.forEach((color,i) => {
-            const rgb = `rgb(${color.r},${color.g},${color.b})`;
-            this.children[Math.floor(i/this.paletteNum)].children[i%this.paletteSize].style = `background-color:${rgb}`;
+            const rgb = `rgb(${color.r >> 8},${color.g >> 8},${color.b >> 8})`;
+            this.body.children[Math.floor(i/this.paletteNum)].children[i%this.paletteSize].style = `background-color:${rgb}`;
         });
     }
 }
 
-customElements.define(Palette.tagName(), Palette, {extends: 'div'});
+customElements.define(Palette.tagName(), Palette, {extends: 'table'});
 
 export function newPalette() {
-    return document.createElement('div', {is: Palette.tagName()})
+    return document.createElement('table', {is: Palette.tagName()})
 }

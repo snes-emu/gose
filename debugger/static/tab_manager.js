@@ -7,6 +7,8 @@ class TabManager extends HTMLDivElement {
         super();
 
         this.header = document.createElement('div');
+        this.header.style.margin = "20px 0";
+        this.header.style.borderBottom = "1px solid gray";
         this.appendChild(this.header);
 
         this.container = document.createElement('div');
@@ -40,6 +42,7 @@ class TabManager extends HTMLDivElement {
             const label = document.createElement('label');
             label.for = id;
             label.innerText = name;
+            label.style.display = "initial";
             this.header.appendChild(label);
 
             this.tabs[name] = component;
