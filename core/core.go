@@ -216,13 +216,13 @@ func (e *Emulator) Start() {
 // Pause pauses the execution
 func (e *Emulator) Pause() {
 	e.pauseChan <- struct{}{}
-	log.Debug("execution paused")
+	log.Info("execution paused")
 }
 
 // Resume resumes the execution
 func (e *Emulator) Resume() {
 	e.resumeChan <- struct{}{}
-	log.Debug("execution resumed")
+	log.Info("execution resumed")
 }
 
 // IsPaused checks if the execution is paused
