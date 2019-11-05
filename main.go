@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/snes-emu/gose/render"
-	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/snes-emu/gose/log"
 
@@ -22,14 +21,6 @@ import (
 var VERSION string
 
 func main() {
-	var exitcode int
-	sdl.Main(func() {
-		exitcode = Main()
-	})
-	os.Exit(exitcode)
-}
-
-func Main() int {
 	config.Init()
 	log.Init()
 
@@ -37,15 +28,11 @@ func Main() int {
 
 	if len(flag.Args()) == 0 {
 		fmt.Fprintln(os.Stderr, "Please provide a rom file to open")
-		return 1
+		os.Exit(1)
 	}
 
 	// TODO: fix dimension
-	renderer, err := render.NewSDLRenderer(core.WIDTH, core.HEIGHT)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error creating renderer: %s", err)
-		return 1
-	}
+	renderer := render.NewEbitenRenderer(int(core.WIDTH), int(core.HEIGHT))
 	emu := core.New(renderer, config.DebugServer())
 	emu.ReadROM(flag.Arg(0))
 
@@ -60,8 +47,13 @@ func Main() int {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	<-sigs
-	emu.Stop()
-	log.Info("emulation stopped")
-	return 0
+	go func() {
+		<-sigs
+		emu.Stop()
+		log.Info("emulation stopped")
+		os.Exit(0)
+	}()
+
+	//should be run on the main thread
+	renderer.Run()
 }
