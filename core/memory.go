@@ -120,7 +120,7 @@ func (memory *Memory) initMmap() {
 				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
 			}
 		}
-		memory.sm = loromSramMapper
+		memory.sm = newLoromSramMapper()
 	case rom.HiROM:
 		//in HiROM sram is mapped here: overwrite the unused ioRegister regions
 		for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
@@ -129,7 +129,7 @@ func (memory *Memory) initMmap() {
 				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
 			}
 		}
-		memory.sm = hiromSramMapper
+		memory.sm = newHiromSramMapper()
 	}
 
 	//map work ram
@@ -198,15 +198,19 @@ func (sm *sramMapper) getAddr(K uint8, offset uint16) uint32 {
 }
 
 //sram is mapped to whole banks from 0x70 to 0x7E and from 0xF0 to 0xFF
-var loromSramMapper = &sramMapper{
-	bankStart:   0x70,
-	shift:       16,
-	offsetStart: 0,
+func newLoromSramMapper() *sramMapper {
+	return &sramMapper{
+		bankStart:   0x70,
+		shift:       16,
+		offsetStart: 0,
+	}
 }
 
 //sram is mapped to upper 0x2000 bytes of banks 0x20 to 0x3F
-var hiromSramMapper = &sramMapper{
-	bankStart:   0x20,
-	shift:       13,
-	offsetStart: 0x6000,
+func newHiromSramMapper() *sramMapper {
+	return &sramMapper{
+		bankStart:   0x20,
+		shift:       13,
+		offsetStart: 0x6000,
+	}
 }
