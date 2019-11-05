@@ -114,6 +114,20 @@ func (ppu *PPU) colorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	return colorIndex
 }
 
+// tileSpriteRowColors returns the colors to use for a given tile's row
+// tileAddress is the tile address in the vram
+// y is the row number inside the tile (from 0 to 7 included)
+// palette is the palette we should use
+func (ppu *PPU) tileSpriteRowColor(tileAddress, y uint16, palette uint8) [TILE_SIZE]render.BGR555 {
+	colors := [TILE_SIZE]render.BGR555{}
+
+	for x := uint16(0); x < TILE_SIZE; x++ {
+		colors[x] = ppu.tileSpriteColor(tileAddress, x, y, palette)
+	}
+
+	return colors
+}
+
 // tileSpriteColor returns the color to use for a given tile's pixel in the given sprite
 // tileAddress is the tile address in the vram
 // x is the x position of the pixel inside the tile (from 0 to 7 included)

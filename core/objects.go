@@ -36,6 +36,11 @@ func (s *sprite) IntersectsLine(vCounter uint16) bool {
 	return vCounter >= s.y && vCounter < s.y+s.vSize
 }
 
+// tileAddress returns the tileAddress in the VRAM for the given tile in the given sprite
+func (s *sprite) tileAddr(xTile uint16, yTile uint16) uint16 {
+	return s.firstTileAddr + yTile<<9 + xTile<<5
+}
+
 // spriteSize returns the horizontal and vertical sizes for a sprite given the oam config, it uses the following table:
 // Val Small  Large
 // 0 = 8x8    16x16
