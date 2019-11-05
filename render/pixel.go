@@ -1,6 +1,9 @@
 package render
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"image/color"
+)
 
 // Pixel represents a pixel
 type Pixel struct {
@@ -65,3 +68,11 @@ func (c BGR555) MarshalJSON() ([]byte, error) {
 		"a": a,
 	})
 }
+
+var BGR555Model = color.ModelFunc(func(c color.Color) color.Color {
+	r, g, b, _ := c.RGBA()
+	return BGR555{
+		Color:       uint16((b>>11)<<10 | (g>>11)<<5 | (r >> 11)),
+		Transparent: false,
+	}
+})
