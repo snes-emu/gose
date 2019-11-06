@@ -20,11 +20,9 @@ type Emulator struct {
 	PPU    *PPU
 
 	//state
-	state      *state
-	pauseChan  chan struct{}
-	resumeChan chan struct{}
-	stopChan   chan struct{}
-	stepChan   chan int
+	state    *state
+	stopChan chan struct{}
+	stepChan chan int
 
 	//debugging
 	registerBreakpoints map[string]struct{}
@@ -40,8 +38,6 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 
 	e := &Emulator{
 		state:               state,
-		pauseChan:           make(chan struct{}, 1),
-		resumeChan:          make(chan struct{}),
 		stopChan:            make(chan struct{}),
 		stepChan:            make(chan int),
 		debug:               debug,
@@ -143,29 +139,24 @@ func (e *Emulator) loop() {
 	}
 }
 
-func (e *Emulator) step() bool {
-	select {
-	case <-e.pauseChan:
+func (e *Emulator) exec() bool {
+	e.CPU.execOpcode()
+	// Check if we reached a breakpoint or if a register hook set the state to paused
+	if e.atBreakpoint() || e.IsPaused() {
 		e.state.Pause()
 		return false
+	}
+	return true
+}
+
+func (e *Emulator) step() bool {
+	select {
 	case <-e.stopChan:
 		e.state.Stop()
 		return false
-	case <-e.resumeChan:
-		e.CPU.execOpcode()
-		if e.atBreakpoint() {
-			e.state.Pause()
-			return false
-		}
 	default:
-		e.CPU.execOpcode()
-		if e.atBreakpoint() {
-			e.state.Pause()
-			return false
-		}
+		return e.exec()
 	}
-
-	return true
 }
 
 func (e *Emulator) stateStarted(n int) {
@@ -189,9 +180,6 @@ func (e *Emulator) statePaused() int {
 	case <-e.stopChan:
 		e.state.Stop()
 
-	case <-e.resumeChan:
-		e.state.Start()
-
 	case n := <-e.stepChan:
 		e.state.Start()
 		return n
@@ -214,15 +202,10 @@ func (e *Emulator) Start() {
 	e.startState(initState)
 }
 
-// Pause pauses the execution
-func (e *Emulator) Pause() {
-	e.pauseChan <- struct{}{}
-	log.Info("execution paused")
-}
-
 // Resume resumes the execution
 func (e *Emulator) Resume() {
-	e.resumeChan <- struct{}{}
+	// Sending 0 to the stepChan will enter the exec loop again
+	e.stepChan <- 0
 	log.Info("execution resumed")
 }
 

@@ -41,7 +41,8 @@ func (e *Emulator) handleRegisterBreakpoint(name string, typ string, data uint8)
 			zap.String("type", typ),
 			zap.Uint8("data", data),
 		)
-		e.Pause()
+		// Set the emulator state to pause since we reached a breakpoint
+		e.state.Pause()
 		e.BreakpointCh <- BreakpointData{Name: name, Type: typ, Data: data}
 	}
 }
