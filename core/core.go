@@ -142,12 +142,15 @@ func (e *Emulator) loop() {
 func (e *Emulator) exec() bool {
 	// TODO: use this method only if the debug mode / debugger is enabled
 	e.CPU.execOpcode()
-	// Check if we reached a breakpoint or if a register hook set the state to paused
-	if e.atBreakpoint() || e.IsPaused() {
+
+	// Check if we reached a breakpoint
+	if e.atBreakpoint() {
 		e.state.Pause()
 		return false
 	}
-	return true
+
+	// Or if a register hook set the state to paused
+	return !e.IsPaused()
 }
 
 func (e *Emulator) step() bool {
