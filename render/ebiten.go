@@ -28,6 +28,7 @@ type EbitenRenderer struct {
 //newEbitenRenderer creates a ebiten renderer
 func newEbitenRenderer(width, height int) (Renderer, error) {
 	//We use this offscreen buffer because we don't want our SNES main loop to be tied to the ebiten one
+	//NewImage always returns a nil error
 	offscreenBuffer, _ := ebiten.NewImage(width, height, ebiten.FilterDefault)
 	er := &EbitenRenderer{
 		width:           width,
