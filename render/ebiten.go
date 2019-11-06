@@ -67,6 +67,8 @@ func (er *EbitenRenderer) SetRomTitle(title string) {
 
 //update copies the content of the offscreenBuffer to the screen
 func (er *EbitenRenderer) update(screen *ebiten.Image) error {
+	//We should not render if this is true, typically when the app is fully hidden
+	//https://godoc.org/github.com/hajimehoshi/ebiten#IsDrawingSkipped
 	if ebiten.IsDrawingSkipped() {
 		return nil
 	}
