@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/snes-emu/gose/bit"
 )
 
@@ -14,7 +16,7 @@ type backgroundData struct {
 
 // BG stores data about a background
 type bg struct {
-	tileSize         bool   // false 8x8 tiles, true 16x16 tiles
+	tileSizeFlag     bool   // false 8x8 tiles, true 16x16 tiles
 	mosaic           bool   // mosaic mode enabled
 	priority         bool   // Only useful for BG3
 	screenSize       uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
@@ -37,7 +39,7 @@ func (ppu *PPU) bgmode(data uint8) {
 	ppu.backgroundData.screenMode = data & 7
 	ppu.backgroundData.bg[2].priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
-		ppu.backgroundData.bg[i].tileSize = data&(1<<(4+i)) != 0
+		ppu.backgroundData.bg[i].tileSizeFlag = data&(1<<(4+i)) != 0
 	}
 
 }
@@ -148,25 +150,28 @@ func (ppu *PPU) bg4vofs(data uint8) {
 	ppu.backgroundData.scrollPrev1 = data
 }
 
-// tileAddress returns the byte address in the VRAM where the tile we are looking for is stored
+// tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
 // See here: https://wiki.superfamicom.org/backgrounds
-func (bg *bg) tileAddress(x uint16, y uint16) uint16 {
+func (bg *bg) tileMapAddress(x uint16, y uint16) uint32 {
 	// TODO: verify that, not sure at all about this
-	var mapIndex uint16
+	var mapIndex uint32
 	if bg.screenSize&0x1 != 0 {
-		mapIndex += x / 32
+		mapIndex += uint32(x / 32)
 	}
 	if bg.screenSize&0x2 != 0 {
-		mapIndex += y / 32
+		mapIndex += uint32(y / 32)
 	}
 
-	base := uint16(bg.tileMapBaseAddr)
+	base := uint32(bg.tileMapBaseAddr)
 
-	return (base+mapIndex)<<11 + ((y % 32) << 6) + ((x % 32) << 1)
+	return (base+mapIndex)<<11 +
+		((uint32(y) % 32) << 6) + //a row of 32 tile is 64 = 1<<6 bytes
+		((uint32(x) % 32) << 1) //a tile is 2 = 1<<1 bytes
 }
 
 func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
-	addr := ppu.backgroundData.bg[background].tileAddress(x, y)
+	bg := ppu.backgroundData.bg[background]
+	addr := bg.tileMapAddress(x, y)
 	// raw contains:
 	// vhopppcc cccccccc
 	// v/h        = Vertical/Horizontal flip this tile.
@@ -176,11 +181,104 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
 	// See: https://wiki.superfamicom.org/backgrounds
 	raw := bit.JoinUint16(ppu.vram.bytes[addr], ppu.vram.bytes[addr+1])
 
+	hSize, vSize := bg.tileSize()
+
 	return tile{
-		vFlip:    raw&0x8000 != 0,
-		hFlip:    raw&0x4000 != 0,
-		priority: raw&0x2000 != 0,
-		palette:  uint8((raw >> 10) & 0x7),
-		number:   raw & 0x3ff,
+		vFlip:         raw&0x8000 != 0,
+		hFlip:         raw&0x4000 != 0,
+		priority:      raw&0x2000 != 0,
+		palette:       uint8((raw >> 10) & 0x7),
+		number:        raw & 0x3ff,
+		firstTileAddr: uint32(bg.tileSetBaseAddr) << 13,
+		colorDepth:    ppu.colorDepth(background),
+		hSize:         hSize,
+		vSize:         vSize,
 	}
+}
+
+//tileSize returns the size in pixel of tiles in the background
+func (bg *bg) tileSize() (uint16, uint16) {
+	hSize, vSize := uint16(8), uint16(8)
+	if bg.tileSizeFlag {
+		hSize, vSize = 16, 16
+	}
+
+	return hSize, vSize
+}
+
+// colorDepth returns the number of bits used for the colors in the background
+func (ppu *PPU) colorDepth(background uint8) uint8 {
+	panicString := "in mode %d, only background 1,2,3 are valid, attempted to use background %d"
+	switch ppu.backgroundData.screenMode {
+	case 0:
+		return 2
+	case 1:
+		switch background {
+		case 0, 1:
+			return 4
+		case 2:
+			return 2
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 2:
+		switch background {
+		case 0, 1:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 3, 4:
+		switch background {
+		case 0:
+			return 8
+		case 1:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 5:
+		switch background {
+		case 0:
+			return 4
+		case 1:
+			return 2
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 6:
+		switch background {
+		case 0:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 7:
+		switch background {
+		case 0:
+			return 8
+		}
+	default:
+		panic(fmt.Sprintf("invalid mode requested: %d", ppu.backgroundData.screenMode))
+	}
+
+	//should never happen
+	return 0
+}
+
+//validBackgrounds are the backgrounds that can be used for the current screen mode
+func (ppu *PPU) validBackgrounds() []uint8 {
+	bgs := []uint8{0}
+	mode := ppu.backgroundData.screenMode
+	if mode < 6 {
+		bgs = append(bgs, 1)
+	}
+	if mode < 2 {
+		bgs = append(bgs, 2)
+	}
+	if mode == 0 {
+		bgs = append(bgs, 3)
+	}
+
+	return bgs
 }

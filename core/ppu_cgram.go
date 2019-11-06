@@ -1,9 +1,10 @@
 package core
 
 import (
+	"image/color"
+
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/render"
-	"image/color"
 )
 
 const cgramSize = 0x200
@@ -128,14 +129,35 @@ func (ppu *PPU) tileSpriteRowColor(tileAddress, y uint16, palette uint8) [TILE_S
 	return colors
 }
 
-// tileSpriteColor returns the color to use for a given tile's pixel in the given sprite
+// tileRowColors returns the colors to use for a given tile's row
 // tileAddress is the tile address in the vram
+// hSize is the horizontal size of the tile: either 8 or 16
+// y is the row number inside the tile (from 0 to 7 included)
+// palette is the palette we should use
+func (ppu *PPU) tileRowColor(tileAddress, colorDepth, hSize, y uint16, palette uint8) []render.BGR555 {
+	colors := make([]render.BGR555, hSize)
+
+	for x := uint16(0); x < hSize; x++ {
+		colors[x] = ppu.tileColor(tileAddress, colorDepth, x, y, palette)
+	}
+
+	return colors
+}
+
+// tileSpriteColor is like tileColor but for sprites
+func (ppu *PPU) tileSpriteColor(tileAddress, x, y uint16, palette uint8) render.BGR555 {
+	// For sprites the color depth is always 4
+	return ppu.tileColor(tileAddress, 4, x, y, palette)
+}
+
+// tileColor returns the color to use for a given tile's pixel in the given sprite
+// tileAddress is the tile address in the vram
+// colorDepth is the number of bits used per color
 // x is the x position of the pixel inside the tile (from 0 to 7 included)
 // y is the y position of the pixel inside the tile (from 0 to 7 included)
 // palette is the palette we should use
-func (ppu *PPU) tileSpriteColor(tileAddress, x, y uint16, palette uint8) render.BGR555 {
-	// For sprites the color depth is always 4
-	idx := ppu.colorIndex(tileAddress, 4, x, y)
+func (ppu *PPU) tileColor(tileAddress, colorDepth, x, y uint16, palette uint8) render.BGR555 {
+	idx := ppu.colorIndex(tileAddress, colorDepth, x, y)
 
 	if idx == 0 {
 		return render.BGR555{Transparent: true}
