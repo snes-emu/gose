@@ -2,14 +2,15 @@ package core
 
 import (
 	"archive/zip"
+	"io/ioutil"
+	"os"
+
 	"github.com/snes-emu/gose/apu"
 	"github.com/snes-emu/gose/io"
 	"github.com/snes-emu/gose/log"
 	"github.com/snes-emu/gose/render"
 	"github.com/snes-emu/gose/rom"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"os"
 )
 
 // Emulator gathers the components required for emulation (PPU, CPU, Memory)
@@ -142,22 +143,36 @@ func (e *Emulator) loop() {
 	}
 }
 
+func (e *Emulator) step() bool {
+	select {
+	case <-e.pauseChan:
+		e.state.Pause()
+		return false
+	case <-e.stopChan:
+		e.state.Stop()
+		return false
+	case <-e.resumeChan:
+		e.CPU.execOpcode()
+		if e.atBreakpoint() {
+			e.state.Pause()
+			return false
+		}
+	default:
+		e.CPU.execOpcode()
+		if e.atBreakpoint() {
+			e.state.Pause()
+			return false
+		}
+	}
+
+	return true
+}
+
 func (e *Emulator) stateStarted(n int) {
 	if n > 0 {
 		for i := 0; i < n; i++ {
-			select {
-			case <-e.pauseChan:
-				e.state.Pause()
+			if !e.step() {
 				return
-			case <-e.stopChan:
-				e.state.Stop()
-				return
-			default:
-				e.CPU.execOpcode()
-				if e.atBreakpoint() {
-					e.state.Pause()
-					return
-				}
 			}
 		}
 
@@ -165,21 +180,7 @@ func (e *Emulator) stateStarted(n int) {
 		e.state.Pause()
 		return
 	}
-	for {
-		select {
-		case <-e.pauseChan:
-			e.state.Pause()
-			return
-		case <-e.stopChan:
-			e.state.Stop()
-			return
-		default:
-			e.CPU.execOpcode()
-			if e.atBreakpoint() {
-				e.state.Pause()
-				return
-			}
-		}
+	for e.step() {
 	}
 }
 

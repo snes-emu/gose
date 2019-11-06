@@ -29,6 +29,6 @@ export class DynamicTable extends HTMLTableElement {
             td.appendChild(document.createTextNode(entry[key]));
             tr.appendChild(td);
         })
-        this.body.appendChild(tr);
+        this.body.prepend(tr);
     }
 }
