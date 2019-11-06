@@ -37,7 +37,9 @@ deps:
 
 .PHONY: test
 test: deps
-	${GOCMD} vet $$(go list ./... | grep -v /vendor/); \
+	${GOCMD} vet $$(go list ./... | grep -v /vendor/)
+	# The ci tag is used not to link to ebiten for the unit tests because
+	# ebiten requires a valid graphical environment at runtime even when not used
 	${GOCMD} test -v -race -tags ci ./...
 
 .PHONY: fmt
