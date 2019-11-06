@@ -4,10 +4,13 @@ import "fmt"
 
 // tile defines how a tile is handled by the super-nes
 type tile struct {
-	number       uint16 // tile number (used to find it in the vram)
-	palette      uint8  // index of the color palette to use (the number of entries in the palette depends on the mode and the background)
-	priority     bool   // Tile priority, for tiles this is only encoded in 1 bit (whereas for sprites it's encoded into 2 bits)
-	hFlip, vFlip bool   // horizontal and vertical flips
+	number        uint16 // tile number (used to find it in the vram)
+	palette       uint8  // index of the color palette to use (the number of entries in the palette depends on the mode and the background)
+	priority      bool   // Tile priority, for tiles this is only encoded in 1 bit (whereas for sprites it's encoded into 2 bits)
+	hFlip, vFlip  bool   // horizontal and vertical flips
+	firstTileAddr uint32 // address of the first 8x8 tile composing the complete background tile
+	colorDepth    uint8  // number of bits used to addres the colors
+	hSize, vSize  uint16 // horizontal and vertical size
 }
 
 // sprite defines how a sprite is handled by the super-nes
