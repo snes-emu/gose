@@ -140,6 +140,7 @@ func (e *Emulator) loop() {
 }
 
 func (e *Emulator) exec() bool {
+	// TODO: use this method only if the debug mode / debugger is enabled
 	e.CPU.execOpcode()
 	// Check if we reached a breakpoint or if a register hook set the state to paused
 	if e.atBreakpoint() || e.IsPaused() {
