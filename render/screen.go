@@ -10,6 +10,7 @@ type Screen struct {
 	Pixels []Pixel
 	Width  uint16
 	Height uint16
+	model  color.Model
 }
 
 func NewScreen(width, height uint16) *Screen {
@@ -17,6 +18,7 @@ func NewScreen(width, height uint16) *Screen {
 		Pixels: make([]Pixel, width*height),
 		Width:  width,
 		Height: height,
+		model:  color.ModelFunc(bgr555ModelFunc),
 	}
 }
 
@@ -40,5 +42,5 @@ func (s *Screen) At(x, y int) color.Color {
 }
 
 func (s *Screen) ColorModel() color.Model {
-	return BGR555Model
+	return s.model
 }

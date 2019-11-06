@@ -69,10 +69,10 @@ func (c BGR555) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var BGR555Model = color.ModelFunc(func(c color.Color) color.Color {
+func bgr555ModelFunc(c color.Color) color.Color {
 	r, g, b, _ := c.RGBA()
 	return BGR555{
 		Color:       uint16((b>>11)<<10 | (g>>11)<<5 | (r >> 11)),
 		Transparent: false,
 	}
-})
+}
