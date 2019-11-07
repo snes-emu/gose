@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/snes-emu/gose/log"
 	"image/png"
 	"net/http"
 	"os/exec"
 	"strconv"
+
+	"github.com/snes-emu/gose/log"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/snes-emu/gose/core"
@@ -107,11 +108,11 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 
 	if rawAddr != "" {
 		// Address breakpoint
-		address, err := strconv.Atoi(rawAddr)
+		address, err := strconv.ParseInt(rawAddr, 0, 32)
 		if err != nil {
 			log.Error("failed to set breakpoint", zap.Error(err))
 		} else {
-			log.Info("Setting address breakpoint", zap.Int("address", address))
+			log.Info("Setting address breakpoint", zap.Int64("address", address))
 			db.emu.SetBreakpoint(uint32(address))
 		}
 	}
