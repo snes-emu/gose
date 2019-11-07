@@ -20,11 +20,12 @@ type Emulator struct {
 	PPU    *PPU
 
 	//state
-	state      *state
-	pauseChan  chan struct{}
-	resumeChan chan struct{}
-	stopChan   chan struct{}
-	stepChan   chan int
+	state       *state
+	pauseChan   chan struct{}
+	resumeChan  chan struct{}
+	stopChan    chan struct{}
+	stepChan    chan int
+	notifyPause chan struct{}
 
 	//debugging
 	registerBreakpoints map[string]struct{}
@@ -44,6 +45,7 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 		resumeChan:          make(chan struct{}),
 		stopChan:            make(chan struct{}),
 		stepChan:            make(chan int),
+		notifyPause:         make(chan struct{}),
 		debug:               debug,
 		registerBreakpoints: map[string]struct{}{},
 		BreakpointCh:        make(chan BreakpointData),
@@ -185,6 +187,14 @@ func (e *Emulator) stateStarted(n int) {
 }
 
 func (e *Emulator) statePaused() int {
+	log.Info("entering paused state")
+
+	//notify we entered the pause state in case someone is listening
+	select {
+	case e.notifyPause <- struct{}{}:
+	default:
+	}
+
 	select {
 	case <-e.stopChan:
 		e.state.Stop()
@@ -239,4 +249,12 @@ func (e *Emulator) Stop() {
 // Step continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
 func (e *Emulator) Step(n int) {
 	e.stepChan <- n
+}
+
+func (e *Emulator) WaitPaused() {
+	if e.state.Status() == paused {
+		return
+	}
+
+	<-e.notifyPause
 }
