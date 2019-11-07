@@ -19,12 +19,13 @@ type Emulator struct {
 	Memory *Memory
 	PPU    *PPU
 
-	//state
-	state    *state
-	stopChan chan struct{}
-	stepChan chan int
+	// state
+	state       *state
+	stopChan    chan struct{}
+	stepChan    chan int
+	notifyPause chan struct{}
 
-	//debugging
+	// debugging
 	registerBreakpoints map[string]struct{}
 	breakpoint          uint32
 	BreakpointCh        chan BreakpointData
@@ -40,6 +41,7 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 		state:               state,
 		stopChan:            make(chan struct{}),
 		stepChan:            make(chan int),
+		notifyPause:         make(chan struct{}),
 		debug:               debug,
 		registerBreakpoints: map[string]struct{}{},
 		BreakpointCh:        make(chan BreakpointData),
@@ -131,10 +133,9 @@ func (e *Emulator) loop() {
 		case stopped:
 			return
 		case paused:
-			n = e.statePaused()
-		case started:
-			e.stateStarted(n)
-
+			n = e.pause()
+		case running:
+			e.run(n)
 		}
 	}
 }
@@ -164,7 +165,7 @@ func (e *Emulator) step() bool {
 	}
 }
 
-func (e *Emulator) stateStarted(n int) {
+func (e *Emulator) run(n int) {
 	if n > 0 {
 		for i := 0; i < n; i++ {
 			if !e.step() {
@@ -180,7 +181,13 @@ func (e *Emulator) stateStarted(n int) {
 	}
 }
 
-func (e *Emulator) statePaused() int {
+func (e *Emulator) pause() int {
+	// notify we entered the pause state in case someone is listening
+	select {
+	case e.notifyPause <- struct{}{}:
+	default:
+	}
+
 	select {
 	case <-e.stopChan:
 		e.state.Stop()
@@ -192,7 +199,7 @@ func (e *Emulator) statePaused() int {
 	return 0
 }
 
-func (e *Emulator) startState(status stateStatus) {
+func (e *Emulator) start(status stateStatus) {
 	e.state.Start()
 	e.state.SetStatus(status)
 	go e.loop()
@@ -200,11 +207,11 @@ func (e *Emulator) startState(status stateStatus) {
 
 // Start the main emulator loop
 func (e *Emulator) Start() {
-	initState := started
+	initState := running
 	if e.debug {
 		initState = paused
 	}
-	e.startState(initState)
+	e.start(initState)
 }
 
 // Resume resumes the execution
@@ -224,7 +231,14 @@ func (e *Emulator) Stop() {
 	close(e.stopChan)
 }
 
-// Step continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
-func (e *Emulator) Step(n int) {
+// StepAndWait continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
+// then it waits for the emulator to reach the pause status
+func (e *Emulator) StepAndWait(n int) {
 	e.stepChan <- n
+
+	if e.state.Status() == paused {
+		return
+	}
+
+	<-e.notifyPause
 }

@@ -99,8 +99,7 @@ func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 		count = 1
 	}
 
-	db.emu.Step(count)
-	db.emu.WaitPaused()
+	db.emu.StepAndWait(count)
 	if err = db.sendState(w); err != nil {
 		log.Error("an error occurred while sending current state to the debugger", zap.Error(err))
 		w.Write([]byte(err.Error()))

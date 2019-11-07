@@ -3,7 +3,7 @@ package core
 import "sync"
 
 const (
-	started stateStatus = iota
+	running stateStatus = iota
 	paused
 	stopped
 )
@@ -28,19 +28,19 @@ func (s *state) Pause() {
 func (s *state) Start() {
 	s.Lock()
 	defer s.Unlock()
-	s.status = started
+	s.status = running
 }
 
 func (s *state) Stop() {
 	s.Lock()
 	defer s.Unlock()
-	s.status = started
+	s.status = running
 }
 
 func (s *state) SetStatus(status stateStatus) {
 	s.Lock()
 	defer s.Unlock()
-	if status == paused || status == stopped || status == started {
+	if status == paused || status == stopped || status == running {
 		s.status = status
 	}
 }
