@@ -175,11 +175,13 @@ func (cpu *CPU) admPDirect() (uint8, uint8) {
 
 // (DIRECT) addressing mode pointer
 func (cpu *CPU) admPDirectP() (uint32, uint32) {
-	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
-	ll := uint16(LL)
-	laddress := uint32(cpu.getDRegister() + ll)
-	haddress := uint32(cpu.getDRegister() + ll + 1)
-	return laddress, haddress
+	LL := uint16(cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1))
+	laddress := uint32(cpu.getDRegister() + LL)
+	haddress := uint32(cpu.getDRegister() + LL + 1)
+	ll := cpu.memory.GetByte(laddress)
+	hh := cpu.memory.GetByte(haddress)
+	pointer := bit.JoinUint32(ll, hh, cpu.getDBRRegister())
+	return pointer, pointer + 1
 }
 
 // [DIRECT] addressing mode
