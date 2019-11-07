@@ -26,7 +26,11 @@ export class DynamicTable extends HTMLTableElement {
         const tr = document.createElement("tr");
         this.fields.forEach(key => {
             const td = document.createElement("td");
-            td.appendChild(document.createTextNode(entry[key]));
+            let value = entry[key];
+            if (!isNaN(value)) {
+                value = value.toString(16);
+            }
+            td.appendChild(document.createTextNode(value));
             tr.appendChild(td);
         })
         this.body.prepend(tr);
