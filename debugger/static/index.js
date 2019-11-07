@@ -50,7 +50,7 @@ stepButton.onclick = function() {
 const breakpointButton = document.getElementById("breakpoint_button");
 breakpointButton.onclick = function() {
     const address = document.getElementById("breakpoint");
-    fetch('/breakpoint?address='+parseInt(address.value));
+    fetch('/breakpoint?address='+address.value);
 }
 const clearBreakpointButton = document.getElementById("clear_breakpoint_button");
 clearBreakpointButton.onclick = function() {
@@ -72,7 +72,7 @@ ClearRegisterBreakpointButton.onclick = function() {
 }
 
 function displayState(body) {
-    cpuTab.addData(body.cpu);
+    cpuTab.addEntry(body.cpu);
     paletteTab.updatePalette(body.palette);
     spritesTab.updateSprites(body.sprites);
     if (body.register) {

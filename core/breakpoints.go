@@ -26,6 +26,7 @@ func (e *Emulator) SetRegisterBreakpoint(registers string) {
 	for _, reg := range strings.Split(registers, ",") {
 		newBreakpoints[strings.ToUpper(strings.TrimSpace(reg))] = struct{}{}
 	}
+	// TODO: race condition here we set from a goroutine created from the web server and read from the main emulator loop
 	e.registerBreakpoints = newBreakpoints
 }
 
