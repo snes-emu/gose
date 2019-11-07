@@ -64,7 +64,7 @@ registerBreakpointButton.onclick = function() {
     const register = document.getElementById("register_breakpoint");
     fetch('/breakpoint?registers='+register.value);
 }
-const ClearRegisterBreakpointButton = document.getElementById("register_breakpoint_button");
+const clearRegisterBreakpointButton = document.getElementById("register_breakpoint_button");
 ClearRegisterBreakpointButton.onclick = function() {
     const register = document.getElementById("register_breakpoint");
     register.value = ";"
