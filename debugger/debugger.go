@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/snes-emu/gose/log"
 	"image/png"
 	"net/http"
 	"os/exec"
 	"strconv"
+
+	"github.com/snes-emu/gose/log"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/snes-emu/gose/core"
@@ -94,10 +95,12 @@ func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 	count, err := strconv.Atoi(r.URL.Query().Get("count"))
 	if err != nil {
+		log.Info("failed to convert count to integer, using default value", zap.Error(err))
 		count = 1
 	}
 
 	db.emu.Step(count)
+	db.emu.WaitPaused()
 	if err = db.sendState(w); err != nil {
 		log.Error("an error occurred while sending current state to the debugger", zap.Error(err))
 		w.Write([]byte(err.Error()))
@@ -108,14 +111,26 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	log.Debug("/breakpoint")
 	rawAddr := r.URL.Query().Get("address")
 	registers := r.URL.Query().Get("registers")
+	clear := r.URL.Query().Get("clear")
+
+	if clear != "" {
+		log.Info("clearing breakpoints", zap.String("type", clear))
+		switch clear {
+		case "address":
+			db.emu.SetBreakpoint(0)
+		case "registers":
+			db.emu.SetRegisterBreakpoint("")
+		}
+		return
+	}
 
 	if rawAddr != "" {
 		// Address breakpoint
-		address, err := strconv.Atoi(rawAddr)
+		address, err := strconv.ParseInt(rawAddr, 0, 32)
 		if err != nil {
 			log.Error("failed to set breakpoint", zap.Error(err))
 		} else {
-			log.Info("Setting address breakpoint", zap.Int("address", address))
+			log.Info("Setting address breakpoint", zap.Int64("address", address))
 			db.emu.SetBreakpoint(uint32(address))
 		}
 	}
