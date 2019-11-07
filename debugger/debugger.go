@@ -83,8 +83,12 @@ func (db *Debugger) createServer(addr string) {
 func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
 	db.emu.Resume()
 	// Wait for the next breakpoint to be reached
-	register := <-db.emu.BreakpointCh
-	db.sendStateWithRegister(register, w)
+	breakp := <-db.emu.BreakpointCh
+	if breakp.IsRegister {
+		db.sendStateWithRegister(breakp, w)
+	} else {
+		db.sendState(w)
+	}
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {

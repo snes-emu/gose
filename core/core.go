@@ -146,6 +146,7 @@ func (e *Emulator) exec() bool {
 	// Check if we reached a breakpoint
 	if e.atBreakpoint() {
 		e.state.Pause()
+		e.BreakpointCh <- BreakpointData{IsRegister: false}
 		return false
 	}
 

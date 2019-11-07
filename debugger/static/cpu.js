@@ -9,6 +9,14 @@ class CPU extends DynamicTable {
         super();
         this.id = "cpu";
     }
+
+    addData(entry) {
+        const newEntry = {...entry};
+        ['C', 'D', 'DBR', 'K', 'PC', 'S', 'X', 'Y'].forEach(key => {
+            newEntry[key] = `0x${entry[key].toString(16)} (${entry[key]})`;
+        });
+        this.addEntry(newEntry);
+    }
 }
 
 customElements.define(CPU.tagName(), CPU, {extends: 'table'});
