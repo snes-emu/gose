@@ -91,10 +91,12 @@ func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
 	count, err := strconv.Atoi(r.URL.Query().Get("count"))
 	if err != nil {
+		log.Info("failed to convert count to integer, using default value", zap.Error(err))
 		count = 1
 	}
 
 	db.emu.Step(count)
+	db.emu.WaitPaused()
 	if err = db.sendState(w); err != nil {
 		log.Error("an error occurred while sending current state to the debugger", zap.Error(err))
 		w.Write([]byte(err.Error()))
