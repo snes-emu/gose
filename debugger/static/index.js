@@ -52,11 +52,23 @@ breakpointButton.onclick = function() {
     const address = document.getElementById("breakpoint");
     fetch('/breakpoint?address='+address.value);
 }
+const clearBreakpointButton = document.getElementById("clear_breakpoint_button");
+clearBreakpointButton.onclick = function() {
+    const address = document.getElementById("breakpoint");
+    address.value = "";
+    fetch('/breakpoint?clear=address');
+}
 
 const registerBreakpointButton = document.getElementById("register_breakpoint_button");
 registerBreakpointButton.onclick = function() {
     const register = document.getElementById("register_breakpoint");
     fetch('/breakpoint?registers='+register.value);
+}
+const ClearRegisterBreakpointButton = document.getElementById("register_breakpoint_button");
+ClearRegisterBreakpointButton.onclick = function() {
+    const register = document.getElementById("register_breakpoint");
+    register.value = ";"
+    fetch('/breakpoint?clear=registers');
 }
 
 function displayState(body) {

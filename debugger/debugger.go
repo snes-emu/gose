@@ -107,6 +107,18 @@ func (db *Debugger) breakpoint(w http.ResponseWriter, r *http.Request) {
 	log.Debug("/breakpoint")
 	rawAddr := r.URL.Query().Get("address")
 	registers := r.URL.Query().Get("registers")
+	clear := r.URL.Query().Get("clear")
+
+	if clear != "" {
+		log.Info("clearing breakpoints", zap.String("type", clear))
+		switch clear {
+		case "address":
+			db.emu.SetBreakpoint(0)
+		case "registers":
+			db.emu.SetRegisterBreakpoint("")
+		}
+		return
+	}
 
 	if rawAddr != "" {
 		// Address breakpoint
