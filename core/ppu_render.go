@@ -1,10 +1,7 @@
 package core
 
 import (
-	"fmt"
 	"image"
-	"image/png"
-	"os"
 
 	"github.com/snes-emu/gose/log"
 	"github.com/snes-emu/gose/render"
@@ -31,17 +28,6 @@ func (ppu *PPU) renderLine() {
 		ppu.renderer.Render(ppu.screen)
 		log.Debug("VBlank")
 		ppu.cpu.enterVblank()
-
-		for i, img := range ppu.Backgrounds() {
-			f, err := os.Create(fmt.Sprintf("/tmp/bg%d.png", i))
-			if err != nil {
-				panic(err)
-			}
-			err = png.Encode(f, img)
-			if err != nil {
-				panic(err)
-			}
-		}
 	}
 
 	if ppu.vCounter == 0 {
@@ -71,11 +57,10 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 		// Loop over all the tiles contained in the sprite
 		for xTile := uint16(0); xTile < sprite.hSize/TILE_SIZE; xTile++ {
 
-			// Address of the current tile in the VRAM
-			tileAddress := sprite.tileAddr(xTile, yTile)
+			tile := sprite.tileAt(xTile, yTile)
 
 			// Go through all the pixels in the tile line
-			for x, color := range ppu.tileSpriteRowColor(tileAddress, y, sprite.palette) {
+			for x, color := range ppu.tileRowColor(tile, y) {
 				// Only change the pixel if the color is not transparent
 				if !color.Transparent {
 					lineIdx := sprite.x + uint16(x) + (TILE_SIZE * xTile)
@@ -111,12 +96,11 @@ func (ppu *PPU) spriteToImage(sprite sprite) image.Image {
 	// Loop over all the tiles contained in the sprite
 	for yTile := uint16(0); yTile < sprite.vSize/TILE_SIZE; yTile++ {
 		for xTile := uint16(0); xTile < sprite.hSize/TILE_SIZE; xTile++ {
-			// Address of the current tile in the VRAM
-			tileAddress := sprite.tileAddr(xTile, yTile)
+			tile := sprite.tileAt(xTile, yTile)
 
 			// Loop over all the pixels in the current tile
 			for y := uint16(0); y < TILE_SIZE; y++ {
-				for x, color := range ppu.tileSpriteRowColor(tileAddress, y, sprite.palette) {
+				for x, color := range ppu.tileRowColor(tile, y) {
 
 					if !color.Transparent {
 						img.Set(int(xTile*TILE_SIZE+uint16(x)), int(yTile*TILE_SIZE+y), color)
@@ -141,23 +125,41 @@ func (ppu *PPU) Sprites() []image.Image {
 
 func (ppu *PPU) bgToImage(bgIndex uint8) image.Image {
 	bg := ppu.backgroundData.bg[bgIndex]
+
+	//create an image to fit the background
 	sizeInTile := uint16(64)
 	hTileSize, vTileSize := bg.tileSize()
-
 	hSize := sizeInTile * hTileSize
 	vSize := sizeInTile * vTileSize
 	img := image.NewRGBA(image.Rectangle{
 		Min: image.Point{},
 		Max: image.Point{X: int(hSize), Y: int(vSize)},
 	})
-	for yTile := uint16(0); yTile < uint16(sizeInTile); yTile++ {
-		for xTile := uint16(0); xTile < uint16(sizeInTile); xTile++ {
-			tile := ppu.tileFromBackground(bgIndex, xTile, yTile)
-			for y := uint16(0); y < tile.vSize; y++ {
-				for x, color := range ppu.tileRowColor(uint16(tile.firstTileAddr), uint16(tile.colorDepth), hTileSize, y, tile.palette) {
-					if !color.Transparent {
-						img.Set(int(xTile*hTileSize+uint16(x)), int(yTile*vTileSize+uint16(y)), color)
+
+	//fill the image
+
+	//go through the background tiles
+	for yBgTile := uint16(0); yBgTile < uint16(sizeInTile); yBgTile++ {
+		for xBgTile := uint16(0); xBgTile < uint16(sizeInTile); xBgTile++ {
+
+			//get the background tile at these coordinates
+			bgTile := ppu.tileFromBackground(bgIndex, xBgTile, yBgTile)
+
+			// Loop over all the base tiles contained in the background tile
+			for yTile := uint16(0); yTile < bgTile.vSize/TILE_SIZE; yTile++ {
+				for xTile := uint16(0); xTile < bgTile.hSize/TILE_SIZE; xTile++ {
+
+					tile := bgTile.tileAt(xTile, yTile)
+
+					// Loop over all the pixels in the current tile
+					for y := uint16(0); y < bgTile.vSize; y++ {
+						for x, color := range ppu.tileRowColor(tile, y) {
+							if !color.Transparent {
+								img.Set(int(xBgTile*bgTile.hSize+xTile*TILE_SIZE+uint16(x)), int(yBgTile*bgTile.vSize+yTile*TILE_SIZE+uint16(y)), color)
+							}
+						}
 					}
+
 				}
 			}
 
