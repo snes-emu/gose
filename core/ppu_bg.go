@@ -152,24 +152,28 @@ func (ppu *PPU) bg4vofs(data uint8) {
 
 // tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
 // See here: https://wiki.superfamicom.org/backgrounds
-func (bg *bg) tileMapAddress(x uint16, y uint16) uint32 {
+func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
 	// TODO: verify that, not sure at all about this
-	var mapIndex uint32
+
+	//in case of wrapping x and y can go beyond 64
+	x = x % 64
+	y = y % 64
+	var mapIndex uint16
 	if bg.screenSize&0x1 != 0 {
-		mapIndex += uint32(x / 32)
+		mapIndex += x / 32
 	}
 	if bg.screenSize&0x2 != 0 {
-		mapIndex += uint32(y / 32)
+		mapIndex += y / 32
 	}
 
-	base := uint32(bg.tileMapBaseAddr)
+	base := uint16(bg.tileMapBaseAddr)
 
 	return (base+mapIndex)<<11 +
-		((uint32(y) % 32) << 6) + //a row of 32 tile is 64 = 1<<6 bytes
-		((uint32(x) % 32) << 1) //a tile is 2 = 1<<1 bytes
+		((y % 32) << 6) + //a row of 32 tile is 64 = 1<<6 bytes
+		((x % 32) << 1) //a tile is 2 = 1<<1 bytes
 }
 
-func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
+func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile {
 	bg := ppu.backgroundData.bg[background]
 	addr := bg.tileMapAddress(x, y)
 	// raw contains:
@@ -182,14 +186,15 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
 	raw := bit.JoinUint16(ppu.vram.bytes[addr], ppu.vram.bytes[addr+1])
 
 	hSize, vSize := bg.tileSize()
+	colorDepth := ppu.colorDepth(background)
+	tileNumber := raw & 0x3FF
 
-	return tile{
+	return bgTile{
 		vFlip:         raw&0x8000 != 0,
 		hFlip:         raw&0x4000 != 0,
 		priority:      raw&0x2000 != 0,
 		palette:       uint8((raw >> 10) & 0x7),
-		number:        raw & 0x3ff,
-		firstTileAddr: uint32(bg.tileSetBaseAddr) << 13,
+		firstTileAddr: uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
 		colorDepth:    ppu.colorDepth(background),
 		hSize:         hSize,
 		vSize:         vSize,
