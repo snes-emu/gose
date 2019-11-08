@@ -22,6 +22,9 @@ func (ppu *PPU) renderLine() {
 	if ppu.vCounter < ppu.screen.Height {
 		ppu.screen.SetPixelLine(ppu.vCounter, ppu.backdropPixelLine())
 		ppu.screen.SetPixelLine(ppu.vCounter, ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter)))
+		//TODO handle background modes and display backgrounds accordingly
+		//We only display BG1 for now
+		ppu.screen.SetPixelLine(ppu.vCounter, ppu.backgroundToPixelLine(0))
 	}
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
@@ -69,6 +72,56 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 						Visible:  true,
 						Priority: sprite.priority,
 					}
+				}
+			}
+		}
+	}
+
+	return pixels
+}
+
+//backgroundToPixelLine the row of pixel of the background bgIndex that intersects with vCounter
+//TODO: vertical flip
+//TODO: horizontal flip
+func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
+	// Initialize pixel line
+	pixels := make([]render.Pixel, WIDTH)
+
+	bg := ppu.backgroundData.bg[bgIndex]
+	hTileSize, vTileSize := bg.tileSize()
+
+	//Y coordinate of the background tile containing the line
+	yBgTile := (ppu.vCounter) / vTileSize
+
+	//Y coordinate of the base tile inside the background tile containing the line
+	yTile := (ppu.vCounter - yBgTile*vTileSize) / TILE_SIZE
+
+	//Y coordinate of the line inside the base tile
+	y := (ppu.vCounter - yBgTile*vTileSize - yTile*TILE_SIZE)
+
+	//go through the background tiles
+	for xBgTile := uint16(0); xBgTile < (uint16(WIDTH))/hTileSize+1; xBgTile++ {
+
+		//get the background tile at these coordinates
+		bgTile := ppu.tileFromBackground(bgIndex, xBgTile, yBgTile)
+
+		// Loop over all the base tiles contained in the background tile
+		for xTile := uint16(0); xTile < bgTile.hSize/TILE_SIZE; xTile++ {
+
+			tile := bgTile.tileAt(xTile, yTile)
+
+			// Loop over all the pixels in the current tile
+			for x, color := range ppu.tileRowColor(tile, y) {
+				lineIdx := uint16(x) + xTile*TILE_SIZE + xBgTile*hTileSize
+				if !color.Transparent && lineIdx >= 0 && lineIdx < WIDTH {
+					pixels[lineIdx] = render.Pixel{
+						Color:   color,
+						Visible: true,
+					}
+					if bgTile.priority {
+						pixels[lineIdx].Priority = 1
+					}
+
 				}
 			}
 		}
