@@ -17,6 +17,8 @@ func TestAbsolute(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.DBR = 0x12
 	cpu.K = 0x12
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFF, 0x12, 1)
 	cpu.memory.SetByteBank(0xFF, 0x12, 2)
 
@@ -30,6 +32,8 @@ func TestAbsoluteX(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.DBR = 0x12
 	cpu.X = 0x000A
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 	cpu.memory.SetByteBank(0xFF, 0, 2)
 
@@ -41,9 +45,11 @@ func TestAbsoluteX(t *testing.T) {
 func TestPAbsolute(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.memory.SetByteBank(0x34, 0, 0x1FFF)
+	cpu.memory.SetByteBank(0x56, 0, 0x1FFE)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 	cpu.memory.SetByteBank(0x1F, 0, 2)
-	cpu.memory.SetByteBank(0x56, 0, 0x1FFE)
 
 	assert.Equal(t, uint16(0x3456), cpu.admPAbsoluteJ())
 }
@@ -52,10 +58,12 @@ func TestPAbsoluteX(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.K = 0x12
 	cpu.X = 0x000A
-	cpu.memory.SetByteBank(0xFE, 0x12, 1)
-	cpu.memory.SetByteBank(0xFF, 0x12, 2)
 	cpu.memory.SetByteBank(0x56, 0x12, 8)
 	cpu.memory.SetByteBank(0x34, 0x12, 9)
+
+	//opcode arguments
+	cpu.memory.SetByteBank(0xFE, 0x12, 1)
+	cpu.memory.SetByteBank(0xFF, 0x12, 2)
 
 	assert.Equal(t, uint16(0x3456), cpu.admPAbsoluteXJ())
 }
@@ -63,6 +71,8 @@ func TestPAbsoluteX(t *testing.T) {
 func TestDirect(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.D = 0xFF00
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFF, 0, 1)
 
 	lo, hi := cpu.admDirectP()
@@ -79,6 +89,8 @@ func TestDirectX(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.D = 0xFF00
 	cpu.X = 0x000A
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 
 	lo, hi := cpu.admDirectXP()
@@ -98,6 +110,8 @@ func TestPDirect(t *testing.T) {
 	cpu.memory.SetByteBank(0xFF, 0, 0x1EFF)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1E00)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1F00)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFF, 0, 1)
 
 	lo, hi := cpu.admPDirectP()
@@ -116,6 +130,8 @@ func TestBDirect(t *testing.T) {
 	cpu.memory.SetByteBank(0xFF, 0, 0x1EFE)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1EFF)
 	cpu.memory.SetByteBank(0x12, 0, 0x1F00)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 
 	lo, hi := cpu.admBDirectP()
@@ -132,6 +148,8 @@ func TestPDirectX(t *testing.T) {
 	cpu.memory.SetByteBank(0xFF, 0, 0x1F09)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1E08)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1E09)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 
 	lo, hi := cpu.admPDirectXP()
@@ -152,6 +170,8 @@ func TestPDirectY(t *testing.T) {
 	cpu.memory.SetByteBank(0xFF, 0, 0x1F00)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1E00)
 	cpu.memory.SetByteBank(0xFE, 0, 0x1EFF)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFF, 0, 1)
 
 	lo, hi := cpu.admPDirectYP()
@@ -171,6 +191,8 @@ func TestBDirectY(t *testing.T) {
 	cpu.memory.SetByteBank(0x12, 0, 0x1F00)
 	cpu.memory.SetByteBank(0xFC, 0, 0x1EFE)
 	cpu.memory.SetByteBank(0xFF, 0, 0x1EFF)
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 
 	lo, hi := cpu.admBDirectYP()
@@ -180,6 +202,8 @@ func TestBDirectY(t *testing.T) {
 
 func TestImmediate(t *testing.T) {
 	cpu := newTestCPU()
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 	cpu.memory.SetByteBank(0xFF, 0, 2)
 
@@ -191,6 +215,8 @@ func TestImmediate(t *testing.T) {
 
 func TestLong(t *testing.T) {
 	cpu := newTestCPU()
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFF, 0, 1)
 	cpu.memory.SetByteBank(0xFF, 0, 2)
 	cpu.memory.SetByteBank(0x12, 0, 3)
@@ -207,6 +233,8 @@ func TestLong(t *testing.T) {
 func TestLongX(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.X = 0x000A
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFE, 0, 1)
 	cpu.memory.SetByteBank(0xFF, 0, 2)
 	cpu.memory.SetByteBank(0x12, 0, 3)
@@ -221,6 +249,8 @@ func TestSourceDestination(t *testing.T) {
 	cpu.C = 0x0002
 	cpu.X = 0xFFFE
 	cpu.Y = 0xFFFF
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0x12, 0, 1)
 	cpu.memory.SetByteBank(0x34, 0, 2)
 
@@ -234,6 +264,8 @@ func TestSourceDestination(t *testing.T) {
 func TestStackS(t *testing.T) {
 	cpu := newTestCPU()
 	cpu.S = 0xFF10
+
+	//opcode arguments
 	cpu.memory.SetByteBank(0xFA, 0, 1)
 
 	lo, hi := cpu.admStackSP()
@@ -246,9 +278,11 @@ func TestStackSY(t *testing.T) {
 	cpu.S = 0xFF10
 	cpu.DBR = 0x12
 	cpu.Y = 0x0050
-	cpu.memory.SetByteBank(0xFA, 0, 1)
 	cpu.memory.SetByteBank(0xF0, 0, 0x000A)
 	cpu.memory.SetByteBank(0xFF, 0, 0x000B)
+
+	//opcode arguments
+	cpu.memory.SetByteBank(0xFA, 0, 1)
 
 	lo, hi := cpu.admPStackSYP()
 	assert.Equal(t, uint32(0x130040), lo)
