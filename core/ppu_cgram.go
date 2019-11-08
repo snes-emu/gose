@@ -169,3 +169,12 @@ func (ppu *PPU) tileColor(tileAddress, colorDepth, x, y uint16, palette uint8) r
 		Color: bit.JoinUint16(ppu.cgram.bytes[colorWordAddr], ppu.cgram.bytes[colorWordAddr+1]),
 	}.ApplyBrightness(ppu.display.brightness)
 }
+
+func (ppu *PPU) backdropPixel() render.Pixel {
+	return render.Pixel{
+		Visible: true,
+		Color: render.BGR555{
+			Color: bit.JoinUint16(ppu.cgram.bytes[0], ppu.cgram.bytes[1]),
+		},
+	}
+}
