@@ -1,6 +1,8 @@
 package core
 
-import "github.com/snes-emu/gose/bit"
+import (
+	"github.com/snes-emu/gose/bit"
+)
 
 // ABSOLUTE addressing mode to use only for JMP	and JSR instructions
 func (cpu *CPU) admAbsoluteJ() uint16 {
@@ -95,7 +97,7 @@ func (cpu *CPU) admDirectP() (uint32, uint32) {
 
 	if cpu.eFlag && cpu.getDLRegister() == 0x00 {
 		address := bit.JoinUint32(LL, cpu.getDHRegister(), 0x00)
-		return 0x00, address
+		return address, 0x000000
 	}
 
 	ll := uint16(LL)
