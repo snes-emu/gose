@@ -23,6 +23,7 @@ func (ppu *PPU) renderLine() {
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter < ppu.screen.Height {
+		ppu.screen.SetPixelLine(ppu.vCounter, ppu.backdropPixelLine())
 		ppu.screen.SetPixelLine(ppu.vCounter, ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter)))
 	}
 
@@ -86,6 +87,16 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 				}
 			}
 		}
+	}
+
+	return pixels
+}
+
+func (ppu *PPU) backdropPixelLine() []render.Pixel {
+	pixels := make([]render.Pixel, WIDTH)
+	backdropPixel := ppu.backdropPixel()
+	for i := range pixels {
+		pixels[i] = backdropPixel
 	}
 
 	return pixels
