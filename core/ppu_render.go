@@ -83,6 +83,7 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 //backgroundToPixelLine the row of pixel of the background bgIndex that intersects with vCounter
 //TODO: vertical flip
 //TODO: horizontal flip
+//TODO: priority
 func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 	// Initialize pixel line
 	pixels := make([]render.Pixel, WIDTH)
@@ -91,16 +92,18 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 	hTileSize, vTileSize := bg.tileSize()
 
 	//Y coordinate of the background tile containing the line
-	yBgTile := (ppu.vCounter) / vTileSize
+	yBgTile := (ppu.vCounter + bg.verticalScroll) / vTileSize
 
 	//Y coordinate of the base tile inside the background tile containing the line
-	yTile := (ppu.vCounter - yBgTile*vTileSize) / TILE_SIZE
+	yTile := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize) / TILE_SIZE
 
 	//Y coordinate of the line inside the base tile
-	y := (ppu.vCounter - yBgTile*vTileSize - yTile*TILE_SIZE)
+	y := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize - yTile*TILE_SIZE)
 
 	//go through the background tiles
-	for xBgTile := uint16(0); xBgTile < (uint16(WIDTH))/hTileSize+1; xBgTile++ {
+	hStart := bg.horizontalScroll
+	hEnd := hStart + uint16(WIDTH)
+	for xBgTile := hStart / hTileSize; xBgTile < hEnd/hTileSize+1; xBgTile++ {
 
 		//get the background tile at these coordinates
 		bgTile := ppu.tileFromBackground(bgIndex, xBgTile, yBgTile)
@@ -112,7 +115,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 
 			// Loop over all the pixels in the current tile
 			for x, color := range ppu.tileRowColor(tile, y) {
-				lineIdx := uint16(x) + xTile*TILE_SIZE + xBgTile*hTileSize
+				lineIdx := uint16(x) + xTile*TILE_SIZE + xBgTile*hTileSize - bg.horizontalScroll
 				if !color.Transparent && lineIdx >= 0 && lineIdx < WIDTH {
 					pixels[lineIdx] = render.Pixel{
 						Color:   color,
