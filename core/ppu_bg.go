@@ -7,11 +7,11 @@ import (
 )
 
 type backgroundData struct {
-	bg          [4]*bg // BG array containing the 4 backgrounds
-	scrollPrev1 uint8  // temporary variable for bg scrolling
-	scrollPrev2 uint8  // temporary variable for bg scrolling
-	screenMode  uint8  // Screen mode from 0 to 7
-	mosaicSize  uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+	bg              [4]*bg // BG array containing the 4 backgrounds
+	PPU1ScrollLatch uint8  // latch for background offset in PPU1
+	PPU2ScrollLatch uint8  // latch for background offset in PPU2
+	screenMode      uint8  // Screen mode from 0 to 7
+	mosaicSize      uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 }
 
 // BG stores data about a background
@@ -22,8 +22,8 @@ type bg struct {
 	screenSize       uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
 	tileMapBaseAddr  uint8  // base address for tile map in VRAM (in 1k word steps, 2k byte steps)
 	tileSetBaseAddr  uint8  // base address for tile set in VRAM (in 4k word steps, 8k byte steps)
-	horizontalScroll uint16 // horizontal scroll in pixel
-	verticalScroll   uint16 // vertical scroll in pixel
+	horizontalScroll uint16 // horizontal scroll in pixel, 10-bit
+	verticalScroll   uint16 // vertical scroll in pixel, 10-bit
 	windowMask1      uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
 	windowMask2      uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
 	windowMaskLogic  uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
@@ -96,58 +96,61 @@ func (ppu *PPU) bg34nba(data uint8) {
 	ppu.backgroundData.bg[3].tileSetBaseAddr = data >> 4
 }
 
+// 210Dh - 2114h horizontal and vertical background offset: https://forums.nesdev.com/viewtopic.php?t=15228 for the formula
+func (ppu *PPU) bgnhofs(bg uint8, data uint8) {
+	ppu.backgroundData.bg[bg].horizontalScroll = uint16(data&3)<<8 | uint16((ppu.backgroundData.PPU1ScrollLatch &^ 7)) | uint16(ppu.backgroundData.PPU2ScrollLatch&7)
+	ppu.backgroundData.PPU1ScrollLatch = data
+	ppu.backgroundData.PPU2ScrollLatch = data
+}
+
+func (ppu *PPU) bgnvofs(bg uint8, data uint8) {
+	ppu.backgroundData.bg[0].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
+	ppu.backgroundData.PPU1ScrollLatch = data
+}
+
 // 210Dh - BG1HOFS - BG1 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg1hofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(0, data)
 	ppu.m7hofs(data)
 }
 
 // 210Eh - BG1VOFS - BG1 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg1vofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(0, data)
 	ppu.m7vofs(data)
 }
 
 // 210Fh - BG2HOFS - BG2 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg2hofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(1, data)
+
 }
 
 // 2110h - BG2VOFS - BG2 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg2vofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(1, data)
 }
 
 // 2111h - BG3HOFS - BG3 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg3hofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(2, data)
+
 }
 
 // 2112h - BG3VOFS - BG3 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg3vofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(2, data)
 }
 
 // 2113h - BG4HOFS - BG4 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg4hofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(3, data)
+
 }
 
 // 2114h - BG4VOFS - BG4 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg4vofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(3, data)
 }
 
 // tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
