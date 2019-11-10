@@ -76,7 +76,7 @@ func (cpu *CPU) admPAbsoluteXJ() uint16 {
 	LL := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+1)
 	HH := cpu.memory.GetByteBank(cpu.getKRegister(), cpu.getPCRegister()+2)
 	address := bit.JoinUint16(LL, HH) + cpu.getXRegister()
-	return bit.JoinUint16(cpu.memory.GetByteBank(0x00, address), cpu.memory.GetByteBank(0x00, address+1))
+	return bit.JoinUint16(cpu.memory.GetByteBank(cpu.getKRegister(), address), cpu.memory.GetByteBank(cpu.getKRegister(), address+1))
 }
 
 // ACCUMULATOR addressing mode
