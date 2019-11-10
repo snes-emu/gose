@@ -27,7 +27,7 @@ const (
 type Memory struct {
 	mmap    [regionNumber]memoryRegion
 	main    [bankNumber][]uint8
-	sram    [sramSize]uint8
+	sram    []uint8
 	wram    [wramSize]uint8
 	io      [ioSize]*io.Register
 	romType uint
@@ -76,6 +76,10 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 				}
 			}
 		}
+	}
+
+	if r.SRAMSize > 0 {
+		memory.sram = make([]uint8, r.SRAMSize)
 	}
 
 	//upper banks are mirrors of the lower ones
@@ -160,7 +164,7 @@ func (memory *Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	case wramRegion:
 		return memory.wram[(uint32(K%0x80)-0x7E)<<16|uint32(offset)]
 	case sramRegion:
-		return memory.sram[memory.sm.getAddr(K, offset)]
+		return memory.sram[memory.sm.getAddr(K, offset)%uint32(len(memory.sram))]
 	default:
 		return 0x00
 	}
@@ -183,7 +187,7 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	case wramRegion:
 		memory.wram[(uint32(K%0x80)-0x7E)<<16+uint32(offset)] = value
 	case sramRegion:
-		memory.sram[memory.sm.getAddr(K, offset)] = value
+		memory.sram[memory.sm.getAddr(K, offset)%uint32(len(memory.sram))] = value
 	}
 }
 
