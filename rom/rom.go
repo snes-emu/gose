@@ -19,7 +19,7 @@ type ROM struct {
 	Title    string // Rom title
 	size     uint   // Size of the rom
 	isFast   bool   // Whether or not the ROM is of type Fast
-	sramSize uint   // SRAM size
+	SRAMSize uint   // SRAM size
 	Type     uint   // Type of the Rom (LoROM, HiROM, ExLoROM, ExHiROM)
 }
 
@@ -43,13 +43,13 @@ func ParseROM(data []byte) (*ROM, error) {
 		rom.Title = string(rom.Data[0x7fc0:0x7fd4])
 		rom.isFast = rom.Data[0x7fd5]&0x30 != 0
 		rom.size = 0x400 << rom.Data[0x7fd7]
-		rom.sramSize = 0x400 << rom.Data[0x7fd8]
+		rom.SRAMSize = 0x400 << rom.Data[0x7fd8]
 		rom.Type = LoROM
 	} else {
 		rom.Title = string(rom.Data[0xffc0:0xffd4])
 		rom.isFast = rom.Data[0xffd5]&0x30 != 0
 		rom.size = 0x400 << rom.Data[0xffd7]
-		rom.sramSize = 0x400 << rom.Data[0xffd8]
+		rom.SRAMSize = 0x400 << rom.Data[0xffd8]
 		rom.Type = HiROM
 	}
 
