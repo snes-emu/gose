@@ -11,6 +11,8 @@ const (
 	ExLoROM
 	// ExHiROM type
 	ExHiROM
+
+	maxSRAMSize = 9
 )
 
 // ROM struct
@@ -39,19 +41,31 @@ func ParseROM(data []byte) (*ROM, error) {
 	rom.Data = rom.Data[smcHeaderSize:]
 
 	// Set rom parameters
+	var (
+		headerAddr int
+		romType    uint
+	)
 	if rom.isLo() {
-		rom.Title = string(rom.Data[0x7fc0:0x7fd4])
-		rom.isFast = rom.Data[0x7fd5]&0x30 != 0
-		rom.size = 0x400 << rom.Data[0x7fd7]
-		rom.SRAMSize = 0x400 << rom.Data[0x7fd8]
-		rom.Type = LoROM
+		headerAddr = 0x7fc0
+		romType = LoROM
+
 	} else {
-		rom.Title = string(rom.Data[0xffc0:0xffd4])
-		rom.isFast = rom.Data[0xffd5]&0x30 != 0
-		rom.size = 0x400 << rom.Data[0xffd7]
-		rom.SRAMSize = 0x400 << rom.Data[0xffd8]
-		rom.Type = HiROM
+		headerAddr = 0xffc0
+		romType = HiROM
 	}
+
+	rom.Title = string(rom.Data[headerAddr : headerAddr+21])
+	rom.isFast = rom.Data[headerAddr+21]&0x30 != 0
+	rom.size = 0x400 << rom.Data[headerAddr+23]
+	sramSize := rom.Data[headerAddr+24]
+	//sram is between 0 and 512kB
+	if sramSize != 0 {
+		if sramSize > maxSRAMSize {
+			sramSize = maxSRAMSize
+		}
+		rom.SRAMSize = 0x400 << sramSize
+	}
+	rom.Type = romType
 
 	return rom, nil
 }
