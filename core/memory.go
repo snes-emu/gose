@@ -9,7 +9,6 @@ import (
 const regionNumber = 0x1000
 const bankNumber = 0x100
 const offsetMask = 0xFFFF
-const sramSize = 0x80000
 const wramSize = 0x20000
 const ioSize = 0x8000
 
@@ -77,10 +76,7 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 			}
 		}
 	}
-
-	if r.SRAMSize > 0 {
-		memory.sram = make([]uint8, r.SRAMSize)
-	}
+	memory.sram = make([]uint8, r.SRAMSize)
 
 	//upper banks are mirrors of the lower ones
 	for bank := 0x80; bank < 0x100; bank++ {
@@ -116,24 +112,26 @@ func (memory *Memory) initMmap() {
 	}
 
 	//map sram
-	switch memory.romType {
-	case rom.LoROM:
-		for bankIndex := 0x70; bankIndex < 0x80; bankIndex++ {
-			for offset := 0; offset < 0x8; offset++ {
-				memory.mmap[bankIndex<<4|offset] = sramRegion
-				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+	if len(memory.sram) > 0 {
+		switch memory.romType {
+		case rom.LoROM:
+			for bankIndex := 0x70; bankIndex < 0x80; bankIndex++ {
+				for offset := 0; offset < 0x8; offset++ {
+					memory.mmap[bankIndex<<4|offset] = sramRegion
+					memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+				}
 			}
-		}
-		memory.sm = newLoromSramMapper()
-	case rom.HiROM:
-		//in HiROM sram is mapped here: overwrite the unused ioRegister regions
-		for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
-			for offset := 0x6; offset < 0x8; offset++ {
-				memory.mmap[bankIndex<<4|offset] = sramRegion
-				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+			memory.sm = newLoromSramMapper()
+		case rom.HiROM:
+			//in HiROM sram is mapped here: overwrite the unused ioRegister regions
+			for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
+				for offset := 0x6; offset < 0x8; offset++ {
+					memory.mmap[bankIndex<<4|offset] = sramRegion
+					memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+				}
 			}
+			memory.sm = newHiromSramMapper()
 		}
-		memory.sm = newHiromSramMapper()
 	}
 
 	//map work ram
