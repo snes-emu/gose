@@ -149,6 +149,9 @@ func (o *oam) sprite(idx uint16) sprite {
 
 	sprite := sprite{}
 
+	// sprites always use 16 colors
+	sprite.colorDepth = 4
+
 	// Read x, y, and firstTileAddress low word
 	sprite.x = uint16(raw1[0])
 	sprite.y = uint16(raw1[1])
@@ -180,9 +183,9 @@ func (o *oam) sprite(idx uint16) sprite {
 	// See: https://wiki.superfamicom.org/sprites
 	// The formula in wiki.superfamicom.com is given as word address (hence 2 bytes)
 	// that's why they limit the result to 32KB
-	sprite.firstTileAddr = (o.baseAddr << 14) + (tileIdx << 5)
+	sprite.addr = (o.baseAddr << 14) + (tileIdx << 5)
 	if attrs&0x1 != 0 {
-		sprite.firstTileAddr += (1 + o.nameSelect) << 13
+		sprite.addr += (1 + o.nameSelect) << 13
 	}
 
 	return sprite
