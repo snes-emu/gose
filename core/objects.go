@@ -4,9 +4,13 @@ import "fmt"
 
 //baseTile represents an 8x8 pixels tile
 type baseTile struct {
-	addr       uint16
+	addr uint16 // address of the 8x8 tile in the VRAM
+
+	// index of the color palette to use.
+	// for background tiles, the number of entries in the palette depends on the mode and the background)
+	// there are 16 available color palettes, but only 8 available to sprites
 	palette    uint8
-	colorDepth uint8
+	colorDepth uint8 // number of bits used to addres the colors
 }
 
 //baseTileSize returns the size of a base tile in bytes depending on its color depth
@@ -18,17 +22,16 @@ func baseTileSize(colorDepth uint8) uint16 {
 
 // bgTile represents a variable size background tile
 type bgTile struct {
-	palette       uint8  // index of the color palette to use (the number of entries in the palette depends on the mode and the background)
-	priority      bool   // Tile priority, for tiles this is only encoded in 1 bit (whereas for sprites it's encoded into 2 bits)
-	hFlip, vFlip  bool   // horizontal and vertical flips
-	firstTileAddr uint16 // address of the first 8x8 tile composing the complete background tile
-	colorDepth    uint8  // number of bits used to addres the colors
-	hSize, vSize  uint16 // horizontal and vertical size
+	baseTile
+
+	priority     bool   // Tile priority, for tiles this is only encoded in 1 bit (whereas for sprites it's encoded into 2 bits)
+	hFlip, vFlip bool   // horizontal and vertical flips
+	hSize, vSize uint16 // horizontal and vertical size
 }
 
 func (bgt *bgTile) tileAt(xTile, yTile uint16) baseTile {
 	return baseTile{
-		addr:       bgt.firstTileAddr + (xTile+(yTile<<4))*baseTileSize(bgt.colorDepth),
+		addr:       bgt.addr + (xTile+(yTile<<4))*baseTileSize(bgt.colorDepth),
 		colorDepth: bgt.colorDepth,
 		palette:    bgt.palette,
 	}
@@ -43,12 +46,11 @@ func (bgt *bgTile) tileAt(xTile, yTile uint16) baseTile {
 // - address of a tile to the right -> current address + 0x1
 // - address of a tile to the bottom -> current address + 0x10
 type sprite struct {
+	baseTile
+
 	x uint16 // x coordinate of the upper left tile composing the sprite
 	y uint16 // y coordinate of the upper left tile composing the sprite
 
-	firstTileAddr uint16 // address of the first tile composing the sprite in the VRAM
-
-	palette  uint8 // index of the color palette to use (there are 16 available color palettes, but only 8 available to sprites)
 	priority uint8 // priority of the sprite (used to superpose multiple sprites / backgrounds)
 
 	hFlip, vFlip bool   // horizontal and vertical flips
@@ -63,8 +65,8 @@ func (s *sprite) IntersectsLine(vCounter uint16) bool {
 // tileAt returns the tileAt at the given coordinate in the sprite
 func (s *sprite) tileAt(xTile uint16, yTile uint16) baseTile {
 	return baseTile{
-		addr:       s.firstTileAddr + (yTile<<4+xTile)*baseTileSize(4),
-		colorDepth: 4,
+		addr:       s.addr + (yTile<<4+xTile)*baseTileSize(4),
+		colorDepth: s.colorDepth,
 		palette:    s.palette,
 	}
 }

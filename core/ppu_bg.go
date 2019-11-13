@@ -193,14 +193,16 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile 
 	tileNumber := raw & 0x3FF
 
 	return bgTile{
-		vFlip:         raw&0x8000 != 0,
-		hFlip:         raw&0x4000 != 0,
-		priority:      raw&0x2000 != 0,
-		palette:       uint8((raw >> 10) & 0x7),
-		firstTileAddr: uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
-		colorDepth:    ppu.colorDepth(background),
-		hSize:         hSize,
-		vSize:         vSize,
+		baseTile: baseTile{
+			palette:    uint8((raw >> 10) & 0x7),
+			addr:       uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
+			colorDepth: ppu.colorDepth(background),
+		},
+		vFlip:    raw&0x8000 != 0,
+		hFlip:    raw&0x4000 != 0,
+		priority: raw&0x2000 != 0,
+		hSize:    hSize,
+		vSize:    vSize,
 	}
 }
 
