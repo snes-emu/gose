@@ -98,59 +98,59 @@ func (ppu *PPU) bg34nba(data uint8) {
 
 // 210Dh - 2114h horizontal and vertical background offset: https://forums.nesdev.com/viewtopic.php?t=15228 for the formula
 func (ppu *PPU) bgnhofs(bg uint8, data uint8) {
-	ppu.backgroundData.bg[bg].horizontalScroll = uint16(data&3)<<8 | uint16((ppu.backgroundData.PPU1ScrollLatch &^ 7)) | uint16(ppu.backgroundData.PPU2ScrollLatch&7)
+	ppu.backgroundData.bg[bg-1].horizontalScroll = uint16(data&3)<<8 | uint16((ppu.backgroundData.PPU1ScrollLatch &^ 7)) | uint16(ppu.backgroundData.PPU2ScrollLatch&7)
 	ppu.backgroundData.PPU1ScrollLatch = data
 	ppu.backgroundData.PPU2ScrollLatch = data
 }
 
 func (ppu *PPU) bgnvofs(bg uint8, data uint8) {
-	ppu.backgroundData.bg[bg].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
+	ppu.backgroundData.bg[bg-1].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
 	ppu.backgroundData.PPU1ScrollLatch = data
 }
 
 // 210Dh - BG1HOFS - BG1 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg1hofs(data uint8) {
-	ppu.bgnhofs(0, data)
+	ppu.bgnhofs(1, data)
 	ppu.m7hofs(data)
 }
 
 // 210Eh - BG1VOFS - BG1 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg1vofs(data uint8) {
-	ppu.bgnvofs(0, data)
+	ppu.bgnvofs(1, data)
 	ppu.m7vofs(data)
 }
 
 // 210Fh - BG2HOFS - BG2 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg2hofs(data uint8) {
-	ppu.bgnhofs(1, data)
+	ppu.bgnhofs(2, data)
 
 }
 
 // 2110h - BG2VOFS - BG2 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg2vofs(data uint8) {
-	ppu.bgnvofs(1, data)
+	ppu.bgnvofs(2, data)
 }
 
 // 2111h - BG3HOFS - BG3 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg3hofs(data uint8) {
-	ppu.bgnhofs(2, data)
+	ppu.bgnhofs(3, data)
 
 }
 
 // 2112h - BG3VOFS - BG3 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg3vofs(data uint8) {
-	ppu.bgnvofs(2, data)
+	ppu.bgnvofs(3, data)
 }
 
 // 2113h - BG4HOFS - BG4 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg4hofs(data uint8) {
-	ppu.bgnhofs(3, data)
+	ppu.bgnhofs(4, data)
 
 }
 
 // 2114h - BG4VOFS - BG4 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg4vofs(data uint8) {
-	ppu.bgnvofs(3, data)
+	ppu.bgnvofs(4, data)
 }
 
 // tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
