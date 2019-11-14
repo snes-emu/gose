@@ -6,6 +6,9 @@ import (
 	"github.com/snes-emu/gose/bit"
 )
 
+//used in ppu.colorDepth
+const panicString = "in mode %d, only background 1,2,3 are valid, attempted to use background %d"
+
 type backgroundData struct {
 	bg              [4]*bg // BG array containing the 4 backgrounds
 	PPU1ScrollLatch uint8  // latch for background offset in PPU1
@@ -218,7 +221,6 @@ func (bg *bg) tileSize() (uint16, uint16) {
 
 // colorDepth returns the number of bits used for the colors in the background
 func (ppu *PPU) colorDepth(background uint8) uint8 {
-	panicString := "in mode %d, only background 1,2,3 are valid, attempted to use background %d"
 	switch ppu.backgroundData.screenMode {
 	case 0:
 		return 2
@@ -268,12 +270,9 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 		case 0:
 			return 8
 		}
-	default:
-		panic(fmt.Sprintf("invalid mode requested: %d", ppu.backgroundData.screenMode))
 	}
 
-	//should never happen
-	return 0
+	panic(fmt.Sprintf("invalid mode requested: %d", ppu.backgroundData.screenMode))
 }
 
 //validBackgrounds are the backgrounds that can be used for the current screen mode
