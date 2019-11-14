@@ -104,7 +104,7 @@ func (ppu *PPU) bgnhofs(bg uint8, data uint8) {
 }
 
 func (ppu *PPU) bgnvofs(bg uint8, data uint8) {
-	ppu.backgroundData.bg[0].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
+	ppu.backgroundData.bg[bg].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
 	ppu.backgroundData.PPU1ScrollLatch = data
 }
 
