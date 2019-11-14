@@ -177,7 +177,7 @@ func (o *oam) sprite(idx uint16) sprite {
 	// Base Address is in 16K bytes steps
 	// NameSelect is in 8k bytes steps
 	// Formula is:
-	// ((Base << 14) + (index << 5) + (N ? ((Name+1)<<13) : 0))
+	// ((Base << 14) + (index << 5) + (N ? ((Name)<<13) : 0))
 	// Where N is the upper bit of the tile index
 	// The & 0x7fff is just to limit the range to 32KB
 	// See: https://wiki.superfamicom.org/sprites
@@ -185,7 +185,7 @@ func (o *oam) sprite(idx uint16) sprite {
 	// that's why they limit the result to 32KB
 	sprite.addr = (o.baseAddr << 14) + (tileIdx << 5)
 	if attrs&0x1 != 0 {
-		sprite.addr += (1 + o.nameSelect) << 13
+		sprite.addr += o.nameSelect << 13
 	}
 
 	return sprite
