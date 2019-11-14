@@ -112,6 +112,9 @@ func (apu *APU) CPUIO1R() uint8 {
 }
 
 func (apu *APU) CPUIO1W(data uint8) {
+	if apu.isReset {
+		return
+	}
 	apu.IO1 = data
 }
 
