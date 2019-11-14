@@ -219,6 +219,17 @@ func (bg *bg) tileSize() (uint16, uint16) {
 	return hSize, vSize
 }
 
+// 			1   2   3   4
+// ======---=---=---=---=
+// 0        4   4   4   4
+// 1       16  16   4   -
+// 2       16  16   -   -
+// 3      256  16   -   -
+// 4      256   4   -   -
+// 5       16   4   -   -
+// 6       16   -   -   -
+// 7      256   -   -   -
+// 7EXTBG 256 128   -   -
 // colorDepth returns the number of bits used for the colors in the background
 func (ppu *PPU) colorDepth(background uint8) uint8 {
 	switch ppu.backgroundData.screenMode {
