@@ -211,7 +211,11 @@ func (ppu *PPU) bgToImage(bgIndex uint8) image.Image {
 					for y := uint16(0); y < bgTile.vSize; y++ {
 						for x, color := range ppu.tileRowColor(tile, y) {
 							if !color.Transparent {
-								img.Set(int(xBgTile*bgTile.hSize+xTile*TILE_SIZE+uint16(x)), int(yBgTile*bgTile.vSize+yTile*TILE_SIZE+uint16(y)), color)
+								img.Set(
+									int(xBgTile*bgTile.hSize+xTile*TILE_SIZE+uint16(x)),
+									int(yBgTile*bgTile.vSize+yTile*TILE_SIZE+uint16(y)),
+									color,
+								)
 							}
 						}
 					}
