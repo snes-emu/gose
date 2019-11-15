@@ -133,7 +133,7 @@ func (e *Emulator) loop() {
 		case stopped:
 			return
 		case paused:
-			n = e.pause()
+			n = e.wait()
 		case running:
 			e.run(n)
 		}
@@ -181,7 +181,7 @@ func (e *Emulator) run(n int) {
 	}
 }
 
-func (e *Emulator) pause() int {
+func (e *Emulator) wait() int {
 	// notify we entered the pause state in case someone is listening
 	select {
 	case e.notifyPause <- struct{}{}:
