@@ -19,15 +19,13 @@ type Emulator struct {
 	Memory *Memory
 	PPU    *PPU
 
-	//state
+	// state
 	state       *state
-	pauseChan   chan struct{}
-	resumeChan  chan struct{}
 	stopChan    chan struct{}
 	stepChan    chan int
 	notifyPause chan struct{}
 
-	//debugging
+	// debugging
 	registerBreakpoints map[string]struct{}
 	breakpoint          uint32
 	BreakpointCh        chan BreakpointData
@@ -41,8 +39,6 @@ func New(renderer render.Renderer, debug bool) *Emulator {
 
 	e := &Emulator{
 		state:               state,
-		pauseChan:           make(chan struct{}, 1),
-		resumeChan:          make(chan struct{}),
 		stopChan:            make(chan struct{}),
 		stepChan:            make(chan int),
 		notifyPause:         make(chan struct{}),
@@ -137,40 +133,39 @@ func (e *Emulator) loop() {
 		case stopped:
 			return
 		case paused:
-			n = e.statePaused()
-		case started:
-			e.stateStarted(n)
-
+			n = e.wait()
+		case running:
+			e.run(n)
 		}
 	}
+}
+
+func (e *Emulator) exec() bool {
+	// TODO: use this method only if the debug mode / debugger is enabled
+	e.CPU.execOpcode()
+
+	// Check if we reached a breakpoint
+	if e.atBreakpoint() {
+		e.state.Pause()
+		e.BreakpointCh <- BreakpointData{IsRegister: false}
+		return false
+	}
+
+	// Or if a register hook set the state to paused
+	return !e.IsPaused()
 }
 
 func (e *Emulator) step() bool {
 	select {
-	case <-e.pauseChan:
-		e.state.Pause()
-		return false
 	case <-e.stopChan:
 		e.state.Stop()
 		return false
-	case <-e.resumeChan:
-		e.CPU.execOpcode()
-		if e.atBreakpoint() {
-			e.state.Pause()
-			return false
-		}
 	default:
-		e.CPU.execOpcode()
-		if e.atBreakpoint() {
-			e.state.Pause()
-			return false
-		}
+		return e.exec()
 	}
-
-	return true
 }
 
-func (e *Emulator) stateStarted(n int) {
+func (e *Emulator) run(n int) {
 	if n > 0 {
 		for i := 0; i < n; i++ {
 			if !e.step() {
@@ -186,10 +181,8 @@ func (e *Emulator) stateStarted(n int) {
 	}
 }
 
-func (e *Emulator) statePaused() int {
-	log.Info("entering paused state")
-
-	//notify we entered the pause state in case someone is listening
+func (e *Emulator) wait() int {
+	// notify we entered the pause state in case someone is listening
 	select {
 	case e.notifyPause <- struct{}{}:
 	default:
@@ -199,9 +192,6 @@ func (e *Emulator) statePaused() int {
 	case <-e.stopChan:
 		e.state.Stop()
 
-	case <-e.resumeChan:
-		e.state.Start()
-
 	case n := <-e.stepChan:
 		e.state.Start()
 		return n
@@ -209,7 +199,7 @@ func (e *Emulator) statePaused() int {
 	return 0
 }
 
-func (e *Emulator) startState(status stateStatus) {
+func (e *Emulator) start(status stateStatus) {
 	e.state.Start()
 	e.state.SetStatus(status)
 	go e.loop()
@@ -217,22 +207,17 @@ func (e *Emulator) startState(status stateStatus) {
 
 // Start the main emulator loop
 func (e *Emulator) Start() {
-	initState := started
+	initState := running
 	if e.debug {
 		initState = paused
 	}
-	e.startState(initState)
-}
-
-// Pause pauses the execution
-func (e *Emulator) Pause() {
-	e.pauseChan <- struct{}{}
-	log.Info("execution paused")
+	e.start(initState)
 }
 
 // Resume resumes the execution
 func (e *Emulator) Resume() {
-	e.resumeChan <- struct{}{}
+	// Sending 0 to the stepChan will enter the exec loop again
+	e.stepChan <- 0
 	log.Info("execution resumed")
 }
 
@@ -246,12 +231,11 @@ func (e *Emulator) Stop() {
 	close(e.stopChan)
 }
 
-// Step continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
-func (e *Emulator) Step(n int) {
+// StepAndWait continues the execution for the given number of steps (if given 0 it will loop until a pause is triggered or the emulator is stopped)
+// then it waits for the emulator to reach the pause status
+func (e *Emulator) StepAndWait(n int) {
 	e.stepChan <- n
-}
 
-func (e *Emulator) WaitPaused() {
 	if e.state.Status() == paused {
 		return
 	}
