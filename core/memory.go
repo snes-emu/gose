@@ -9,7 +9,6 @@ import (
 const regionNumber = 0x1000
 const bankNumber = 0x100
 const offsetMask = 0xFFFF
-const sramSize = 0x80000
 const wramSize = 0x20000
 const ioSize = 0x8000
 
@@ -27,7 +26,7 @@ const (
 type Memory struct {
 	mmap    [regionNumber]memoryRegion
 	main    [bankNumber][]uint8
-	sram    [sramSize]uint8
+	sram    []uint8
 	wram    [wramSize]uint8
 	io      [ioSize]*io.Register
 	romType uint
@@ -77,6 +76,7 @@ func (memory *Memory) LoadROM(r rom.ROM) {
 			}
 		}
 	}
+	memory.sram = make([]uint8, r.SRAMSize)
 
 	//upper banks are mirrors of the lower ones
 	for bank := 0x80; bank < 0x100; bank++ {
@@ -112,24 +112,26 @@ func (memory *Memory) initMmap() {
 	}
 
 	//map sram
-	switch memory.romType {
-	case rom.LoROM:
-		for bankIndex := 0x70; bankIndex < 0x80; bankIndex++ {
-			for offset := 0; offset < 0x8; offset++ {
-				memory.mmap[bankIndex<<4|offset] = sramRegion
-				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+	if len(memory.sram) > 0 {
+		switch memory.romType {
+		case rom.LoROM:
+			for bankIndex := 0x70; bankIndex < 0x80; bankIndex++ {
+				for offset := 0; offset < 0x8; offset++ {
+					memory.mmap[bankIndex<<4|offset] = sramRegion
+					memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+				}
 			}
-		}
-		memory.sm = newLoromSramMapper()
-	case rom.HiROM:
-		//in HiROM sram is mapped here: overwrite the unused ioRegister regions
-		for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
-			for offset := 0x6; offset < 0x8; offset++ {
-				memory.mmap[bankIndex<<4|offset] = sramRegion
-				memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+			memory.sm = newLoromSramMapper()
+		case rom.HiROM:
+			//in HiROM sram is mapped here: overwrite the unused ioRegister regions
+			for bankIndex := 0x20; bankIndex < 0x40; bankIndex++ {
+				for offset := 0x6; offset < 0x8; offset++ {
+					memory.mmap[bankIndex<<4|offset] = sramRegion
+					memory.mmap[(bankIndex+0x80)<<4|offset] = sramRegion
+				}
 			}
+			memory.sm = newHiromSramMapper()
 		}
-		memory.sm = newHiromSramMapper()
 	}
 
 	//map work ram
@@ -160,7 +162,7 @@ func (memory *Memory) GetByteBank(K uint8, offset uint16) uint8 {
 	case wramRegion:
 		return memory.wram[(uint32(K%0x80)-0x7E)<<16|uint32(offset)]
 	case sramRegion:
-		return memory.sram[memory.sm.getAddr(K, offset)]
+		return memory.sram[memory.sm.getAddr(K, offset)%uint32(len(memory.sram))]
 	default:
 		return 0x00
 	}
@@ -183,7 +185,7 @@ func (memory *Memory) SetByteBank(value uint8, K uint8, offset uint16) {
 	case wramRegion:
 		memory.wram[(uint32(K%0x80)-0x7E)<<16+uint32(offset)] = value
 	case sramRegion:
-		memory.sram[memory.sm.getAddr(K, offset)] = value
+		memory.sram[memory.sm.getAddr(K, offset)%uint32(len(memory.sram))] = value
 	}
 }
 

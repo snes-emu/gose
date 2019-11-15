@@ -1,27 +1,32 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/snes-emu/gose/bit"
 )
 
+//used in ppu.colorDepth
+const panicString = "in mode %d, only background 1,2,3 are valid, attempted to use background %d"
+
 type backgroundData struct {
-	bg          [4]*bg // BG array containing the 4 backgrounds
-	scrollPrev1 uint8  // temporary variable for bg scrolling
-	scrollPrev2 uint8  // temporary variable for bg scrolling
-	screenMode  uint8  // Screen mode from 0 to 7
-	mosaicSize  uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+	bg              [4]*bg // BG array containing the 4 backgrounds
+	PPU1ScrollLatch uint8  // latch for background offset in PPU1
+	PPU2ScrollLatch uint8  // latch for background offset in PPU2
+	screenMode      uint8  // Screen mode from 0 to 7
+	mosaicSize      uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
 }
 
 // BG stores data about a background
 type bg struct {
-	tileSize         bool   // false 8x8 tiles, true 16x16 tiles
+	tileSizeFlag     bool   // false 8x8 tiles, true 16x16 tiles
 	mosaic           bool   // mosaic mode enabled
 	priority         bool   // Only useful for BG3
 	screenSize       uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
 	tileMapBaseAddr  uint8  // base address for tile map in VRAM (in 1k word steps, 2k byte steps)
 	tileSetBaseAddr  uint8  // base address for tile set in VRAM (in 4k word steps, 8k byte steps)
-	horizontalScroll uint16 // horizontal scroll in pixel
-	verticalScroll   uint16 // vertical scroll in pixel
+	horizontalScroll uint16 // horizontal scroll in pixel, 10-bit
+	verticalScroll   uint16 // vertical scroll in pixel, 10-bit
 	windowMask1      uint8  // mask for window 1 (0..1=Disable, 2=Inside, 3=Outside)
 	windowMask2      uint8  // mask for window 2 (0..1=Disable, 2=Inside, 3=Outside)
 	windowMaskLogic  uint8  // 0=OR, 1=AND, 2=XOR, 3=XNOR)
@@ -37,7 +42,7 @@ func (ppu *PPU) bgmode(data uint8) {
 	ppu.backgroundData.screenMode = data & 7
 	ppu.backgroundData.bg[2].priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
-		ppu.backgroundData.bg[i].tileSize = data&(1<<(4+i)) != 0
+		ppu.backgroundData.bg[i].tileSizeFlag = data&(1<<(4+i)) != 0
 	}
 
 }
@@ -94,64 +99,71 @@ func (ppu *PPU) bg34nba(data uint8) {
 	ppu.backgroundData.bg[3].tileSetBaseAddr = data >> 4
 }
 
+// 210Dh - 2114h horizontal and vertical background offset: https://forums.nesdev.com/viewtopic.php?t=15228 for the formula
+func (ppu *PPU) bgnhofs(bg uint8, data uint8) {
+	ppu.backgroundData.bg[bg-1].horizontalScroll = uint16(data&3)<<8 | uint16((ppu.backgroundData.PPU1ScrollLatch &^ 7)) | uint16(ppu.backgroundData.PPU2ScrollLatch&7)
+	ppu.backgroundData.PPU1ScrollLatch = data
+	ppu.backgroundData.PPU2ScrollLatch = data
+}
+
+func (ppu *PPU) bgnvofs(bg uint8, data uint8) {
+	ppu.backgroundData.bg[bg-1].verticalScroll = uint16(data&3)<<8 | uint16(ppu.backgroundData.PPU1ScrollLatch)
+	ppu.backgroundData.PPU1ScrollLatch = data
+}
+
 // 210Dh - BG1HOFS - BG1 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg1hofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(1, data)
 	ppu.m7hofs(data)
 }
 
 // 210Eh - BG1VOFS - BG1 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg1vofs(data uint8) {
-	ppu.backgroundData.bg[0].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(1, data)
 	ppu.m7vofs(data)
 }
 
 // 210Fh - BG2HOFS - BG2 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg2hofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(2, data)
+
 }
 
 // 2110h - BG2VOFS - BG2 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg2vofs(data uint8) {
-	ppu.backgroundData.bg[1].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(2, data)
 }
 
 // 2111h - BG3HOFS - BG3 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg3hofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(3, data)
+
 }
 
 // 2112h - BG3VOFS - BG3 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg3vofs(data uint8) {
-	ppu.backgroundData.bg[2].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(3, data)
 }
 
 // 2113h - BG4HOFS - BG4 Horizontal Scroll (X) (W)
 func (ppu *PPU) bg4hofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = bit.JoinUint16(0x00, data) | uint16((ppu.backgroundData.scrollPrev1 &^ 7)) | uint16(ppu.backgroundData.scrollPrev2&7)
-	ppu.backgroundData.scrollPrev1 = data
-	ppu.backgroundData.scrollPrev2 = data
+	ppu.bgnhofs(4, data)
+
 }
 
 // 2114h - BG4VOFS - BG4 Vertical Scroll (Y) (W)
 func (ppu *PPU) bg4vofs(data uint8) {
-	ppu.backgroundData.bg[3].horizontalScroll = bit.JoinUint16(0x00, data) | uint16(ppu.backgroundData.scrollPrev1)
-	ppu.backgroundData.scrollPrev1 = data
+	ppu.bgnvofs(4, data)
 }
 
-// tileAddress returns the byte address in the VRAM where the tile we are looking for is stored
+// tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
 // See here: https://wiki.superfamicom.org/backgrounds
-func (bg *bg) tileAddress(x uint16, y uint16) uint16 {
+func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
 	// TODO: verify that, not sure at all about this
+
+	//in case of wrapping x and y can go beyond 64
+	x = x % 64
+	y = y % 64
 	var mapIndex uint16
 	if bg.screenSize&0x1 != 0 {
 		mapIndex += x / 32
@@ -162,11 +174,14 @@ func (bg *bg) tileAddress(x uint16, y uint16) uint16 {
 
 	base := uint16(bg.tileMapBaseAddr)
 
-	return (base+mapIndex)<<11 + ((y % 32) << 6) + ((x % 32) << 1)
+	return (base+mapIndex)<<11 +
+		((y % 32) << 6) + //a row of 32 tile is 64 = 1<<6 bytes
+		((x % 32) << 1) //a tile is 2 = 1<<1 bytes
 }
 
-func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
-	addr := ppu.backgroundData.bg[background].tileAddress(x, y)
+func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile {
+	bg := ppu.backgroundData.bg[background]
+	addr := bg.tileMapAddress(x, y)
 	// raw contains:
 	// vhopppcc cccccccc
 	// v/h        = Vertical/Horizontal flip this tile.
@@ -176,11 +191,114 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) tile {
 	// See: https://wiki.superfamicom.org/backgrounds
 	raw := bit.JoinUint16(ppu.vram.bytes[addr], ppu.vram.bytes[addr+1])
 
-	return tile{
+	hSize, vSize := bg.tileSize()
+	colorDepth := ppu.colorDepth(background)
+	tileNumber := raw & 0x3FF
+
+	return bgTile{
+		baseTile: baseTile{
+			palette:    uint8((raw >> 10) & 0x7),
+			addr:       uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
+			colorDepth: ppu.colorDepth(background),
+		},
 		vFlip:    raw&0x8000 != 0,
 		hFlip:    raw&0x4000 != 0,
 		priority: raw&0x2000 != 0,
-		palette:  uint8((raw >> 10) & 0x7),
-		number:   raw & 0x3ff,
+		hSize:    hSize,
+		vSize:    vSize,
 	}
+}
+
+//tileSize returns the size in pixel of tiles in the background
+func (bg *bg) tileSize() (uint16, uint16) {
+	hSize, vSize := uint16(8), uint16(8)
+	if bg.tileSizeFlag {
+		hSize, vSize = 16, 16
+	}
+
+	return hSize, vSize
+}
+
+// 			1   2   3   4
+// ======---=---=---=---=
+// 0        4   4   4   4
+// 1       16  16   4   -
+// 2       16  16   -   -
+// 3      256  16   -   -
+// 4      256   4   -   -
+// 5       16   4   -   -
+// 6       16   -   -   -
+// 7      256   -   -   -
+// 7EXTBG 256 128   -   -
+// colorDepth returns the number of bits used for the colors in the background
+func (ppu *PPU) colorDepth(background uint8) uint8 {
+	switch ppu.backgroundData.screenMode {
+	case 0:
+		return 2
+	case 1:
+		switch background {
+		case 0, 1:
+			return 4
+		case 2:
+			return 2
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 2:
+		switch background {
+		case 0, 1:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 3, 4:
+		switch background {
+		case 0:
+			return 8
+		case 1:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 5:
+		switch background {
+		case 0:
+			return 4
+		case 1:
+			return 2
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 6:
+		switch background {
+		case 0:
+			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+	case 7:
+		switch background {
+		case 0:
+			return 8
+		}
+	}
+
+	panic(fmt.Sprintf("invalid mode requested: %d", ppu.backgroundData.screenMode))
+}
+
+//validBackgrounds are the backgrounds that can be used for the current screen mode
+func (ppu *PPU) validBackgrounds() []uint8 {
+	bgs := []uint8{0}
+	mode := ppu.backgroundData.screenMode
+	if mode < 6 {
+		bgs = append(bgs, 1)
+	}
+	if mode < 2 {
+		bgs = append(bgs, 2)
+	}
+	if mode == 0 {
+		bgs = append(bgs, 3)
+	}
+
+	return bgs
 }

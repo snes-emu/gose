@@ -26,7 +26,9 @@ func (s *Screen) SetPixelLine(line uint16, pixels []Pixel) {
 	if line < s.Height {
 		start := int(line * s.Width)
 		for i, pix := range pixels[:s.Width] {
-			s.Pixels[start+i] = pix
+			if pix.Visible {
+				s.Pixels[start+i] = pix
+			}
 		}
 	} else {
 		panic(fmt.Sprintf("Screen not big enough ! can't set pixels at line %d in screen having only %d lines", line, s.Height))

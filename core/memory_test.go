@@ -11,6 +11,7 @@ import (
 func TestSramRegionLorom(t *testing.T) {
 	mem := newMemory()
 	mem.romType = rom.LoROM
+	mem.sram = make([]uint8, 512*1024)
 	mem.initMmap()
 
 	for bank := 0x70; bank < 0x7E; bank++ {
@@ -24,6 +25,7 @@ func TestSramRegionLorom(t *testing.T) {
 func TestSramRegionHirom(t *testing.T) {
 	mem := newMemory()
 	mem.romType = rom.HiROM
+	mem.sram = make([]uint8, 512*1024)
 	mem.initMmap()
 
 	for bank := 0x20; bank < 0x3F; bank++ {
@@ -37,6 +39,7 @@ func TestSramRegionHirom(t *testing.T) {
 func TestSramGetSet(t *testing.T) {
 	mem := newMemory()
 	mem.romType = rom.LoROM
+	mem.sram = make([]uint8, 512*1024)
 	mem.initMmap()
 
 	value := uint8(0xDE)
@@ -117,7 +120,7 @@ func TestRomMappingHirom(t *testing.T) {
 	bytes := make([]byte, 3*1024*1024)
 	name := []byte("Test ROM             ")
 	for i, ch := range name {
-		bytes[0xFFCE+i] = ch
+		bytes[0xFFC0+i] = ch
 	}
 
 	value := uint8(0xFE)

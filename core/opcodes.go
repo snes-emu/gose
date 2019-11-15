@@ -1,8 +1,9 @@
 package core
 
 import (
-	"github.com/snes-emu/gose/log"
 	"os"
+
+	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/bit"
 )
@@ -1143,7 +1144,7 @@ func (cpu *CPU) opE8() {
 func (cpu *CPU) opC8() {
 	if cpu.xFlag {
 		result := cpu.getYLRegister() + 1
-		cpu.setXLRegister(result)
+		cpu.setYLRegister(result)
 		// Last bit value
 		cpu.nFlag = result&0x80 != 0
 		// Zero result flag

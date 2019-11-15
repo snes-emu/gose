@@ -1,9 +1,10 @@
 package core
 
 import (
+	"image/color"
+
 	"github.com/snes-emu/gose/bit"
 	"github.com/snes-emu/gose/render"
-	"image/color"
 )
 
 const cgramSize = 0x200
@@ -114,36 +115,43 @@ func (ppu *PPU) colorIndex(tileAddress, colorDepth, x, y uint16) uint8 {
 	return colorIndex
 }
 
-// tileSpriteRowColors returns the colors to use for a given tile's row
-// tileAddress is the tile address in the vram
+// tileRowColors returns the colors to use for a given tile's row
 // y is the row number inside the tile (from 0 to 7 included)
-// palette is the palette we should use
-func (ppu *PPU) tileSpriteRowColor(tileAddress, y uint16, palette uint8) [TILE_SIZE]render.BGR555 {
+func (ppu *PPU) tileRowColor(tile baseTile, y uint16) [TILE_SIZE]render.BGR555 {
 	colors := [TILE_SIZE]render.BGR555{}
 
 	for x := uint16(0); x < TILE_SIZE; x++ {
-		colors[x] = ppu.tileSpriteColor(tileAddress, x, y, palette)
+		colors[x] = ppu.tileColor(tile, x, y)
 	}
 
 	return colors
 }
 
-// tileSpriteColor returns the color to use for a given tile's pixel in the given sprite
+// tileColor returns the color to use for a given tile's pixel in the given sprite
 // tileAddress is the tile address in the vram
+// colorDepth is the number of bits used per color
 // x is the x position of the pixel inside the tile (from 0 to 7 included)
 // y is the y position of the pixel inside the tile (from 0 to 7 included)
 // palette is the palette we should use
-func (ppu *PPU) tileSpriteColor(tileAddress, x, y uint16, palette uint8) render.BGR555 {
-	// For sprites the color depth is always 4
-	idx := ppu.colorIndex(tileAddress, 4, x, y)
+func (ppu *PPU) tileColor(tile baseTile, x, y uint16) render.BGR555 {
+	idx := ppu.colorIndex(tile.addr, uint16(tile.colorDepth), x, y)
 
 	if idx == 0 {
 		return render.BGR555{Transparent: true}
 	}
 
 	// Sprite colors are stored in the CGRAM starting at palette 8
-	colorWordAddr := 2 * uint16(palette+idx)
+	colorWordAddr := 2 * uint16(tile.palette+idx)
 	return render.BGR555{
 		Color: bit.JoinUint16(ppu.cgram.bytes[colorWordAddr], ppu.cgram.bytes[colorWordAddr+1]),
 	}.ApplyBrightness(ppu.display.brightness)
+}
+
+func (ppu *PPU) backdropPixel() render.Pixel {
+	return render.Pixel{
+		Visible: true,
+		Color: render.BGR555{
+			Color: bit.JoinUint16(ppu.cgram.bytes[0], ppu.cgram.bytes[1]),
+		},
+	}
 }
