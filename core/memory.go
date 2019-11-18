@@ -218,7 +218,5 @@ func newHiromSramMapper() *sramMapper {
 }
 
 func (mem *Memory) ExportRam() []byte {
-	wram := make([]byte, wramSize)
-	copy(wram, mem.wram[:])
-	return wram
+	return mem.wram[:]
 }
