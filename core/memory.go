@@ -216,3 +216,9 @@ func newHiromSramMapper() *sramMapper {
 		offsetStart: 0x6000,
 	}
 }
+
+func (mem *Memory) ExportRam() []byte {
+	wram := make([]byte, wramSize)
+	copy(wram, mem.wram[:])
+	return wram
+}

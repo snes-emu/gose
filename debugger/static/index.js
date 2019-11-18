@@ -3,6 +3,7 @@ import { newCPU } from "./cpu.js";
 import { newSprites } from "./sprites.js";
 import { newRegister } from "./register.js";
 import { newTabManager } from "./tab_manager.js";
+import { newMemory } from "./memory.js";
 
 
 //tab management
@@ -10,6 +11,7 @@ const cpuTab = newCPU();
 const paletteTab = newPalette();
 const spritesTab = newSprites();
 const registerTab = newRegister();
+const memoryTab = newMemory();
 
 const tabManager = newTabManager();
 tabManager.setTabs([
@@ -28,6 +30,9 @@ tabManager.setTabs([
     {
         "name": "Registers",
         "component": registerTab,
+    },{
+        "name": "Memory",
+        "component": memoryTab,
     }
 ]);
 
@@ -75,6 +80,7 @@ function displayState(body) {
     cpuTab.addEntry(body.cpu);
     paletteTab.updatePalette(body.palette);
     spritesTab.updateSprites(body.sprites);
+    memoryTab.updateMemory(body.memory);
     if (body.register) {
         registerTab.addData(body.register);
     }

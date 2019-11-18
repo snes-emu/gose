@@ -145,6 +145,7 @@ func (db *Debugger) emulatorState() map[string]interface{} {
 	res := make(map[string]interface{})
 	res["palette"] = db.emu.PPU.Palette()
 	res["cpu"] = db.emu.CPU.Export()
+	res["memory"] = db.emu.Memory.ExportRam()
 
 	sprites := db.emu.PPU.Sprites()
 	// Will store base64 encoded sprite images
