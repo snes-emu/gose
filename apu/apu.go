@@ -3,6 +3,8 @@ package apu
 import (
 	"fmt"
 
+	"github.com/snes-emu/gose/bit"
+
 	"github.com/snes-emu/gose/log"
 
 	"github.com/snes-emu/gose/io"
@@ -60,7 +62,7 @@ func (apu *APU) stateInit(data uint8) {
 		}
 		apu.isReset = false
 	}
-	apu.addr = uint16(apu.IO3)<<8 | uint16(apu.IO2)
+	apu.addr = bit.JoinUint16(apu.IO2, apu.IO3)
 	apu.cmd = apu.IO1
 	if apu.cmd != 0 {
 		apu.state = stateTransfer
