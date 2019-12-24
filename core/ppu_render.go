@@ -24,7 +24,11 @@ func (ppu *PPU) renderLine() {
 	}
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
-		ppu.renderer.Render(ppu.screen)
+		var screen = ppu.screen
+		if ppu.display.forceBlank {
+			screen = ppu.blackScreen
+		}
+		ppu.renderer.Render(screen)
 		log.Debug("VBlank")
 		ppu.cpu.enterVblank()
 	}
