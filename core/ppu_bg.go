@@ -15,13 +15,13 @@ type backgroundData struct {
 	PPU2ScrollLatch uint8  // latch for background offset in PPU2
 	screenMode      uint8  // Screen mode from 0 to 7
 	mosaicSize      uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+	bg3Priority     bool   // Only used by BG3 in mode 1
 }
 
 // BG stores data about a background
 type bg struct {
 	tileSizeFlag     bool   // false 8x8 tiles, true 16x16 tiles
 	mosaic           bool   // mosaic mode enabled
-	priority         bool   // Only useful for BG3
 	screenSize       uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
 	tileMapBaseAddr  uint8  // base address for tile map in VRAM (in 1k word steps, 2k byte steps)
 	tileSetBaseAddr  uint8  // base address for tile set in VRAM (in 4k word steps, 8k byte steps)
@@ -40,7 +40,7 @@ type bg struct {
 // 2105h - BGMODE - BG Mode and BG Character Size (W)
 func (ppu *PPU) bgmode(data uint8) {
 	ppu.backgroundData.screenMode = data & 7
-	ppu.backgroundData.bg[2].priority = data&8 != 0
+	ppu.backgroundData.bg3Priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
 		ppu.backgroundData.bg[i].tileSizeFlag = data&(1<<(4+i)) != 0
 	}

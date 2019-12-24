@@ -35,6 +35,22 @@ func (ppu *PPU) renderLine() {
 	}
 }
 
+// Mode0    Mode1    Mode2    Mode3    Mode4    Mode5    Mode6    Mode7
+// -        BG3.1a   -        -        -        -        -        -
+// OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3
+// BG1.1    BG1.1    BG1.1    BG1.1    BG1.1    BG1.1    BG1.1    -
+// BG2.1    BG2.1    -        -        -        -        -        -
+// OBJ.2    OBJ.2    OBJ.2    OBJ.2    OBJ.2    OBJ.2    OBJ.2    OBJ.2
+// BG1.0    BG1.0    BG2.1    BG2.1    BG2.1    BG2.1    -        BG2.1p
+// BG2.0    BG2.0    -        -        -        -        -        -
+// OBJ.1    OBJ.1    OBJ.1    OBJ.1    OBJ.1    OBJ.1    OBJ.1    OBJ.1
+// BG3.1    BG3.1b   BG1.0    BG1.0    BG1.0    BG1.0    BG1.0    BG1
+// BG4.1    -        -        -        -        -        -        -
+// OBJ.0    OBJ.0    OBJ.0    OBJ.0    OBJ.0    OBJ.0    OBJ.0    OBJ.0
+// BG3.0    BG3.0a   BG2.0    BG2.0    BG2.0    BG2.0    -        BG2.0p
+// BG4.0    BG3.0b   -        -        -        -        -        -
+// Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop
+
 func (ppu *PPU) paintPixelLine() {
 	backdrop := ppu.backdropPixelLine()
 	sprites := ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter))
@@ -59,12 +75,11 @@ func (ppu *PPU) paintPixelLine() {
 		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
 
 	case 1:
-
-		//TODO screen priority
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
 		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
 		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		if !ppu.backgroundData.bg3Priority {
+			ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		}
 		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
 		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
 		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
@@ -72,7 +87,9 @@ func (ppu *PPU) paintPixelLine() {
 		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
 		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
 		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		if ppu.backgroundData.bg3Priority {
+			ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		}
 
 	case 2, 3, 4, 5:
 		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
