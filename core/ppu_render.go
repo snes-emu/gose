@@ -20,11 +20,7 @@ func (ppu *PPU) renderLine() {
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter < ppu.screen.Height {
-		ppu.screen.SetPixelLine(ppu.vCounter, ppu.backdropPixelLine())
-		ppu.screen.SetPixelLine(ppu.vCounter, ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter)))
-		//TODO handle background modes and display backgrounds accordingly
-		//We only display BG1 for now
-		ppu.screen.SetPixelLine(ppu.vCounter, ppu.backgroundToPixelLine(0))
+		ppu.paintPixelLine()
 	}
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
@@ -37,6 +33,77 @@ func (ppu *PPU) renderLine() {
 		log.Debug("End of VBlank")
 		ppu.cpu.leavVblank()
 	}
+}
+
+func (ppu *PPU) paintPixelLine() {
+	backdrop := ppu.backdropPixelLine()
+	sprites := ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter))
+	backgrounds := make([][]render.Pixel, 4)
+	for _, bg := range ppu.validBackgrounds() {
+		backgrounds[bg] = ppu.backgroundToPixelLine(bg)
+	}
+	ppu.screen.SetPixelLine(ppu.vCounter, 0, backdrop)
+	switch ppu.backgroundData.screenMode {
+	case 0:
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[3])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[3])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+
+	case 1:
+
+		//TODO screen priority
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+
+	case 2, 3, 4, 5:
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+
+	case 6:
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+
+	case 7:
+
+		//TODO per pixel priority
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
+		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
+		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+	}
+
 }
 
 // spritesToPixelLine takes the given sprites and outputs a row of pixels that intersects with the vCounter
