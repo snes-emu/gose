@@ -248,15 +248,33 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 		switch background {
 		case 0, 1:
 			return 4
+
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
-	case 3, 4:
+	case 3:
 		switch background {
 		case 0:
 			return 8
 		case 1:
 			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+
+	case 4:
+		switch background {
+		case 0:
+			return 8
+		case 1:
+			return 4
+
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
@@ -273,12 +291,15 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 		switch background {
 		case 0:
 			return 4
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
 	case 7:
 		switch background {
-		case 0:
+		case 0, 1:
 			return 8
 		}
 	}
@@ -290,10 +311,10 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 func (ppu *PPU) validBackgrounds() []uint8 {
 	bgs := []uint8{0}
 	mode := ppu.backgroundData.screenMode
-	if mode < 6 {
+	if mode != 6 {
 		bgs = append(bgs, 1)
 	}
-	if mode < 2 {
+	if mode <= 2 || mode == 4 || mode == 6 {
 		bgs = append(bgs, 2)
 	}
 	if mode == 0 {
