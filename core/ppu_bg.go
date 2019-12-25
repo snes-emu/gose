@@ -158,8 +158,13 @@ func (ppu *PPU) bg4vofs(data uint8) {
 
 // tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
 // See here: https://wiki.superfamicom.org/backgrounds
-func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
-	// TODO: verify that, not sure at all about this
+func (bg *bg) tileMapAddress(x uint16, y uint16, mode7 bool) uint16 {
+	if mode7 {
+		// bg is 128x128 in mode 7
+		x = x % 128
+		y = y % 128
+		return (x + y<<7) << 1
+	}
 
 	//in case of wrapping x and y can go beyond 64
 	x = x % 64
@@ -181,7 +186,8 @@ func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
 
 func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile {
 	bg := ppu.backgroundData.bg[background]
-	addr := bg.tileMapAddress(x, y)
+	mode7 := ppu.backgroundData.screenMode == 7
+	addr := bg.tileMapAddress(x, y, mode7)
 	// raw contains:
 	// vhopppcc cccccccc
 	// v/h        = Vertical/Horizontal flip this tile.
@@ -191,6 +197,23 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile 
 	// See: https://wiki.superfamicom.org/backgrounds
 	raw := bit.JoinUint16(ppu.vram.bytes[addr], ppu.vram.bytes[addr+1])
 
+	if mode7 {
+		return bgTile{
+			baseTile: baseTile{
+				palette: 0,
+				// Each tile takes 1<<7=128 bytes in memory
+				addr: (raw & 0xFF) << 7,
+				// 256 colors, i.e. the whole color palette
+				colorDepth: 8,
+				mode7:      true,
+			},
+
+			// tile size is always 8x8
+			hSize: 8,
+			vSize: 8,
+		}
+	}
+
 	hSize, vSize := bg.tileSize()
 	colorDepth := ppu.colorDepth(background)
 	tileNumber := raw & 0x3FF
@@ -199,7 +222,7 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile 
 		baseTile: baseTile{
 			palette:    uint8((raw >> 10) & 0x7),
 			addr:       uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
-			colorDepth: ppu.colorDepth(background),
+			colorDepth: colorDepth,
 		},
 		vFlip:    raw&0x8000 != 0,
 		hFlip:    raw&0x4000 != 0,
