@@ -72,6 +72,7 @@ func (db *Debugger) createServer(addr string) {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(box))
 	mux.HandleFunc("/resume", db.resume)
+	mux.HandleFunc("/pause", db.pause)
 	mux.HandleFunc("/step", db.step)
 	mux.HandleFunc("/breakpoint", db.breakpoint)
 
@@ -90,6 +91,11 @@ func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
 	} else {
 		db.sendState(w)
 	}
+}
+
+func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
+	db.emu.Pause()
+	db.sendState(w)
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {

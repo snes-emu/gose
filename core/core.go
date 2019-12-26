@@ -221,6 +221,14 @@ func (e *Emulator) Resume() {
 	log.Info("execution resumed")
 }
 
+// Pause the execution
+func (e *Emulator) Pause() {
+	if !e.IsPaused() {
+		// Set the emulator state to pause since we reached a breakpoint
+		e.state.Pause()
+	}
+}
+
 // IsPaused checks if the execution is paused
 func (e *Emulator) IsPaused() bool {
 	return e.state.Status() == paused
