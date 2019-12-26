@@ -1,5 +1,5 @@
 class Memory extends HTMLDivElement {
-    static tagName(){
+    static tagName() {
         return 'memory-div';
     }
 
@@ -23,10 +23,10 @@ class Memory extends HTMLDivElement {
         console.log(memory);
         let buffer = Uint8Array.from(atob(memory).split('').map(c => c.charCodeAt()));
         let text = "";
-        for (let i = 0; i < buffer.length/0x10; i++) {
-            text += `${toHex(i*0x10, 6)} `;
+        for (let i = 0; i < buffer.length / 0x10; i++) {
+            text += `${toHex(i * 0x10, 6)} `;
             for (let j = 0; j < 0x10; j++) {
-                text += ` ${toHex(buffer[i*0x10+j], 2)}`;
+                text += ` ${toHex(buffer[i * 0x10 + j], 2)}`;
             }
             text += "\n";
         }
@@ -40,11 +40,11 @@ function toHex(n, digitNumber) {
     for (let i = 0; i < digitNumber; i++) {
         padding += "0";
     }
-    return (padding+n.toString(16)).substr(-digitNumber)
+    return (padding + n.toString(16)).substr(-digitNumber)
 }
 
-customElements.define(Memory.tagName(), Memory, {extends: 'div'});
+customElements.define(Memory.tagName(), Memory, { extends: 'div' });
 
 export function newMemory() {
-    return document.createElement('div', {is: Memory.tagName()})
+    return document.createElement('div', { is: Memory.tagName() })
 }

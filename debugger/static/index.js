@@ -30,7 +30,7 @@ tabManager.setTabs([
     {
         "name": "Registers",
         "component": registerTab,
-    },{
+    }, {
         "name": "Memory",
         "component": memoryTab,
     }
@@ -40,37 +40,42 @@ const root = document.getElementById("root");
 root.appendChild(tabManager);
 
 const resumeButton = document.getElementById("resume_button");
-resumeButton.onclick = function() {
+resumeButton.onclick = function () {
     fetch('/resume').then(resp => resp.json()).then(displayState);
 }
 
+const pauseButton = document.getElementById("pause_button");
+pauseButton.onclick = function () {
+    fetch('/pause').then(resp => resp.json()).then(displayState);
+}
+
 const stepButton = document.getElementById("step_button");
-stepButton.onclick = function() {
+stepButton.onclick = function () {
     const count = document.getElementById("count");
-    fetch('/step?count='+count.value)
+    fetch('/step?count=' + count.value)
         .then(resp => resp.json())
         .then(displayState)
 }
 
 const breakpointButton = document.getElementById("breakpoint_button");
-breakpointButton.onclick = function() {
+breakpointButton.onclick = function () {
     const address = document.getElementById("breakpoint");
-    fetch('/breakpoint?address='+address.value);
+    fetch('/breakpoint?address=' + address.value);
 }
 const clearBreakpointButton = document.getElementById("clear_breakpoint_button");
-clearBreakpointButton.onclick = function() {
+clearBreakpointButton.onclick = function () {
     const address = document.getElementById("breakpoint");
     address.value = "";
     fetch('/breakpoint?clear=address');
 }
 
 const registerBreakpointButton = document.getElementById("register_breakpoint_button");
-registerBreakpointButton.onclick = function() {
+registerBreakpointButton.onclick = function () {
     const register = document.getElementById("register_breakpoint");
-    fetch('/breakpoint?registers='+register.value);
+    fetch('/breakpoint?registers=' + register.value);
 }
 const clearRegisterBreakpointButton = document.getElementById("clear_register_breakpoint_button");
-clearRegisterBreakpointButton.onclick = function() {
+clearRegisterBreakpointButton.onclick = function () {
     const register = document.getElementById("register_breakpoint");
     register.value = ""
     fetch('/breakpoint?clear=registers');

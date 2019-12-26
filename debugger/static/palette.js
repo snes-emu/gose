@@ -1,5 +1,5 @@
 class Palette extends HTMLTableElement {
-    static tagName(){
+    static tagName() {
         return 'palette-table';
     }
 
@@ -13,7 +13,7 @@ class Palette extends HTMLTableElement {
         this.body = document.createElement("tbody");
         this.appendChild(this.body);
 
-        for (let p = 0; p < this.paletteNum ; p++) {
+        for (let p = 0; p < this.paletteNum; p++) {
             const row = document.createElement("tr");
             this.body.appendChild(row);
             for (let c = 0; c < this.paletteSize; c++) {
@@ -23,15 +23,15 @@ class Palette extends HTMLTableElement {
     }
 
     updatePalette(palette) {
-        palette.forEach((color,i) => {
+        palette.forEach((color, i) => {
             const rgb = `rgb(${color.r >> 8},${color.g >> 8},${color.b >> 8})`;
-            this.body.children[Math.floor(i/this.paletteNum)].children[i%this.paletteSize].style = `background-color:${rgb}`;
+            this.body.children[Math.floor(i / this.paletteNum)].children[i % this.paletteSize].style = `background-color:${rgb}`;
         });
     }
 }
 
-customElements.define(Palette.tagName(), Palette, {extends: 'table'});
+customElements.define(Palette.tagName(), Palette, { extends: 'table' });
 
 export function newPalette() {
-    return document.createElement('table', {is: Palette.tagName()})
+    return document.createElement('table', { is: Palette.tagName() })
 }

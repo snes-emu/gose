@@ -1,26 +1,30 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="index.css">
-        <link rel="stylesheet" href="sakura.css" type="text/css">
-        <title>Gose debugger</title>
-    </head>
-    <body id="root">
-        <button id="resume_button">resume execution</button>
-        <div>
-            <input id=count value=1 >
-            <button id="step_button">step</button>
-        </div>
-        <div>
-            <input id=breakpoint>
-            <button id="breakpoint_button">set breakpoint</button>
-            <button id="clear_breakpoint_button">clear breakpoint</button>
-        </div>
-        <div>
-            <input id=register_breakpoint placeholder="inidisp, obsel">
-            <button id="register_breakpoint_button">set register breakpoints</button>
-            <button id="clear_register_breakpoint_button">clear register breakpoints</button>
-        </div>
-    </body>
 
-    <script src="index.js" type="module"></script>
+<head>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="sakura.css" type="text/css">
+    <title>Gose debugger</title>
+</head>
+
+<body id="root">
+    <button id="resume_button">resume execution</button>
+    <button id="pause_button">pause execution</button>
+    <div>
+        <input id=count value=1>
+        <button id="step_button">step</button>
+    </div>
+    <div>
+        <input id=breakpoint>
+        <button id="breakpoint_button">set breakpoint</button>
+        <button id="clear_breakpoint_button">clear breakpoint</button>
+    </div>
+    <div>
+        <input id=register_breakpoint placeholder="inidisp, obsel">
+        <button id="register_breakpoint_button">set register breakpoints</button>
+        <button id="clear_register_breakpoint_button">clear register breakpoints</button>
+    </div>
+</body>
+
+<script src="index.js" type="module"></script>
+
 </html>

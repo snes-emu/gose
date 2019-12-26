@@ -26,7 +26,7 @@ class TabManager extends HTMLDivElement {
 
     setTabs(tabs) {
         this.tabs = {};
-        tabs.forEach(({name, component}, index) => {
+        tabs.forEach(({ name, component }, index) => {
             const input = document.createElement('input');
             const id = `${name}_choice`
             input.type = 'radio';
@@ -52,8 +52,8 @@ class TabManager extends HTMLDivElement {
     }
 }
 
-customElements.define(TabManager.tagName(), TabManager, {extends: 'div'});
+customElements.define(TabManager.tagName(), TabManager, { extends: 'div' });
 
 export function newTabManager() {
-    return document.createElement('div', {is: TabManager.tagName()})
+    return document.createElement('div', { is: TabManager.tagName() })
 }
