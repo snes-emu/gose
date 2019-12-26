@@ -220,8 +220,8 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile 
 
 	return bgTile{
 		baseTile: baseTile{
-			palette:    uint8((raw >> 10) & 0x7),
 			addr:       uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
+			palette:    uint8((raw>>10)&0x7) << colorDepth,
 			colorDepth: colorDepth,
 		},
 		vFlip:    raw&0x8000 != 0,
