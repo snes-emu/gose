@@ -15,13 +15,13 @@ type backgroundData struct {
 	PPU2ScrollLatch uint8  // latch for background offset in PPU2
 	screenMode      uint8  // Screen mode from 0 to 7
 	mosaicSize      uint8  // Size of block in mosaic mode (0=Smallest/1x1, 0xF=Largest/16x16)
+	bg3Priority     bool   // Only used by BG3 in mode 1
 }
 
 // BG stores data about a background
 type bg struct {
 	tileSizeFlag     bool   // false 8x8 tiles, true 16x16 tiles
 	mosaic           bool   // mosaic mode enabled
-	priority         bool   // Only useful for BG3
 	screenSize       uint8  // 0=32x32, 1=64x32, 2=32x64, 3=64x64 tiles
 	tileMapBaseAddr  uint8  // base address for tile map in VRAM (in 1k word steps, 2k byte steps)
 	tileSetBaseAddr  uint8  // base address for tile set in VRAM (in 4k word steps, 8k byte steps)
@@ -40,7 +40,7 @@ type bg struct {
 // 2105h - BGMODE - BG Mode and BG Character Size (W)
 func (ppu *PPU) bgmode(data uint8) {
 	ppu.backgroundData.screenMode = data & 7
-	ppu.backgroundData.bg[2].priority = data&8 != 0
+	ppu.backgroundData.bg3Priority = data&8 != 0
 	for i := uint8(0); i < 4; i++ {
 		ppu.backgroundData.bg[i].tileSizeFlag = data&(1<<(4+i)) != 0
 	}
@@ -158,8 +158,13 @@ func (ppu *PPU) bg4vofs(data uint8) {
 
 // tileMapAddress returns the byte address in the VRAM of the tile we are looking for in the tilemap
 // See here: https://wiki.superfamicom.org/backgrounds
-func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
-	// TODO: verify that, not sure at all about this
+func (bg *bg) tileMapAddress(x uint16, y uint16, mode7 bool) uint16 {
+	if mode7 {
+		// bg is 128x128 in mode 7
+		x = x % 128
+		y = y % 128
+		return (x + y<<7) << 1
+	}
 
 	//in case of wrapping x and y can go beyond 64
 	x = x % 64
@@ -181,7 +186,8 @@ func (bg *bg) tileMapAddress(x uint16, y uint16) uint16 {
 
 func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile {
 	bg := ppu.backgroundData.bg[background]
-	addr := bg.tileMapAddress(x, y)
+	mode7 := ppu.backgroundData.screenMode == 7
+	addr := bg.tileMapAddress(x, y, mode7)
 	// raw contains:
 	// vhopppcc cccccccc
 	// v/h        = Vertical/Horizontal flip this tile.
@@ -191,15 +197,32 @@ func (ppu *PPU) tileFromBackground(background uint8, x uint16, y uint16) bgTile 
 	// See: https://wiki.superfamicom.org/backgrounds
 	raw := bit.JoinUint16(ppu.vram.bytes[addr], ppu.vram.bytes[addr+1])
 
+	if mode7 {
+		return bgTile{
+			baseTile: baseTile{
+				palette: 0,
+				// Each tile takes 1<<7=128 bytes in memory
+				addr: (raw & 0xFF) << 7,
+				// 256 colors, i.e. the whole color palette
+				colorDepth: 8,
+				mode7:      true,
+			},
+
+			// tile size is always 8x8
+			hSize: 8,
+			vSize: 8,
+		}
+	}
+
 	hSize, vSize := bg.tileSize()
 	colorDepth := ppu.colorDepth(background)
 	tileNumber := raw & 0x3FF
 
 	return bgTile{
 		baseTile: baseTile{
-			palette:    uint8((raw >> 10) & 0x7),
 			addr:       uint16(bg.tileSetBaseAddr)<<13 + uint16(tileNumber)*baseTileSize(colorDepth),
-			colorDepth: ppu.colorDepth(background),
+			palette:    uint8((raw>>10)&0x7) << colorDepth,
+			colorDepth: colorDepth,
 		},
 		vFlip:    raw&0x8000 != 0,
 		hFlip:    raw&0x4000 != 0,
@@ -248,15 +271,33 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 		switch background {
 		case 0, 1:
 			return 4
+
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
-	case 3, 4:
+	case 3:
 		switch background {
 		case 0:
 			return 8
 		case 1:
 			return 4
+		default:
+			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
+		}
+
+	case 4:
+		switch background {
+		case 0:
+			return 8
+		case 1:
+			return 4
+
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
@@ -273,12 +314,15 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 		switch background {
 		case 0:
 			return 4
+		//TODO offset per tile
+		case 2:
+			return 2
 		default:
 			panic(fmt.Sprintf(panicString, ppu.backgroundData.screenMode, background+1))
 		}
 	case 7:
 		switch background {
-		case 0:
+		case 0, 1:
 			return 8
 		}
 	}
@@ -290,10 +334,10 @@ func (ppu *PPU) colorDepth(background uint8) uint8 {
 func (ppu *PPU) validBackgrounds() []uint8 {
 	bgs := []uint8{0}
 	mode := ppu.backgroundData.screenMode
-	if mode < 6 {
+	if mode != 6 {
 		bgs = append(bgs, 1)
 	}
-	if mode < 2 {
+	if mode <= 2 || mode == 4 || mode == 6 {
 		bgs = append(bgs, 2)
 	}
 	if mode == 0 {

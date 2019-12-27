@@ -9,8 +9,9 @@ type baseTile struct {
 	// index of the color palette to use.
 	// for background tiles, the number of entries in the palette depends on the mode and the background)
 	// there are 16 available color palettes, but only 8 available to sprites
-	palette    uint8
+	palette    uint8 // index of the first color of the palette in cgram
 	colorDepth uint8 // number of bits used to addres the colors
+	mode7      bool  // whether this tile is part of a mode7 background
 }
 
 //baseTileSize returns the size of a base tile in bytes depending on its color depth
@@ -34,6 +35,7 @@ func (bgt *bgTile) tileAt(xTile, yTile uint16) baseTile {
 		addr:       bgt.addr + (xTile+(yTile<<4))*baseTileSize(bgt.colorDepth),
 		colorDepth: bgt.colorDepth,
 		palette:    bgt.palette,
+		mode7:      bgt.mode7,
 	}
 }
 

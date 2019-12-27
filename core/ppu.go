@@ -34,9 +34,10 @@ type PPU struct {
 	hCounter uint16
 	vCounter uint16
 
-	cpu      *CPU
-	renderer render.Renderer
-	screen   *render.Screen
+	cpu         *CPU
+	renderer    render.Renderer
+	screen      *render.Screen
+	blackScreen *render.Screen
 }
 
 // New initializes a PPU struct and returns it
@@ -45,6 +46,7 @@ func newPPU(renderer render.Renderer, rf *io.RegisterFactory) *PPU {
 	ppu.renderer = renderer
 	// TODO: fix dimensions
 	ppu.screen = render.NewScreen(WIDTH, HEIGHT)
+	ppu.blackScreen = render.NewScreen(WIDTH, HEIGHT)
 	ppu.vram = &vram{}
 	ppu.oam = &oam{}
 	ppu.cgram = &cgram{}

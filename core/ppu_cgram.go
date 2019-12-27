@@ -134,16 +134,20 @@ func (ppu *PPU) tileRowColor(tile baseTile, y uint16) [TILE_SIZE]render.BGR555 {
 // y is the y position of the pixel inside the tile (from 0 to 7 included)
 // palette is the palette we should use
 func (ppu *PPU) tileColor(tile baseTile, x, y uint16) render.BGR555 {
-	idx := ppu.colorIndex(tile.addr, uint16(tile.colorDepth), x, y)
+	var idx uint8
+	if tile.mode7 {
+		idx = ppu.vram.bytes[tile.addr+y<<4+x<<1+1]
+	} else {
+		idx = ppu.colorIndex(tile.addr, uint16(tile.colorDepth), x, y)
+	}
 
 	if idx == 0 {
 		return render.BGR555{Transparent: true}
 	}
 
-	// Sprite colors are stored in the CGRAM starting at palette 8
-	colorWordAddr := 2 * uint16(tile.palette+idx)
+	colorByteAddr := 2 * uint16(tile.palette+idx)
 	return render.BGR555{
-		Color: bit.JoinUint16(ppu.cgram.bytes[colorWordAddr], ppu.cgram.bytes[colorWordAddr+1]),
+		Color: bit.JoinUint16(ppu.cgram.bytes[colorByteAddr], ppu.cgram.bytes[colorByteAddr+1]),
 	}.ApplyBrightness(ppu.display.brightness)
 }
 
