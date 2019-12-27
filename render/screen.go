@@ -22,11 +22,11 @@ func NewScreen(width, height uint16) *Screen {
 	}
 }
 
-func (s *Screen) SetPixelLine(line uint16, priority uint8, pixels []Pixel) {
+func (s *Screen) SetPixelLine(line uint16, pixels []Pixel) {
 	if line < s.Height {
 		start := int(line * s.Width)
 		for i, pix := range pixels[:s.Width] {
-			if pix.Visible && pix.Priority == priority {
+			if pix.Visible {
 				s.Pixels[start+i] = pix
 			}
 		}

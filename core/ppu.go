@@ -36,6 +36,8 @@ type PPU struct {
 
 	cpu         *CPU
 	renderer    render.Renderer
+	mainScreen  []render.Pixel
+	subScreen   []render.Pixel
 	screen      *render.Screen
 	blackScreen *render.Screen
 }
@@ -45,6 +47,8 @@ func newPPU(renderer render.Renderer, rf *io.RegisterFactory) *PPU {
 	ppu := &PPU{}
 	ppu.renderer = renderer
 	// TODO: fix dimensions
+	ppu.mainScreen = make([]render.Pixel, WIDTH)
+	ppu.subScreen = make([]render.Pixel, WIDTH)
 	ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	ppu.blackScreen = render.NewScreen(WIDTH, HEIGHT)
 	ppu.vram = &vram{}
