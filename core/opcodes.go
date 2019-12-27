@@ -1897,7 +1897,7 @@ func (cpu *CPU) stz8(addr uint32) {
 
 // stz stores 0 in the memory taking care of the 16bit/8bit cases
 func (cpu *CPU) stz(laddr, haddr uint32) {
-	if cpu.xFlag {
+	if cpu.mFlag {
 		cpu.stz8(laddr)
 	} else {
 		cpu.stz16(laddr, haddr)
