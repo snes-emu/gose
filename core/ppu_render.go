@@ -24,7 +24,7 @@ func (ppu *PPU) renderLine() {
 	}
 
 	if ppu.vCounter == ppu.VDisplay()+1 {
-		var screen = ppu.screen
+		screen := ppu.screen
 		if ppu.display.forceBlank {
 			screen = ppu.blackScreen
 		}
