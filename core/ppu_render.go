@@ -243,7 +243,11 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 	// Initialize pixel line
 	pixels := make([]render.Pixel, WIDTH)
 
-	for _, sprite := range sprites {
+	if ppu.oam.priorityBit {
+		log.Error("sprite priority rotation not implemented")
+	}
+	for i := len(sprites) - 1; i >= 0; i-- {
+		sprite := sprites[i]
 		// Y coordinate of the tile containing the line
 		yTile := (ppu.vCounter - sprite.y) / TILE_SIZE
 		if sprite.vFlip {
