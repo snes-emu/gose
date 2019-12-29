@@ -302,7 +302,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 	yBaseTile := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize) / TILE_SIZE
 
 	//Y coordinate of the line inside the base tile
-	yBase := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize - yBaseTile*TILE_SIZE)
+	yBase := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize) % TILE_SIZE
 
 	//go through the background tiles
 	hStart := bg.horizontalScroll
@@ -314,7 +314,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 		yTile := yBaseTile
 		y := yBase
 		if bgTile.vFlip {
-			yTile = vTileSize - yTile - 1
+			yTile = vTileSize/TILE_SIZE - yTile - 1
 			y = TILE_SIZE - y - 1
 		}
 
