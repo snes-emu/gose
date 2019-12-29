@@ -3472,7 +3472,7 @@ func (cpu *CPU) op9A() {
 }
 
 func (cpu *CPU) txy() {
-	if cpu.eFlag {
+	if cpu.xFlag {
 		result := cpu.getXLRegister()
 		cpu.setYLRegister(result)
 		cpu.nFlag = result&0x80 != 0
@@ -3491,7 +3491,7 @@ func (cpu *CPU) op9B() {
 }
 
 func (cpu *CPU) tya() {
-	if cpu.eFlag {
+	if cpu.mFlag {
 		result := cpu.getYLRegister()
 		cpu.setARegister(result)
 		cpu.nFlag = result&0x80 != 0
@@ -3510,7 +3510,7 @@ func (cpu *CPU) op98() {
 }
 
 func (cpu *CPU) tyx() {
-	if cpu.eFlag {
+	if cpu.xFlag {
 		result := cpu.getYLRegister()
 		cpu.setXLRegister(result)
 		cpu.nFlag = result&0x80 != 0
