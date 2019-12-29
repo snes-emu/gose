@@ -131,3 +131,7 @@ func newPPU(renderer render.Renderer, rf *io.RegisterFactory) *PPU {
 	ppu.Registers[0x3F] = rf.NewRegister(ppu.stat78, nil, "STAT78")
 	return ppu
 }
+
+func (ppu *PPU) ExportVRam() []byte {
+	return ppu.vram.bytes[:]
+}

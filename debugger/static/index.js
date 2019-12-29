@@ -85,7 +85,8 @@ function displayState(body) {
     cpuTab.addEntry(body.cpu);
     paletteTab.updatePalette(body.palette);
     spritesTab.updateSprites(body.sprites);
-    memoryTab.updateMemory(body.memory);
+    memoryTab.updateRam(body.ram);
+    memoryTab.updateVRam(body.vram);
     if (body.register) {
         registerTab.addData(body.register);
     }

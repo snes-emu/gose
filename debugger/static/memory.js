@@ -7,20 +7,19 @@ class Memory extends HTMLDivElement {
         super();
 
         this.id = "memory";
-        this.content = document.createElement("pre");
-        this.appendChild(this.content);
 
-        this.content.style.height = "500px";
-        this.content.style.overflow_y = "scroll";
+        this.ram = document.createElement("pre");
+        this.appendChild(this.ram);
+        this.ram.style.height = "500px";
+        this.ram.style.overflow_y = "scroll";
+
+        this.vram = document.createElement("pre");
+        this.appendChild(this.vram);
+        this.vram.style.height = "500px";
+        this.vram.style.overflow_y = "scroll";
     }
 
-    clear() {
-        this.content.innerText = "";
-    }
-
-    updateMemory(memory) {
-        this.clear();
-        console.log(memory);
+    updateRam(memory) {
         let buffer = Uint8Array.from(atob(memory).split('').map(c => c.charCodeAt()));
         let text = "";
         for (let i = 0; i < buffer.length / 0x10; i++) {
@@ -30,7 +29,20 @@ class Memory extends HTMLDivElement {
             }
             text += "\n";
         }
-        this.content.innerText = text;
+        this.ram.innerText = text;
+    }
+
+    updateVRam(vram) {
+        let buffer = Uint8Array.from(atob(vram).split('').map(c => c.charCodeAt()));
+        let text = "";
+        for (let i = 0; i < buffer.length / 0x10; i++) {
+            text += `${toHex(i * 0x10, 4)} `;
+            for (let j = 0; j < 0x10; j++) {
+                text += ` ${toHex(buffer[i * 0x10 + j], 2)}`;
+            }
+            text += "\n";
+        }
+        this.vram.innerText = text;
     }
 }
 
