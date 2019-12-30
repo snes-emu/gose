@@ -45,7 +45,6 @@ func (ppu *PPU) tm(data uint8) {
 func (ppu *PPU) ts(data uint8) {
 	for i := uint8(0); i < 4; i++ {
 		ppu.backgroundData.bg[i].subScreen = data&(1<<i) != 0
-		data = data >> 1
 	}
 	ppu.oam.subScreen = data&0x10 != 0
 }
