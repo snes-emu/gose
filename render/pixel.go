@@ -76,3 +76,50 @@ func bgr555ModelFunc(c color.Color) color.Color {
 		Transparent: false,
 	}
 }
+
+//Add 2 colors, channel by channel without wrapping
+func (c1 BGR555) Add(c2 BGR555) BGR555 {
+	r := (c1.Color&0x1F + c2.Color&0x1F)
+	g := (c1.Color>>5)&0x1F + (c2.Color>>5)&0x1F
+	b := (c1.Color>>10)&0x1F + (c2.Color>>10)&0x1F
+	if r > 0x1F {
+		r = 0x1F
+	}
+	if g > 0x1F {
+		g = 0x1F
+	}
+	if b > 0x1F {
+		b = 0x1F
+	}
+
+	return BGR555{
+		Color: r | g<<5 | b<<10,
+	}
+
+}
+
+//Substract 2 colors, channel by channel without wrapping
+func (c1 BGR555) Sub(c2 BGR555) BGR555 {
+	r := (c1.Color&0x1F - c2.Color&0x1F)
+	g := (c1.Color>>5)&0x1F - (c2.Color>>5)&0x1F
+	b := (c1.Color>>10)&0x1F - (c2.Color>>10)&0x1F
+	if r > 0x1F {
+		r = 0
+	}
+	if g > 0x1F {
+		g = 0
+	}
+	if b > 0x1F {
+		b = 0
+	}
+
+	return BGR555{
+		Color: r | g<<5 | b<<10,
+	}
+}
+
+func (c BGR555) Halve() BGR555 {
+	return BGR555{
+		Color: c.Color >> 1,
+	}
+}

@@ -64,12 +64,12 @@ func (ppu *PPU) coldata(data uint8) {
 func (ppu *PPU) applyColorMath(base []render.Pixel) {
 	for i := range base {
 		if ppu.colorMath.opSign == 1 {
-			base[i].Color.Color = base[i].Color.Color + ppu.subScreen[i].Color.Color
+			base[i].Color = base[i].Color.Add(ppu.subScreen[i].Color)
 		} else {
-			base[i].Color.Color = base[i].Color.Color + ppu.subScreen[i].Color.Color
+			base[i].Color = base[i].Color.Sub(ppu.subScreen[i].Color)
 		}
 		if ppu.colorMath.div2 {
-			base[i].Color.Color /= 2
+			base[i].Color = base[i].Color.Halve()
 		}
 	}
 }
