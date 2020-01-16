@@ -39,6 +39,38 @@ func (ppu *PPU) renderLine() {
 	}
 }
 
+func compositLayers(base []render.Pixel, top []render.Pixel, priority uint8) {
+	for i, pix := range top[:len(base)] {
+		if pix.Visible && pix.Priority == priority {
+			base[i] = pix
+		}
+	}
+}
+
+func (ppu *PPU) paintMainScreen(priority uint8, layer []render.Pixel, bg uint8) {
+	var paintMain bool
+	if bg < 4 {
+		paintMain = ppu.backgroundData.bg[bg].mainScreen
+	} else {
+		paintMain = ppu.oam.mainScreen
+	}
+	if paintMain {
+		compositLayers(ppu.mainScreen, layer, priority)
+	}
+}
+
+func (ppu *PPU) paintSubScreen(priority uint8, layer []render.Pixel, bg uint8) {
+	var paintSub bool
+	if bg < 4 {
+		paintSub = ppu.backgroundData.bg[bg].subScreen
+	} else {
+		paintSub = ppu.oam.subScreen
+	}
+	if paintSub {
+		compositLayers(ppu.subScreen, layer, priority)
+	}
+}
+
 // Mode0    Mode1    Mode2    Mode3    Mode4    Mode5    Mode6    Mode7
 // -        BG3.1a   -        -        -        -        -        -
 // OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3    OBJ.3
@@ -56,75 +88,151 @@ func (ppu *PPU) renderLine() {
 // Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop Backdrop
 
 func (ppu *PPU) paintPixelLine() {
-	backdrop := ppu.backdropPixelLine()
+	ppu.backdropPixelLine()
 	sprites := ppu.spritesToPixelLine(ppu.oam.intersectingSprites(ppu.vCounter))
+	vbg := ppu.validBackgrounds()
 	backgrounds := make([][]render.Pixel, 4)
-	for _, bg := range ppu.validBackgrounds() {
+	for _, bg := range vbg {
 		backgrounds[bg] = ppu.backgroundToPixelLine(bg)
 	}
-	ppu.screen.SetPixelLine(ppu.vCounter, 0, backdrop)
+
 	switch ppu.backgroundData.screenMode {
 	case 0:
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[3])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[3])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.paintSubScreen(0, backgrounds[3], 3)
+		ppu.paintSubScreen(0, backgrounds[2], 2)
+		ppu.paintSubScreen(0, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[3], 3)
+		ppu.paintSubScreen(1, backgrounds[2], 2)
+		ppu.paintSubScreen(1, sprites, 4)
+		ppu.paintSubScreen(0, backgrounds[1], 1)
+		ppu.paintSubScreen(0, backgrounds[0], 0)
+		ppu.paintSubScreen(2, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[1], 1)
+		ppu.paintSubScreen(1, backgrounds[0], 0)
+		ppu.paintSubScreen(3, sprites, 4)
 
 	case 1:
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[2])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
+		ppu.paintSubScreen(0, backgrounds[2], 2)
+		ppu.paintSubScreen(0, sprites, 4)
 		if !ppu.backgroundData.bg3Priority {
-			ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+			ppu.paintSubScreen(1, backgrounds[2], 2)
 		}
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.paintSubScreen(1, sprites, 4)
+		ppu.paintSubScreen(0, backgrounds[1], 1)
+		ppu.paintSubScreen(0, backgrounds[0], 0)
+		ppu.paintSubScreen(2, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[1], 1)
+		ppu.paintSubScreen(1, backgrounds[0], 0)
+		ppu.paintSubScreen(3, sprites, 4)
 		if ppu.backgroundData.bg3Priority {
-			ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[2])
+			ppu.paintSubScreen(1, backgrounds[2], 2)
 		}
 
 	case 2, 3, 4, 5:
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.paintSubScreen(0, backgrounds[1], 0)
+		ppu.paintSubScreen(0, sprites, 4)
+		ppu.paintSubScreen(0, backgrounds[0], 0)
+		ppu.paintSubScreen(1, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[1], 1)
+		ppu.paintSubScreen(2, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[0], 0)
+		ppu.paintSubScreen(3, sprites, 4)
 
 	case 6:
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.paintSubScreen(0, sprites, 4)
+		ppu.paintSubScreen(0, backgrounds[0], 0)
+		ppu.paintSubScreen(1, sprites, 4)
+		ppu.paintSubScreen(2, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[0], 0)
+		ppu.paintSubScreen(3, sprites, 4)
 
 	case 7:
 
 		//TODO per pixel priority
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 0, backgrounds[0])
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 1, backgrounds[1])
-		ppu.screen.SetPixelLine(ppu.vCounter, 2, sprites)
-		ppu.screen.SetPixelLine(ppu.vCounter, 3, sprites)
+		ppu.paintSubScreen(0, backgrounds[1], 1)
+		ppu.paintSubScreen(0, sprites, 4)
+		ppu.paintSubScreen(0, backgrounds[0], 0)
+		ppu.paintSubScreen(1, sprites, 4)
+		ppu.paintSubScreen(1, backgrounds[1], 1)
+		ppu.paintSubScreen(2, sprites, 4)
+		ppu.paintSubScreen(3, sprites, 4)
 	}
 
+	if ppu.colorMath.backdrop {
+		ppu.applyColorMath(ppu.mainScreen)
+	}
+	if ppu.colorMath.obj {
+		ppu.applyColorMath(sprites)
+	}
+	for _, bg := range vbg {
+		if ppu.backgroundData.bg[bg].colorMath {
+			ppu.applyColorMath(backgrounds[bg])
+		}
+	}
+
+	switch ppu.backgroundData.screenMode {
+	case 0:
+		ppu.paintMainScreen(0, backgrounds[3], 3)
+		ppu.paintMainScreen(0, backgrounds[2], 2)
+		ppu.paintMainScreen(0, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[3], 3)
+		ppu.paintMainScreen(1, backgrounds[2], 2)
+		ppu.paintMainScreen(1, sprites, 4)
+		ppu.paintMainScreen(0, backgrounds[1], 1)
+		ppu.paintMainScreen(0, backgrounds[0], 0)
+		ppu.paintMainScreen(2, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[1], 1)
+		ppu.paintMainScreen(1, backgrounds[0], 0)
+		ppu.paintMainScreen(3, sprites, 4)
+
+	case 1:
+		ppu.paintMainScreen(0, backgrounds[2], 2)
+		ppu.paintMainScreen(0, sprites, 4)
+		if !ppu.backgroundData.bg3Priority {
+			ppu.paintMainScreen(1, backgrounds[2], 2)
+		}
+		ppu.paintMainScreen(1, sprites, 4)
+		ppu.paintMainScreen(0, backgrounds[1], 1)
+		ppu.paintMainScreen(0, backgrounds[0], 0)
+		ppu.paintMainScreen(2, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[1], 1)
+		ppu.paintMainScreen(1, backgrounds[0], 0)
+		ppu.paintMainScreen(3, sprites, 4)
+		if ppu.backgroundData.bg3Priority {
+			ppu.paintMainScreen(1, backgrounds[2], 2)
+		}
+
+	case 2, 3, 4, 5:
+		ppu.paintMainScreen(0, backgrounds[1], 0)
+		ppu.paintMainScreen(0, sprites, 4)
+		ppu.paintMainScreen(0, backgrounds[0], 0)
+		ppu.paintMainScreen(1, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[1], 1)
+		ppu.paintMainScreen(2, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[0], 0)
+		ppu.paintMainScreen(3, sprites, 4)
+
+	case 6:
+		ppu.paintMainScreen(0, sprites, 4)
+		ppu.paintMainScreen(0, backgrounds[0], 0)
+		ppu.paintMainScreen(1, sprites, 4)
+		ppu.paintMainScreen(2, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[0], 0)
+		ppu.paintMainScreen(3, sprites, 4)
+
+	case 7:
+
+		//TODO per pixel priority
+		ppu.paintMainScreen(0, backgrounds[1], 1)
+		ppu.paintMainScreen(0, sprites, 4)
+		ppu.paintMainScreen(0, backgrounds[0], 0)
+		ppu.paintMainScreen(1, sprites, 4)
+		ppu.paintMainScreen(1, backgrounds[1], 1)
+		ppu.paintMainScreen(2, sprites, 4)
+		ppu.paintMainScreen(3, sprites, 4)
+	}
+
+	ppu.screen.SetPixelLine(ppu.vCounter, ppu.mainScreen)
 }
 
 // spritesToPixelLine takes the given sprites and outputs a row of pixels that intersects with the vCounter
@@ -135,7 +243,11 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 	// Initialize pixel line
 	pixels := make([]render.Pixel, WIDTH)
 
-	for _, sprite := range sprites {
+	if ppu.oam.priorityBit {
+		log.Error("sprite priority rotation not implemented")
+	}
+	for i := len(sprites) - 1; i >= 0; i-- {
+		sprite := sprites[i]
 		// Y coordinate of the tile containing the line
 		yTile := (ppu.vCounter - sprite.y) / TILE_SIZE
 		if sprite.vFlip {
@@ -190,7 +302,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 	yBaseTile := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize) / TILE_SIZE
 
 	//Y coordinate of the line inside the base tile
-	yBase := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize - yBaseTile*TILE_SIZE)
+	yBase := (ppu.vCounter + bg.verticalScroll - yBgTile*vTileSize) % TILE_SIZE
 
 	//go through the background tiles
 	hStart := bg.horizontalScroll
@@ -202,7 +314,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 		yTile := yBaseTile
 		y := yBase
 		if bgTile.vFlip {
-			yTile = vTileSize - yTile - 1
+			yTile = vTileSize/TILE_SIZE - yTile - 1
 			y = TILE_SIZE - y - 1
 		}
 
@@ -235,14 +347,13 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 	return pixels
 }
 
-func (ppu *PPU) backdropPixelLine() []render.Pixel {
-	pixels := make([]render.Pixel, WIDTH)
+func (ppu *PPU) backdropPixelLine() {
 	backdropPixel := ppu.backdropPixel()
-	for i := range pixels {
-		pixels[i] = backdropPixel
+	for i := range ppu.mainScreen {
+		ppu.mainScreen[i] = backdropPixel
+		ppu.subScreen[i] = backdropPixel
 	}
 
-	return pixels
 }
 
 func (ppu *PPU) spriteToImage(sprite sprite) image.Image {

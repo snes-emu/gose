@@ -1,5 +1,7 @@
 package core
 
+import "github.com/snes-emu/gose/render"
+
 type colorMath struct {
 	mainScreenBlack uint8 // Force main screen black (possible values: (3=Always, 2=MathWindow, 1=NotMathWin, 0=Never))
 	enable          uint8 // Global color math enable (possible values: (0=Always, 1=MathWindow, 2=NotMathWin, 3=Never))
@@ -56,5 +58,18 @@ func (ppu *PPU) coldata(data uint8) {
 	}
 	if (data & 0x20) != 0 {
 		ppu.colorMath.red = intensity
+	}
+}
+
+func (ppu *PPU) applyColorMath(base []render.Pixel) {
+	for i := range base {
+		if ppu.colorMath.opSign == 1 {
+			base[i].Color = base[i].Color.Add(ppu.subScreen[i].Color)
+		} else {
+			base[i].Color = base[i].Color.Sub(ppu.subScreen[i].Color)
+		}
+		if ppu.colorMath.div2 {
+			base[i].Color = base[i].Color.Halve()
+		}
 	}
 }

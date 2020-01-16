@@ -116,10 +116,10 @@ func (o *oam) allSprites() []sprite {
 func (o *oam) intersectingSprites(vCounter uint16) []sprite {
 	sprites := make([]sprite, 0, 128)
 
-	for i := 0; i < 128; i++ {
-		s := o.sprite(uint16(i))
+	for i := uint16(0); i < 128; i++ {
+		s := o.sprite(i)
 		if s.IntersectsLine(vCounter) {
-			sprites = append(sprites, o.sprite(uint16(i)))
+			sprites = append(sprites, o.sprite(i))
 		}
 	}
 

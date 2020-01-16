@@ -99,7 +99,7 @@ func (ppu *PPU) rdvramh() uint8 {
 
 func (vr *vram) prefetchWord() {
 	newAddr := vr.getAddr()
-	vr.prefetch = bit.JoinUint16(vr.bytes[2*newAddr+1], vr.bytes[2*newAddr])
+	vr.prefetch = bit.JoinUint16(vr.bytes[2*newAddr], vr.bytes[2*newAddr+1])
 }
 
 func (vr *vram) prefetchAndIncrAddr() {
