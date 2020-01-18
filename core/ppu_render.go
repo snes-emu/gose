@@ -17,6 +17,10 @@ func (ppu *PPU) renderLine() {
 		ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	}
 
+	if ppu.cpu.ioMemory.vBlankNMIFlag {
+		ppu.cpu.doHDMA()
+	}
+
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter < ppu.screen.Height {
