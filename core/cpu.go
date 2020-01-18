@@ -33,9 +33,10 @@ type CPU struct {
 	opcodes [256]cpuOperation
 	// CPU io registers
 	// 0x4000 - 0x437F with 0x4000 - 0x4015, 0x4018 - 0x41FF, 0x420E - 0x420F, 0x4220- 0X42FF and 0x43xC being unused
-	ioRegisters [0x380]*io.Register
-	ioMemory    *ioMemory      // Memory used by the io registers
-	dmaChannels [8]*dmaChannel // DMA Related channels
+	ioRegisters  [0x380]*io.Register
+	ioMemory     *ioMemory       // Memory used by the io registers
+	dmaChannels  [8]*dmaChannel  // DMA Related channels
+	hdmaChannels [8]*hdmaChannel // DMA Related channels
 
 }
 
