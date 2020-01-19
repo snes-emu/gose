@@ -17,7 +17,7 @@ func (ppu *PPU) renderLine() {
 		ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	}
 
-	if ppu.cpu.ioMemory.vBlankNMIFlag {
+	if !ppu.cpu.ioMemory.vBlankNMIFlag {
 		ppu.cpu.doHDMA()
 	}
 
@@ -40,6 +40,7 @@ func (ppu *PPU) renderLine() {
 	if ppu.vCounter == 0 {
 		log.Debug("End of VBlank")
 		ppu.cpu.leavVblank()
+		ppu.cpu.reloadHDMA()
 	}
 }
 

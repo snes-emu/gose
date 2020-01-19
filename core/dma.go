@@ -193,6 +193,7 @@ func (cpu *CPU) doHDMA() {
 		lineCounter := channel.lineCounter & 0x7F
 		if lineCounter == 0 {
 			channel.lineCounter = cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+			channel.doTransfer = true
 			channel.completed = channel.lineCounter == 0
 			if channel.indirectMode {
 				indirectAddrLo := cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
