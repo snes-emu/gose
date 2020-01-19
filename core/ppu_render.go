@@ -353,9 +353,10 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 
 func (ppu *PPU) backdropPixelLine() {
 	backdropPixel := ppu.backdropPixel()
+	subscreenBackdropPixel := ppu.subScreenBackdropPixel()
 	for i := range ppu.mainScreen {
 		ppu.mainScreen[i] = backdropPixel
-		ppu.subScreen[i] = backdropPixel
+		ppu.subScreen[i] = subscreenBackdropPixel
 	}
 
 }
