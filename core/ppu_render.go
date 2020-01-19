@@ -17,6 +17,10 @@ func (ppu *PPU) renderLine() {
 		ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	}
 
+	if !ppu.cpu.ioMemory.vBlankNMIFlag {
+		ppu.cpu.doHDMA()
+	}
+
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter < ppu.screen.Height {
@@ -36,6 +40,7 @@ func (ppu *PPU) renderLine() {
 	if ppu.vCounter == 0 {
 		log.Debug("End of VBlank")
 		ppu.cpu.leavVblank()
+		ppu.cpu.reloadHDMA()
 	}
 }
 
@@ -349,9 +354,10 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 
 func (ppu *PPU) backdropPixelLine() {
 	backdropPixel := ppu.backdropPixel()
+	subscreenBackdropPixel := ppu.subScreenBackdropPixel()
 	for i := range ppu.mainScreen {
 		ppu.mainScreen[i] = backdropPixel
-		ppu.subScreen[i] = backdropPixel
+		ppu.subScreen[i] = subscreenBackdropPixel
 	}
 
 }
