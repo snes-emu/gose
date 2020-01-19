@@ -173,11 +173,10 @@ func (cpu *CPU) reloadHDMA() {
 }
 
 func (cpu *CPU) doHDMA() {
-	for i, channel := range cpu.hdmaChannels {
+	for _, channel := range cpu.hdmaChannels {
 		if !channel.enabled || channel.completed {
 			continue
 		}
-		log.Info(fmt.Sprintln("HDMA channel:", i))
 
 		if channel.doTransfer {
 			for c := uint8(0); c < bytesPerCycle[channel.transferMode]; c++ {
@@ -263,7 +262,6 @@ func (cpu *CPU) initDmaen(rf *io.RegisterFactory) {
 	// 0x420C - HDMAEN - Select H-Blank DMA (H-DMA) Channel(s) (W)
 	cpu.ioRegisters[0x20c] = rf.NewRegister(
 		nil, func(data uint8) {
-			fmt.Printf("hdma enable: %02X\n", data)
 			for i := uint8(0); i < 8; i++ {
 				cpu.hdmaChannels[i].enabled = data&(1<<i) != 0
 			}
