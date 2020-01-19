@@ -248,9 +248,6 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 	// Initialize pixel line
 	pixels := make([]render.Pixel, WIDTH)
 
-	if ppu.oam.priorityBit {
-		log.Error("sprite priority rotation not implemented")
-	}
 	for i := len(sprites) - 1; i >= 0; i-- {
 		sprite := sprites[i]
 		// Y coordinate of the tile containing the line
@@ -279,7 +276,10 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 						xp = sprite.hSize - xp - 1
 					}
 					lineIdx := sprite.x + xp
-					pixels[lineIdx%WIDTH] = render.Pixel{
+					if lineIdx >= WIDTH {
+						continue
+					}
+					pixels[lineIdx] = render.Pixel{
 						Color:    color,
 						Visible:  true,
 						Priority: sprite.priority,
@@ -335,14 +335,15 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 					xp = bgTile.hSize - xp - 1
 				}
 				lineIdx := xBgTile*hTileSize - bg.horizontalScroll + xp
-				if !color.Transparent && lineIdx >= 0 && lineIdx < WIDTH {
-					pixels[lineIdx] = render.Pixel{
-						Color:   color,
-						Visible: true,
-					}
-					if bgTile.priority {
-						pixels[lineIdx].Priority = 1
-					}
+				if !color.Transparent || lineIdx >= WIDTH {
+					continue
+				}
+				pixels[lineIdx] = render.Pixel{
+					Color:   color,
+					Visible: true,
+				}
+				if bgTile.priority {
+					pixels[lineIdx].Priority = 1
 
 				}
 			}
