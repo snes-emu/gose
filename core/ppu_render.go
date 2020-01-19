@@ -335,7 +335,7 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 					xp = bgTile.hSize - xp - 1
 				}
 				lineIdx := xBgTile*hTileSize - bg.horizontalScroll + xp
-				if !color.Transparent || lineIdx >= WIDTH {
+				if color.Transparent || lineIdx >= WIDTH {
 					continue
 				}
 				pixels[lineIdx] = render.Pixel{
