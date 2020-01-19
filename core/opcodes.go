@@ -1155,7 +1155,6 @@ func (cpu *CPU) opC8() {
 		cpu.nFlag = cpu.Y&0x8000 != 0
 		// Zero result flag
 		cpu.zFlag = cpu.Y == 0
-		cpu.step(2)
 	}
 	cpu.PC++
 	cpu.step(2)
@@ -2351,10 +2350,10 @@ func (cpu *CPU) mvn(SBank uint8, SAddress uint16, DBank uint8, DAddress uint16) 
 		cpu.X++
 		cpu.Y++
 	}
-	cpu.step(7)
 	if cpu.getCRegister() == 0xFFFF {
 		cpu.PC += 3
 	}
+	cpu.step(7)
 }
 
 func (cpu *CPU) op54() {
@@ -2373,10 +2372,10 @@ func (cpu *CPU) mvp(SBank uint8, SAddress uint16, DBank uint8, DAddress uint16) 
 		cpu.X--
 		cpu.Y--
 	}
-	cpu.step(7)
 	if cpu.getCRegister() == 0xFFFF {
 		cpu.PC += 3
 	}
+	cpu.step(7)
 }
 
 func (cpu *CPU) op44() {
