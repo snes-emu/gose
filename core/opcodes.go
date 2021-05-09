@@ -2823,7 +2823,7 @@ func (cpu *CPU) ror16acc() {
 
 // ror8 performs a rotate right on the lower 8 bit accumulator
 func (cpu *CPU) ror8acc() {
-	result := cpu.getARegister() << 1
+	result := cpu.getARegister() >> 1
 
 	if cpu.cFlag {
 		result = result | 0x80
@@ -2868,7 +2868,7 @@ func (cpu *CPU) ror16data(laddr, haddr uint32) {
 func (cpu *CPU) ror8data(addr uint32) {
 	data := cpu.memory.GetByte(addr)
 
-	result := data << 1
+	result := data >> 1
 
 	if cpu.cFlag {
 		result = result | 0x80
