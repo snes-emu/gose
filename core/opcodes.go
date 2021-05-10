@@ -2845,7 +2845,7 @@ func (cpu *CPU) ror16data(laddr, haddr uint32) {
 
 	data := bit.JoinUint16(dataLo, dataHi)
 
-	result := data << 1
+	result := data >> 1
 
 	if cpu.cFlag {
 		result = result | 0x8000
