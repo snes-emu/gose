@@ -17,6 +17,10 @@ func (ppu *PPU) renderLine() {
 		ppu.screen = render.NewScreen(WIDTH, HEIGHT)
 	}
 
+	if !ppu.cpu.ioMemory.vBlankNMIFlag {
+		ppu.cpu.doHDMA()
+	}
+
 	ppu.vCounter = (ppu.vCounter + 1) % ppu.VDisplayEnd()
 
 	if ppu.vCounter < ppu.screen.Height {
@@ -36,6 +40,7 @@ func (ppu *PPU) renderLine() {
 	if ppu.vCounter == 0 {
 		log.Debug("End of VBlank")
 		ppu.cpu.leavVblank()
+		ppu.cpu.reloadHDMA()
 	}
 }
 
@@ -243,9 +248,6 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 	// Initialize pixel line
 	pixels := make([]render.Pixel, WIDTH)
 
-	if ppu.oam.priorityBit {
-		log.Error("sprite priority rotation not implemented")
-	}
 	for i := len(sprites) - 1; i >= 0; i-- {
 		sprite := sprites[i]
 		// Y coordinate of the tile containing the line
@@ -274,7 +276,10 @@ func (ppu *PPU) spritesToPixelLine(sprites []sprite) []render.Pixel {
 						xp = sprite.hSize - xp - 1
 					}
 					lineIdx := sprite.x + xp
-					pixels[lineIdx%WIDTH] = render.Pixel{
+					if lineIdx >= WIDTH {
+						continue
+					}
+					pixels[lineIdx] = render.Pixel{
 						Color:    color,
 						Visible:  true,
 						Priority: sprite.priority,
@@ -330,14 +335,15 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 					xp = bgTile.hSize - xp - 1
 				}
 				lineIdx := xBgTile*hTileSize - bg.horizontalScroll + xp
-				if !color.Transparent && lineIdx >= 0 && lineIdx < WIDTH {
-					pixels[lineIdx] = render.Pixel{
-						Color:   color,
-						Visible: true,
-					}
-					if bgTile.priority {
-						pixels[lineIdx].Priority = 1
-					}
+				if color.Transparent || lineIdx >= WIDTH {
+					continue
+				}
+				pixels[lineIdx] = render.Pixel{
+					Color:   color,
+					Visible: true,
+				}
+				if bgTile.priority {
+					pixels[lineIdx].Priority = 1
 
 				}
 			}
@@ -349,9 +355,10 @@ func (ppu *PPU) backgroundToPixelLine(bgIndex uint8) []render.Pixel {
 
 func (ppu *PPU) backdropPixelLine() {
 	backdropPixel := ppu.backdropPixel()
+	subscreenBackdropPixel := ppu.subScreenBackdropPixel()
 	for i := range ppu.mainScreen {
 		ppu.mainScreen[i] = backdropPixel
-		ppu.subScreen[i] = backdropPixel
+		ppu.subScreen[i] = subscreenBackdropPixel
 	}
 
 }
