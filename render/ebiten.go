@@ -18,6 +18,7 @@ import (
 type EbitenRenderer struct {
 	width           int
 	height          int
+	scale           float64
 	offscreenBuffer *ebiten.Image
 	drawOptions     *ebiten.DrawImageOptions
 	running         bool
@@ -31,12 +32,14 @@ func newEbitenRenderer(width, height int) (Renderer, error) {
 	er := &EbitenRenderer{
 		width:           width,
 		height:          height,
+		scale:           2.0,
 		offscreenBuffer: offscreenBuffer,
 		drawOptions:     &ebiten.DrawImageOptions{},
 	}
 
 	ebiten.SetWindowIcon(getWindowLogos())
 	ebiten.SetWindowTitle("Gose")
+	ebiten.SetWindowSize(er.width*int(er.scale), er.height*int(er.scale))
 	ebiten.SetRunnableOnUnfocused(true)
 
 	return er, nil
