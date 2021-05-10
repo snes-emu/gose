@@ -2965,8 +2965,14 @@ func (cpu *CPU) opD4() {
 // PER instuction
 func (cpu *CPU) op62() {
 	dataLo, dataHi := cpu.admImmediate16()
-	cpu.pushStackNew16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
+
 	cpu.PC += 3
+
+	result := cpu.PC + data
+	resultLo, resultHi := bit.SplitUint16(result)
+
+	cpu.pushStackNew16(resultLo, resultHi)
 	cpu.step(6)
 }
 
