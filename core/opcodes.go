@@ -2598,7 +2598,7 @@ func (cpu *CPU) lsr16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := bit.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(result)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
