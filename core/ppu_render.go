@@ -7,8 +7,8 @@ import (
 	"github.com/snes-emu/gose/render"
 )
 
-const WIDTH = 250
-const HEIGHT = 250
+const WIDTH = 256
+const HEIGHT = 224
 
 const TILE_SIZE = 8
 
