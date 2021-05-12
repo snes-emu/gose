@@ -2858,7 +2858,7 @@ func (cpu *CPU) ror16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := bit.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(result)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2965,8 +2965,14 @@ func (cpu *CPU) opD4() {
 // PER instuction
 func (cpu *CPU) op62() {
 	dataLo, dataHi := cpu.admImmediate16()
-	cpu.pushStackNew16(dataLo, dataHi)
+	data := bit.JoinUint16(dataLo, dataHi)
+
 	cpu.PC += 3
+
+	result := cpu.PC + data
+	resultLo, resultHi := bit.SplitUint16(result)
+
+	cpu.pushStackNew16(resultLo, resultHi)
 	cpu.step(6)
 }
 
@@ -3332,9 +3338,6 @@ func (cpu *CPU) op5B() {
 }
 
 func (cpu *CPU) tcs() {
-	// Last bit value
-	cpu.nFlag = cpu.C&0x8000 != 0
-	cpu.zFlag = cpu.C == 0
 	if cpu.eFlag {
 		dataLo, _ := bit.SplitUint16(cpu.C)
 		cpu.S = bit.JoinUint16(dataLo, 0x01)
@@ -3455,12 +3458,8 @@ func (cpu *CPU) txs() {
 	if cpu.eFlag {
 		result := cpu.getXLRegister()
 		cpu.setSLRegister(result)
-		cpu.nFlag = result&0x80 != 0
-		cpu.zFlag = result == 0
 	} else {
 		cpu.S = cpu.X
-		cpu.nFlag = cpu.S&0x8000 != 0
-		cpu.zFlag = cpu.S == 0
 	}
 }
 

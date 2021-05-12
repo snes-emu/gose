@@ -166,7 +166,7 @@ func (cpu *CPU) memsel(data uint8) {
 func (cpu *CPU) rdnmi() uint8 {
 	// TODO: maybe the version is not correct there
 	version := uint8(2)
-	res := (bit.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version)
+	res := (bit.BoolToUint8(cpu.ioMemory.vBlankNMIFlag)<<7 | version | 0x70)
 	cpu.ioMemory.vBlankNMIFlag = false
 	return res
 }
