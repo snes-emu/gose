@@ -2584,7 +2584,7 @@ func (cpu *CPU) lsr8acc() {
 }
 
 // lsr16data performs a right shift on the 16 bit data
-func (cpu *CPU) lsr16data(haddr, laddr uint32) {
+func (cpu *CPU) lsr16data(laddr, haddr uint32) {
 	dataLo, dataHi := cpu.memory.GetByte(laddr), cpu.memory.GetByte(haddr)
 
 	data := bit.JoinUint16(dataLo, dataHi)
@@ -2598,7 +2598,7 @@ func (cpu *CPU) lsr16data(haddr, laddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := bit.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(result)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
@@ -2726,7 +2726,7 @@ func (cpu *CPU) rol16data(laddr, haddr uint32) {
 	cpu.nFlag = result&0x8000 != 0
 	cpu.zFlag = result == 0
 
-	resultLo, resultHi := bit.SplitUint16(data)
+	resultLo, resultHi := bit.SplitUint16(result)
 
 	cpu.memory.SetByte(resultHi, haddr)
 	cpu.memory.SetByte(resultLo, laddr)
