@@ -11,14 +11,14 @@ class Register extends DynamicTable {
     }
 
     addData(entry) {
-        const newEntry = {...entry};
+        const newEntry = { ...entry };
         newEntry.data = `0x${entry.data.toString(16)}`;
         this.addEntry(newEntry);
     }
 }
 
-customElements.define(Register.tagName(), Register, {extends: 'table'});
+customElements.define(Register.tagName(), Register, { extends: 'table' });
 
 export function newRegister() {
-    return document.createElement('table', {is: Register.tagName()})
+    return document.createElement('table', { is: Register.tagName() })
 }

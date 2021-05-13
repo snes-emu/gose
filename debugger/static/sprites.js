@@ -1,5 +1,5 @@
 class Sprites extends HTMLDivElement {
-    static tagName(){
+    static tagName() {
         return 'sprites-div';
     }
 
@@ -31,8 +31,8 @@ class Sprites extends HTMLDivElement {
     }
 }
 
-customElements.define(Sprites.tagName(), Sprites, {extends: 'div'});
+customElements.define(Sprites.tagName(), Sprites, { extends: 'div' });
 
 export function newSprites() {
-    return document.createElement('div', {is: Sprites.tagName()})
+    return document.createElement('div', { is: Sprites.tagName() })
 }

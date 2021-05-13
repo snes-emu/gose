@@ -11,8 +11,8 @@ class CPU extends DynamicTable {
     }
 }
 
-customElements.define(CPU.tagName(), CPU, {extends: 'table'});
+customElements.define(CPU.tagName(), CPU, { extends: 'table' });
 
 export function newCPU() {
-    return document.createElement('table', {is: CPU.tagName()})
+    return document.createElement('table', { is: CPU.tagName() })
 }

@@ -72,6 +72,7 @@ func (db *Debugger) createServer(addr string) {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(box))
 	mux.HandleFunc("/resume", db.resume)
+	mux.HandleFunc("/pause", db.pause)
 	mux.HandleFunc("/step", db.step)
 	mux.HandleFunc("/breakpoint", db.breakpoint)
 
@@ -90,6 +91,11 @@ func (db *Debugger) resume(w http.ResponseWriter, r *http.Request) {
 	} else {
 		db.sendState(w)
 	}
+}
+
+func (db *Debugger) pause(w http.ResponseWriter, r *http.Request) {
+	db.emu.Pause()
+	db.sendState(w)
 }
 
 func (db *Debugger) step(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +151,8 @@ func (db *Debugger) emulatorState() map[string]interface{} {
 	res := make(map[string]interface{})
 	res["palette"] = db.emu.PPU.Palette()
 	res["cpu"] = db.emu.CPU.Export()
+	res["ram"] = db.emu.Memory.ExportRam()
+	res["vram"] = db.emu.PPU.ExportVRam()
 
 	sprites := db.emu.PPU.Sprites()
 	// Will store base64 encoded sprite images
