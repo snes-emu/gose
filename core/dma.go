@@ -10,11 +10,9 @@ import (
 )
 
 type dmaChannel struct {
-	dmaEnabled  bool
-	hdmaEnabled bool
+	dmaEnabled bool
 
 	transferDirection bool
-	indirectMode      bool
 	addressDecrement  bool
 	fixedTransfer     bool
 	transferMode      uint8
@@ -27,19 +25,35 @@ type dmaChannel struct {
 	transferSize     uint16
 	indirectAddrBank uint8
 
-	hdmaAddr        uint16
-	hdmaLineCounter uint8
-
 	unused uint8
+}
+
+type hdmaChannel struct {
+	enabled bool
+
+	transferDirection bool
+	transferMode      uint8
+
+	destAddr uint8
+
+	tableStartAddress   uint16
+	tableStartBank      uint8
+	tableCurrentAddress uint16
+
+	indirectMode    bool
+	indirectAddress uint16
+	indirectBank    uint8
+
+	lineCounter uint8
+	doTransfer  bool
+	completed   bool
 }
 
 func (cpu *CPU) initDma(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		cpu.dmaChannels[i] = &dmaChannel{
 			dmaEnabled:        false,
-			hdmaEnabled:       false,
 			transferDirection: true,
-			indirectMode:      true,
 			addressDecrement:  true,
 			fixedTransfer:     true,
 			transferMode:      7,
@@ -48,9 +62,22 @@ func (cpu *CPU) initDma(rf *io.RegisterFactory) {
 			destAddr:          0xff,
 			transferSize:      0xffff,
 			indirectAddrBank:  0xff,
-			hdmaAddr:          0xffff,
-			hdmaLineCounter:   0xff,
 			unused:            0xff,
+		}
+
+		cpu.hdmaChannels[i] = &hdmaChannel{
+			enabled:             false,
+			transferDirection:   true,
+			transferMode:        7,
+			destAddr:            0xFF,
+			tableStartAddress:   0xFFFF,
+			tableStartBank:      0xFF,
+			tableCurrentAddress: 0xFFFF,
+			indirectMode:        true,
+			indirectAddress:     0xFFFF,
+			indirectBank:        0xFF,
+			lineCounter:         0xFF,
+			doTransfer:          false,
 		}
 	}
 
@@ -128,6 +155,98 @@ func (dma *dmaChannel) ppuAddress(count uint8) (uint8, uint16) {
 	return bank, offset
 }
 
+func (cpu *CPU) reloadHDMA() {
+	for _, channel := range cpu.hdmaChannels {
+		if channel.enabled {
+			channel.tableCurrentAddress = channel.tableStartAddress
+			channel.lineCounter = cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+			channel.completed = channel.lineCounter == 0
+			if channel.indirectMode {
+				indirectAddrLo := cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+				indirectAddrHi := cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+				channel.indirectAddress = bit.JoinUint16(indirectAddrLo, indirectAddrHi)
+			}
+			channel.doTransfer = true
+
+		}
+	}
+}
+
+func (cpu *CPU) doHDMA() {
+	for _, channel := range cpu.hdmaChannels {
+		if !channel.enabled || channel.completed {
+			continue
+		}
+
+		if channel.doTransfer {
+			for c := uint8(0); c < bytesPerCycle[channel.transferMode]; c++ {
+				srcBank, srcOffset := channel.cpuAddress()
+				data := cpu.memory.GetByteBank(srcBank, srcOffset)
+
+				dstBank, dstOffset := channel.ppuAddress(c)
+				cpu.memory.SetByteBank(data, dstBank, dstOffset)
+			}
+		}
+		channel.lineCounter--
+		channel.doTransfer = channel.lineCounter&0x80 != 0
+		lineCounter := channel.lineCounter & 0x7F
+		if lineCounter == 0 {
+			channel.lineCounter = cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+			channel.doTransfer = true
+			channel.completed = channel.lineCounter == 0
+			if channel.indirectMode {
+				indirectAddrLo := cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+				indirectAddrHi := cpu.memory.GetByteBank(channel.tableStartBank, channel.getTableCurrentAddress())
+				channel.indirectAddress = bit.JoinUint16(indirectAddrLo, indirectAddrHi)
+			}
+		}
+	}
+}
+
+func (dma *hdmaChannel) getTableCurrentAddress() uint16 {
+	addr := dma.tableCurrentAddress
+	dma.tableCurrentAddress++
+
+	return addr
+}
+
+func (dma *hdmaChannel) getIndirectAddress() uint16 {
+	addr := dma.indirectAddress
+	dma.indirectAddress++
+
+	return addr
+}
+
+func (dma *hdmaChannel) cpuAddress() (uint8, uint16) {
+	if dma.indirectMode {
+		return dma.indirectBank, dma.getIndirectAddress()
+	}
+	return dma.tableStartBank, dma.getTableCurrentAddress()
+}
+
+func (dma *hdmaChannel) ppuAddress(count uint8) (uint8, uint16) {
+	bank, offset := uint8(0), uint16(0x2100)
+	switch dma.transferMode {
+	case 0:
+		offset = offset | uint16(dma.destAddr)
+	case 1:
+		offset = offset | uint16(dma.destAddr+(count&1))
+	case 2:
+		offset = offset | uint16(dma.destAddr)
+	case 3:
+		offset = offset | uint16(dma.destAddr+((count>>1)&1))
+	case 4:
+		offset = offset | uint16(dma.destAddr+(count&3))
+	case 5:
+		offset = offset | uint16(dma.destAddr+(count&1))
+	case 6:
+		offset = offset | uint16(dma.destAddr)
+	case 7:
+		offset = offset | uint16(dma.destAddr+((count>>1)&1))
+	}
+	return bank, offset
+}
+
 func (cpu *CPU) initDmaen(rf *io.RegisterFactory) {
 	// 0x420B - MDMAEN - Select General Purpose DMA Channel(s) and Start Transfer (W)
 	cpu.ioRegisters[0x20b] = rf.NewRegister(
@@ -144,7 +263,7 @@ func (cpu *CPU) initDmaen(rf *io.RegisterFactory) {
 	cpu.ioRegisters[0x20c] = rf.NewRegister(
 		nil, func(data uint8) {
 			for i := uint8(0); i < 8; i++ {
-				cpu.dmaChannels[i].hdmaEnabled = data&(1<<i) != 0
+				cpu.hdmaChannels[i].enabled = data&(1<<i) != 0
 			}
 		},
 		"HMDMAEN",
@@ -155,6 +274,7 @@ func (cpu *CPU) initDmaen(rf *io.RegisterFactory) {
 func (cpu *CPU) initDmapx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x300+16*i] = rf.NewRegister(
 			// 0x43x0 - DMAPx - DMA/HDMA Parameters (R/W)
 			func() uint8 {
@@ -162,7 +282,7 @@ func (cpu *CPU) initDmapx(rf *io.RegisterFactory) {
 				if c.transferDirection {
 					res |= 0x80
 				}
-				if c.indirectMode {
+				if hc.indirectMode {
 					res |= 0x40
 				}
 				if c.addressDecrement {
@@ -178,10 +298,12 @@ func (cpu *CPU) initDmapx(rf *io.RegisterFactory) {
 			// 0x43x0 - DMAPx - DMA/HDMA Parameters (R/W)
 			func(data uint8) {
 				c.transferDirection = data&0x80 != 0
-				c.indirectMode = data&0x40 != 0
+				hc.transferDirection = data&0x80 != 0
+				hc.indirectMode = data&0x40 != 0
 				c.addressDecrement = data&0x10 != 0
 				c.fixedTransfer = data&0x8 != 0
 				c.transferMode = data & 0x7
+				hc.transferMode = data & 0x7
 			},
 			fmt.Sprintf("DMAP%v", i),
 		)
@@ -191,6 +313,7 @@ func (cpu *CPU) initDmapx(rf *io.RegisterFactory) {
 func (cpu *CPU) initBbadx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x301+16*i] = rf.NewRegister(
 			// 0x43x1 - BBADx - DMA/HDMA I/O-Bus Address (PPU-Bus aka B-Bus) (R/W)
 			func() uint8 {
@@ -199,6 +322,7 @@ func (cpu *CPU) initBbadx(rf *io.RegisterFactory) {
 			// 0x43x1 - BBADx - DMA/HDMA I/O-Bus Address (PPU-Bus aka B-Bus) (R/W)
 			func(data uint8) {
 				c.destAddr = data
+				hc.destAddr = data
 			},
 			fmt.Sprintf("BBAD%v", i),
 		)
@@ -208,6 +332,7 @@ func (cpu *CPU) initBbadx(rf *io.RegisterFactory) {
 func (cpu *CPU) initA1txl(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x302+16*i] = rf.NewRegister(
 			// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
 			func() uint8 {
@@ -216,6 +341,7 @@ func (cpu *CPU) initA1txl(rf *io.RegisterFactory) {
 			// 0x43x2 - A1TxL - HDMA Table Start Address (low) / DMA Current Addr (low) (R/W)
 			func(data uint8) {
 				c.srcAddr = bit.SetLowByte(c.srcAddr, data)
+				hc.tableStartAddress = bit.SetLowByte(hc.tableStartAddress, data)
 			},
 			fmt.Sprintf("A1T%vL", i),
 		)
@@ -225,6 +351,7 @@ func (cpu *CPU) initA1txl(rf *io.RegisterFactory) {
 func (cpu *CPU) initA1txh(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x303+16*i] = rf.NewRegister(
 			// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
 			func() uint8 {
@@ -233,6 +360,7 @@ func (cpu *CPU) initA1txh(rf *io.RegisterFactory) {
 			// 0x43x3 - A1TxH - HDMA Table Start Address (hi) / DMA Current Addr (hi) (R/W)
 			func(data uint8) {
 				c.srcAddr = bit.SetHighByte(c.srcAddr, data)
+				hc.tableStartAddress = bit.SetHighByte(hc.tableStartAddress, data)
 			},
 			fmt.Sprintf("A1T%vH", i),
 		)
@@ -242,6 +370,7 @@ func (cpu *CPU) initA1txh(rf *io.RegisterFactory) {
 func (cpu *CPU) initA1bx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x304+16*i] = rf.NewRegister(
 			// 0x43x4 - A1Bx - HDMA Table Start Address (bank) / DMA Current Addr (bank) (R/W)
 			func() uint8 {
@@ -250,6 +379,7 @@ func (cpu *CPU) initA1bx(rf *io.RegisterFactory) {
 			// 0x43x4 - A1Bx - HDMA Table Start Address (bank) / DMA Current Addr (bank) (R/W)
 			func(data uint8) {
 				c.srcBank = data
+				hc.tableStartBank = data
 			},
 			fmt.Sprintf("A1B%v", i),
 		)
@@ -259,6 +389,7 @@ func (cpu *CPU) initA1bx(rf *io.RegisterFactory) {
 func (cpu *CPU) initDasxL(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x305+16*i] = rf.NewRegister(
 			// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
 			func() uint8 {
@@ -266,7 +397,8 @@ func (cpu *CPU) initDasxL(rf *io.RegisterFactory) {
 			},
 			// 0x43x5 - DASxL - Indirect HDMA Address (low) / DMA Byte-Counter (low) (R/W)
 			func(data uint8) {
-				c.transferSize = (c.transferSize & 0xff00) | uint16(data)
+				c.transferSize = bit.SetLowByte(c.transferSize, data)
+				hc.indirectAddress = bit.SetLowByte(hc.indirectAddress, data)
 			},
 			fmt.Sprintf("DAS%vL", i),
 		)
@@ -276,6 +408,7 @@ func (cpu *CPU) initDasxL(rf *io.RegisterFactory) {
 func (cpu *CPU) initDasxH(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
 		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x306+16*i] = rf.NewRegister(
 			// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
 			func() uint8 {
@@ -284,6 +417,7 @@ func (cpu *CPU) initDasxH(rf *io.RegisterFactory) {
 			// 0x43x6 - DASxH - Indirect HDMA Address (hi) / DMA Byte-Counter (hi) (R/W)
 			func(data uint8) {
 				c.transferSize = bit.SetHighByte(c.transferSize, data)
+				hc.indirectAddress = bit.SetHighByte(hc.indirectAddress, data)
 			},
 			fmt.Sprintf("DAS%vH", i),
 		)
@@ -292,15 +426,15 @@ func (cpu *CPU) initDasxH(rf *io.RegisterFactory) {
 
 func (cpu *CPU) initDasbx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
-		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x307+16*i] = rf.NewRegister(
 			// 0x43x7 - DASBx - Indirect HDMA Address (bank) (R/W)
 			func() uint8 {
-				return c.indirectAddrBank
+				return hc.indirectBank
 			},
 			// 0x43x7 - DASBx - Indirect HDMA Address (bank) (R/W)
 			func(data uint8) {
-				c.indirectAddrBank = data
+				hc.indirectBank = data
 			},
 			fmt.Sprintf("DASB%v", i),
 		)
@@ -309,15 +443,15 @@ func (cpu *CPU) initDasbx(rf *io.RegisterFactory) {
 
 func (cpu *CPU) initA2axl(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
-		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x308+16*i] = rf.NewRegister(
 			// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
 			func() uint8 {
-				return bit.LowByte(c.hdmaAddr)
+				return bit.LowByte(hc.tableCurrentAddress)
 			},
 			// 0x43x8 - A2AxL - HDMA Table Current Address (low) (R/W)
 			func(data uint8) {
-				c.hdmaAddr = (c.hdmaAddr & 0xff00) | uint16(data)
+				hc.tableCurrentAddress = bit.SetLowByte(hc.tableCurrentAddress, data)
 			},
 			fmt.Sprintf("A2A%vL", i),
 		)
@@ -326,15 +460,15 @@ func (cpu *CPU) initA2axl(rf *io.RegisterFactory) {
 
 func (cpu *CPU) initA2axh(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
-		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x309+16*i] = rf.NewRegister(
 			// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
 			func() uint8 {
-				return bit.HighByte(c.hdmaAddr)
+				return bit.HighByte(hc.tableCurrentAddress)
 			},
 			// 0x43x9 - A2AxH - HDMA Table Current Address (high) (R/W)
 			func(data uint8) {
-				c.hdmaAddr = bit.SetHighByte(c.hdmaAddr, data)
+				hc.tableCurrentAddress = bit.SetHighByte(hc.tableCurrentAddress, data)
 			},
 			fmt.Sprintf("A2A%vH", i),
 		)
@@ -343,15 +477,15 @@ func (cpu *CPU) initA2axh(rf *io.RegisterFactory) {
 
 func (cpu *CPU) initNtrlx(rf *io.RegisterFactory) {
 	for i := 0; i < 8; i++ {
-		c := cpu.dmaChannels[i]
+		hc := cpu.hdmaChannels[i]
 		cpu.ioRegisters[0x30a+16*i] = rf.NewRegister(
 			// 0x43xA - NTRLx - HDMA Line-Counter (from current Table entry) (R/W)
 			func() uint8 {
-				return c.hdmaLineCounter
+				return hc.lineCounter
 			},
 			// 0x43xA - NTRLx - HDMA Line-Counter (from current Table entry) (R/W)
 			func(data uint8) {
-				c.hdmaLineCounter = data
+				hc.lineCounter = data
 			},
 			fmt.Sprintf("NTRL%v", i),
 		)
@@ -378,3 +512,5 @@ func (cpu *CPU) initUnusedx(rf *io.RegisterFactory) {
 		cpu.ioRegisters[0x30f+16*i] = cpu.ioRegisters[0x30b+16*i]
 	}
 }
+
+var bytesPerCycle = [8]uint8{1, 2, 2, 4, 4, 4, 2, 4}

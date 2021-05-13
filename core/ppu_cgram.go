@@ -159,3 +159,12 @@ func (ppu *PPU) backdropPixel() render.Pixel {
 		},
 	}
 }
+
+func (ppu *PPU) subScreenBackdropPixel() render.Pixel {
+	return render.Pixel{
+		Visible: true,
+		Color: render.BGR555{
+			Color: uint16(ppu.colorMath.red) | uint16(ppu.colorMath.green)<<5 | uint16(ppu.colorMath.blue)<<10,
+		},
+	}
+}
