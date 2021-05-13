@@ -27,11 +27,6 @@ func (cpu *CPU) HandleIRQ() {
 }
 
 func (cpu *CPU) enterVblank() {
-
-	K := cpu.getKRegister()
-	PC := cpu.getPCRegister()
-	opcode := cpu.memory.GetByteBank(K, PC)
-	cpu.logState(K, PC, opcode)
 	cpu.ioMemory.vBlankNMIFlag = true
 	if cpu.ioMemory.vBlankNMIEnable {
 		cpu.nmi()
