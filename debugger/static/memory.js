@@ -8,13 +8,23 @@ class Memory extends HTMLDivElement {
 
         this.id = "memory";
 
+        this.style="display: flex";
+
+        const ramContainer = document.createElement("div");
+        ramContainer.innerHTML = "<h>RAM</h>";
+        this.appendChild(ramContainer);
+
         this.ram = document.createElement("pre");
-        this.appendChild(this.ram);
+        ramContainer.appendChild(this.ram);
         this.ram.style.height = "500px";
         this.ram.style.overflow_y = "scroll";
 
+        const vramContainer = document.createElement("div");
+        vramContainer.innerHTML = "<h>VRAM</h>"
+        this.appendChild(vramContainer);
+
         this.vram = document.createElement("pre");
-        this.appendChild(this.vram);
+        vramContainer.appendChild(this.vram);
         this.vram.style.height = "500px";
         this.vram.style.overflow_y = "scroll";
     }
